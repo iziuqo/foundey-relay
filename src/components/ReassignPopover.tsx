@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type RefObject } from 'react'
 import { Search } from 'lucide-react'
 import { Popover } from './Popover'
 import { Avatar } from './Avatar'
@@ -10,12 +10,13 @@ import { copy } from '../copy'
 interface Props {
   open: boolean
   onClose: () => void
+  anchorRef: RefObject<HTMLElement>
   itemId: string
   title?: string
 }
 
 /** 320 wide, radius 8, e-3. §6.6. One click commits, no confirm. */
-export function ReassignPopover({ open, onClose, itemId, title = copy.team.reassignTitle }: Props) {
+export function ReassignPopover({ open, onClose, anchorRef, itemId, title = copy.team.reassignTitle }: Props) {
   const { state, dispatch, now } = useStore()
   const [query, setQuery] = useState('')
   const item = state.items.find((i) => i.id === itemId)
@@ -46,7 +47,7 @@ export function ReassignPopover({ open, onClose, itemId, title = copy.team.reass
     })
 
   return (
-    <Popover open={open} onClose={onClose} width={320}>
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={320}>
       <div className="text-[12px] text-n-500 mb-2 truncate">{title}</div>
       <div className="relative mb-3">
         <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-n-400" />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, ChevronUp, ChevronDown } from 'lucide-react'
 import { PriorityIcon, tierIconMeta } from './PriorityIcon'
@@ -32,17 +32,18 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 function ManagerFooterActions({ itemId, assigneeName }: { itemId: string; assigneeName?: string }) {
   const { dispatch } = useStore()
   const [reassignOpen, setReassignOpen] = useState(false)
+  const reassignRef = useRef<HTMLButtonElement>(null)
   const firstName = assigneeName?.split(' ')[0] ?? 'them'
 
   return (
     <div className="flex items-center gap-2 relative">
-      <Button variant="primary" size="md" onClick={() => setReassignOpen(true)}>
+      <Button ref={reassignRef} variant="primary" size="md" onClick={() => setReassignOpen(true)}>
         {copy.actions.reassign}
       </Button>
       <Button variant="secondary" size="md" onClick={() => dispatch({ type: 'SHOW_TOAST', message: copy.drawer.messagingToast })}>
         {t(copy.drawer.message, { name: firstName })}
       </Button>
-      <ReassignPopover open={reassignOpen} onClose={() => setReassignOpen(false)} itemId={itemId} />
+      <ReassignPopover open={reassignOpen} onClose={() => setReassignOpen(false)} anchorRef={reassignRef} itemId={itemId} />
     </div>
   )
 }
@@ -129,6 +130,7 @@ function PersonDrawerBody({ personId, onClose }: { personId: string; onClose: ()
   const person = state.team.find((p) => p.id === personId)
   const [reassignFor, setReassignFor] = useState<string | null>(null)
   const canReassign = state.persona === 'm1'
+  const closeBtnRef = useRef<HTMLButtonElement>(null)
   if (!person) return <EmptyState>{copy.tiers.empty}</EmptyState>
 
   const q = queueFor(state.items, personId, now)
@@ -145,7 +147,7 @@ function PersonDrawerBody({ personId, onClose }: { personId: string; onClose: ()
         </div>
         <div className="flex-1" />
         <LoadLabel load={load} />
-        <button aria-label="Close" onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-n-75 ml-2">
+        <button ref={closeBtnRef} aria-label="Close" onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-n-75 ml-2">
           <X size={16} />
         </button>
       </div>
@@ -171,7 +173,7 @@ function PersonDrawerBody({ personId, onClose }: { personId: string; onClose: ()
           </ul>
         )}
       </div>
-      {reassignFor && <ReassignPopover open itemId={reassignFor} onClose={() => setReassignFor(null)} />}
+      {reassignFor && <ReassignPopover open itemId={reassignFor} anchorRef={closeBtnRef} onClose={() => setReassignFor(null)} />}
     </>
   )
 }

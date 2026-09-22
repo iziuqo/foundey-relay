@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { Popover } from './Popover'
 
 export interface MenuItemDef {
@@ -7,9 +8,17 @@ export interface MenuItemDef {
   helperText?: string
 }
 
-export function Menu({ open, onClose, items, align = 'end' }: { open: boolean; onClose: () => void; items: MenuItemDef[]; align?: 'start' | 'end' }) {
+interface Props {
+  open: boolean
+  onClose: () => void
+  anchorRef: RefObject<HTMLElement>
+  items: MenuItemDef[]
+  align?: 'start' | 'end'
+}
+
+export function Menu({ open, onClose, anchorRef, items, align = 'end' }: Props) {
   return (
-    <Popover open={open} onClose={onClose} width={240} align={align} anchorClassName="!p-1">
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={240} align={align} className="p-1">
       <ul>
         {items.map((item) => (
           <li key={item.label}>

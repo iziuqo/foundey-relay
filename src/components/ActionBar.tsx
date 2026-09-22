@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Hand, Ellipsis } from 'lucide-react'
 import { Button } from './Button'
 import { Menu } from './Menu'
@@ -16,6 +16,8 @@ export function ActionBar({ item, now, size = 'md', onAfterDone }: { item: Item;
   const { state, dispatch } = useStore()
   const [moreOpen, setMoreOpen] = useState(false)
   const [popover, setPopover] = useState<ActivePopover>(null)
+  const helpRef = useRef<HTMLButtonElement>(null)
+  const moreRef = useRef<HTMLButtonElement>(null)
 
   const tier = scoreItem(item, now).tier
   const moveLaterDisabled = tier === 'now' || item.safety
@@ -41,19 +43,20 @@ export function ActionBar({ item, now, size = 'md', onAfterDone }: { item: Item;
       )}
 
       <div className="relative">
-        <Button variant="secondary" size="md" icon={Hand} onClick={() => setPopover('help')}>
+        <Button ref={helpRef} variant="secondary" size="md" icon={Hand} onClick={() => setPopover('help')}>
           {copy.actions.help}
         </Button>
-        <HelpPopover open={popover === 'help'} onClose={() => setPopover(null)} itemId={item.id} />
+        <HelpPopover open={popover === 'help'} onClose={() => setPopover(null)} anchorRef={helpRef} itemId={item.id} />
       </div>
 
       <div className="relative">
-        <Button variant="ghost" size="md" icon={Ellipsis} onClick={() => setMoreOpen((o) => !o)}>
+        <Button ref={moreRef} variant="ghost" size="md" icon={Ellipsis} onClick={() => setMoreOpen((o) => !o)}>
           {copy.actions.more}
         </Button>
         <Menu
           open={moreOpen}
           onClose={() => setMoreOpen(false)}
+          anchorRef={moreRef}
           items={[
             { label: copy.actions.waiting, onClick: () => setPopover('waiting') },
             { label: copy.actions.notMine, onClick: () => setPopover('notMine') },
@@ -66,10 +69,10 @@ export function ActionBar({ item, now, size = 'md', onAfterDone }: { item: Item;
             },
           ]}
         />
-        <WaitingPopover open={popover === 'waiting'} onClose={() => setPopover(null)} itemId={item.id} />
-        <NotMinePopover open={popover === 'notMine'} onClose={() => setPopover(null)} itemId={item.id} />
-        <ReassignPopover open={popover === 'handoff'} onClose={() => setPopover(null)} itemId={item.id} title={copy.team.reassignTitle} />
-        <MoveLaterPopover open={popover === 'moveLater'} onClose={() => setPopover(null)} itemId={item.id} />
+        <WaitingPopover open={popover === 'waiting'} onClose={() => setPopover(null)} anchorRef={moreRef} itemId={item.id} />
+        <NotMinePopover open={popover === 'notMine'} onClose={() => setPopover(null)} anchorRef={moreRef} itemId={item.id} />
+        <ReassignPopover open={popover === 'handoff'} onClose={() => setPopover(null)} anchorRef={moreRef} itemId={item.id} title={copy.team.reassignTitle} />
+        <MoveLaterPopover open={popover === 'moveLater'} onClose={() => setPopover(null)} anchorRef={moreRef} itemId={item.id} />
       </div>
     </div>
   )

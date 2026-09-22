@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Search as SearchIcon } from 'lucide-react'
 import { Avatar } from './Avatar'
 import { Popover } from './Popover'
@@ -19,6 +19,7 @@ export function TopBar({ title, showSearch, onSearch, right }: Props) {
   const person = state.team.find((p) => p.id === state.persona)
   const [menuOpen, setMenuOpen] = useState(false)
   const [howOpen, setHowOpen] = useState(false)
+  const avatarRef = useRef<HTMLButtonElement>(null)
   if (!person) return null
 
   return (
@@ -39,10 +40,10 @@ export function TopBar({ title, showSearch, onSearch, right }: Props) {
         </div>
       )}
       <div className="relative">
-        <button onClick={() => setMenuOpen((o) => !o)} aria-label="Account menu" aria-haspopup="menu">
+        <button ref={avatarRef} onClick={() => setMenuOpen((o) => !o)} aria-label="Account menu" aria-haspopup="menu">
           <Avatar initials={person.initials} size={32} status={person.status} />
         </button>
-        <Popover open={menuOpen} onClose={() => setMenuOpen(false)} width={220} align="end">
+        <Popover open={menuOpen} onClose={() => setMenuOpen(false)} anchorRef={avatarRef} width={220} align="end">
           <div className="px-2 py-1.5 mb-1 border-b border-n-100">
             <div className="text-[14px] font-medium text-n-900">{person.name}</div>
             <div className="text-[12px] text-n-500">{person.role}</div>

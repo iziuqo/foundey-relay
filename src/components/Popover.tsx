@@ -1,23 +1,45 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface Props {
   open: boolean
   onClose: () => void
+  anchorRef: RefObject<HTMLElement>
   children: ReactNode
   width?: number
   align?: 'start' | 'end'
-  anchorClassName?: string
+  className?: string
 }
 
-/** Anchored floating panel: radius 8, e-3, enters 180ms from y+4. Escape and outside click close it. */
-export function Popover({ open, onClose, children, width = 300, align = 'start', anchorClassName = '' }: Props) {
-  const ref = useRef<HTMLDivElement>(null)
+/**
+ * Anchored floating panel: radius 8, e-3, enters 180ms from y+4. Positions itself from the
+ * anchor's measured rect and renders through a portal, so it's correct regardless of where in
+ * the DOM it's mounted (unlike CSS `absolute` + a `relative` ancestor, which breaks the moment
+ * the trigger and the popover aren't siblings in the same positioned container).
+ */
+export function Popover({ open, onClose, anchorRef, children, width = 300, align = 'start', className = 'p-3' }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+
+  useEffect(() => {
+    if (!open || !anchorRef.current) {
+      setPos(null)
+      return
+    }
+    const rect = anchorRef.current.getBoundingClientRect()
+    const left = align === 'end' ? rect.right - width : rect.left
+    const clampedLeft = Math.max(8, Math.min(left, window.innerWidth - width - 8))
+    setPos({ top: rect.bottom + 8, left: clampedLeft })
+  }, [open, anchorRef, align, width])
 
   useEffect(() => {
     if (!open) return
     function onDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+      const target = e.target as Node
+      if (panelRef.current?.contains(target)) return
+      if (anchorRef.current?.contains(target)) return
+      onClose()
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -28,24 +50,27 @@ export function Popover({ open, onClose, children, width = 300, align = 'start',
       document.removeEventListener('mousedown', onDown)
       document.removeEventListener('keydown', onKey)
     }
-  }, [open, onClose])
+  }, [open, onClose, anchorRef])
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <AnimatePresence>
-      {open && (
+      {open && pos && (
         <motion.div
-          ref={ref}
+          ref={panelRef}
           role="dialog"
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.18 }}
-          className={`absolute z-40 mt-2 rounded-md bg-n-0 shadow-e3 p-3 ${align === 'end' ? 'right-0' : 'left-0'} ${anchorClassName}`}
-          style={{ width }}
+          className={`fixed z-40 rounded-md bg-n-0 shadow-e3 ${className}`}
+          style={{ width, top: pos.top, left: pos.left }}
         >
           {children}
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

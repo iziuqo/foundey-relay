@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type RefObject } from 'react'
 import { Popover } from './Popover'
 import { Button } from './Button'
 import { useStore } from '../state/store'
@@ -10,6 +10,7 @@ interface PopoverProps {
   open: boolean
   onClose: () => void
   itemId: string
+  anchorRef: RefObject<HTMLElement>
 }
 
 function RadioGroup({ options, value, onChange }: { options: readonly string[]; value: string; onChange: (v: string) => void }) {
@@ -25,13 +26,13 @@ function RadioGroup({ options, value, onChange }: { options: readonly string[]; 
   )
 }
 
-export function HelpPopover({ open, onClose, itemId }: PopoverProps) {
+export function HelpPopover({ open, onClose, itemId, anchorRef }: PopoverProps) {
   const { dispatch } = useStore()
   const [reason, setReason] = useState<string>(copy.help.options[0])
   const [note, setNote] = useState('')
 
   return (
-    <Popover open={open} onClose={onClose} width={300}>
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={300}>
       <div className="text-[14px] font-semibold text-n-900 mb-3">{copy.help.title}</div>
       <RadioGroup options={copy.help.options} value={reason} onChange={setReason} />
       <textarea
@@ -56,7 +57,7 @@ export function HelpPopover({ open, onClose, itemId }: PopoverProps) {
   )
 }
 
-export function WaitingPopover({ open, onClose, itemId }: PopoverProps) {
+export function WaitingPopover({ open, onClose, itemId, anchorRef }: PopoverProps) {
   const { dispatch, now } = useStore()
   const [who, setWho] = useState('')
   const cutoff = nextCutoff(now)
@@ -69,7 +70,7 @@ export function WaitingPopover({ open, onClose, itemId }: PopoverProps) {
   }
 
   return (
-    <Popover open={open} onClose={onClose} width={300}>
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={300}>
       <div className="text-[14px] font-semibold text-n-900 mb-2">{copy.waitingPopover.who}</div>
       <input
         list="waiting-suggestions"
@@ -101,12 +102,12 @@ export function WaitingPopover({ open, onClose, itemId }: PopoverProps) {
   )
 }
 
-export function NotMinePopover({ open, onClose, itemId }: PopoverProps) {
+export function NotMinePopover({ open, onClose, itemId, anchorRef }: PopoverProps) {
   const { dispatch } = useStore()
   const [reason, setReason] = useState<string>(copy.notMineReasons[0])
 
   return (
-    <Popover open={open} onClose={onClose} width={280}>
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={280}>
       <div className="text-[14px] font-semibold text-n-900 mb-3">{copy.actions.notMine}</div>
       <RadioGroup options={copy.notMineReasons} value={reason} onChange={setReason} />
       <Button
@@ -124,7 +125,7 @@ export function NotMinePopover({ open, onClose, itemId }: PopoverProps) {
   )
 }
 
-export function MoveLaterPopover({ open, onClose, itemId }: PopoverProps) {
+export function MoveLaterPopover({ open, onClose, itemId, anchorRef }: PopoverProps) {
   const { dispatch, now } = useStore()
   const [pickTime, setPickTime] = useState('')
 
@@ -134,7 +135,7 @@ export function MoveLaterPopover({ open, onClose, itemId }: PopoverProps) {
   }
 
   return (
-    <Popover open={open} onClose={onClose} width={260}>
+    <Popover open={open} onClose={onClose} anchorRef={anchorRef} width={260}>
       <div className="text-[14px] font-semibold text-n-900 mb-3">{copy.actions.later}</div>
       <div className="flex flex-col gap-2">
         <Button variant="secondary" size="sm" onClick={() => commit(new Date(now.getTime() + 60 * 60000))}>
