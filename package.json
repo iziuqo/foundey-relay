@@ -1,37 +1,27 @@
 {
   "name": "foundey-relay",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npm run check:copy && vitest run && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "check:copy": "node scripts/check-copy.mjs",
-    "export:deck": "node scripts/export-deck.mjs"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
   },
   "dependencies": {
-    "framer-motion": "^11.3.19",
-    "lucide-react": "^0.408.0",
-    "qrcode": "^1.5.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.25.1"
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.45.3",
-    "@types/qrcode": "^1.5.5",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.19",
-    "pdf-lib": "^1.17.1",
-    "playwright": "^1.45.3",
-    "postcss": "^8.4.40",
-    "tailwindcss": "3.4.7",
-    "typescript": "^5.5.4",
-    "vite": "^5.3.5",
-    "vitest": "^2.0.5"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "16.3.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.3"
   }
 }
