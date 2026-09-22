@@ -157,6 +157,14 @@ test.describe("G4 accessibility (/team)", () => {
     await page.getByTestId("risk-tiles").getByRole("button", { name: /No owner/ }).click();
     await page.getByTestId("team-rail").getByRole("button", { name: "Assign" }).first().click();
     await expect(page.getByPlaceholder("Find a teammate")).toBeVisible();
+    // The popover's own entrance animation (.popover-content, globals.css) fades opacity
+    // 0 -> 1 over --dur-base (240ms). `toBeVisible()` above is satisfied the instant
+    // opacity leaves 0, not once the fade settles — axe factors an element's *current*
+    // opacity into its contrast math, so analyzing mid-fade reports whatever partial
+    // blend the popover happens to be at that instant (flaky, and not a real defect).
+    // Settling past the animation's own duration before analyzing is what makes this
+    // check the same steady state a user actually reads.
+    await page.waitForTimeout(300);
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
   });

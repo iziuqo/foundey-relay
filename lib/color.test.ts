@@ -63,6 +63,34 @@ describe("contrastBetween", () => {
     const oldGrayFg = "oklch(0.556 0.006 264)"; // --gray-10, the bug
     expect(contrastBetween(oldGrayFg, grayBg)!).toBeLessThan(4.5);
   });
+
+  // Phase 6's G4 axe runs started intermittently flagging --text-2 against
+  // --surface-1/--surface-3 (the assign popover's role/count text, avatar initials) at
+  // ratios as low as 1.04:1 — well under AA. Chasing it by eye against a static
+  // screenshot found the tokens themselves fine; the actual cause was two Phase 6
+  // animations (the popover's own opacity fade-in, and the theme toggle's
+  // document.startViewTransition hop) landing their final state some tens of
+  // milliseconds *after* the click axe's analyze() ran on, so axe was blending a
+  // mid-transition frame rather than reading the settled UI — axe factors an element's
+  // current opacity into its contrast math, so a still-fading-in popover reports
+  // whatever partial blend it happens to be at that instant. Fixed in the two specs
+  // (tests/e2e/system-a11y.spec.ts, tests/e2e/team-contract.spec.ts) by waiting for the
+  // real settled state before analyzing — not here, since there was never a bad token
+  // pairing to fix. These pin the steady-state ratios so a *real* future regression in
+  // either token still fails loudly, without re-introducing that false alarm.
+  it("--text-2 on --surface-1 and --surface-3 meets AA at rest, light and dark", () => {
+    const lightText2 = "oklch(0.44 0.006 264)"; // --gray-11
+    const lightSurface1 = "oklch(1 0 0)";
+    const lightSurface3 = "oklch(0.951 0.002 264)"; // --gray-3
+    expect(contrastBetween(lightText2, lightSurface1)!).toBeGreaterThanOrEqual(4.5);
+    expect(contrastBetween(lightText2, lightSurface3)!).toBeGreaterThanOrEqual(4.5);
+
+    const darkText2 = "oklch(0.82 0.004 264)";
+    const darkSurface1 = "oklch(0.21 0.004 264)";
+    const darkSurface3 = "oklch(0.28 0.005 264)";
+    expect(contrastBetween(darkText2, darkSurface1)!).toBeGreaterThanOrEqual(4.5);
+    expect(contrastBetween(darkText2, darkSurface3)!).toBeGreaterThanOrEqual(4.5);
+  });
 });
 
 describe("parseLab / labToLinearSrgb", () => {

@@ -15,6 +15,14 @@ test.describe("G4 accessibility", () => {
     test(`${path} has zero axe violations in dark (hi-fi)`, async ({ page }) => {
       await page.goto(path);
       await page.getByRole("button", { name: /^(Light|Dark)$/ }).click();
+      // The theme toggle routes through switchTheme (lib/theme-transition.ts), which
+      // hands the actual DOM update to document.startViewTransition()'s callback —
+      // observed to land anywhere from ~10ms to ~150ms after click() resolves, not
+      // synchronously with it. Waiting for the button's own label to flip to "Dark" is
+      // waiting for the real settled state, not guessing a timeout past it; without
+      // this, axe can sample mid-flip and report whatever half-applied color pairing
+      // happened to be current at that instant (flaky, not a real defect).
+      await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
     });
@@ -29,6 +37,7 @@ test.describe("G4 accessibility", () => {
     test(`${path} has zero axe violations in dark + wireframe`, async ({ page }) => {
       await page.goto(path);
       await page.getByRole("button", { name: /^(Light|Dark)$/ }).click();
+      await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
       await page.getByRole("button", { name: /^(Hi-fi|Wire)$/ }).click();
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
