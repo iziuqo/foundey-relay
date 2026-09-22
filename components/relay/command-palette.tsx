@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk";
-import { toast as sonnerToast } from "sonner";
 import { copy, t } from "@/lib/copy";
 import { useNow } from "@/lib/time";
 import { flattenedQueue, queueFor } from "@/lib/selectors";
@@ -165,7 +164,7 @@ function useCommandGroups(onNavigate: (href: string) => void, onDone: () => void
       label: person.name,
       sub: person.role,
       onSelect: () => {
-        sonnerToast(copy.palette.personNotInPrototype);
+        onNavigate("/team");
         onDone();
       },
       searchValue: `${person.name} ${person.role}`,

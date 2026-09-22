@@ -40,6 +40,7 @@ export const copy = {
     gotIt: "Got it",
     showMe: "Show me",
     stay: "Stay here",
+    acknowledge: "Acknowledge",
   },
   tiers: {
     now: { label: "Act now", helper: "A truck, a person, or many orders are at risk." },
@@ -125,7 +126,10 @@ export const copy = {
   team: {
     status: "Day shift · Outbound · {on} working, {brk} on break, {out} out today.",
     live: "Live · updated {hhmm}",
-    tiles: { now: "Do now across team", help: "May need help", noOwner: "No owner", truck: "Next truck" },
+    statusNeedYou: "{n} things need you. Everyone else is on track.",
+    statusNeedYouOne: "1 thing needs you. Everyone else is on track.",
+    statusAllTrack: "Everyone is on track.",
+    tiles: { now: "Act now across team", help: "May need help", noOwner: "No owner", truck: "Next truck" },
     tileSubs: {
       now: "{n} due by {hhmm}",
       help: "{title}, no update {n} min",
@@ -138,17 +142,25 @@ export const copy = {
     needsYou: "Needs you",
     needsYouEmpty: "Nothing needs you right now.",
     needsYouNoOwner: "{title}. No owner. Due {hhmm}.",
+    needsYouNoOwnerNoDue: "{title}. No owner.",
     needsYouHelp: "{title}. No update for {n} min.",
     needsYouAsked: "{name} asked for help on {title}.",
-    rightNow: { working: "Working on: {title} · {n} min", available: "Available", onBreak: "On break", out: "Out today" },
+    needsYouSafety: "{title}. Safety always comes first.",
+    // §4.2 / README P0 8, P1 9: never a per person elapsed time (the surveillance
+    // pattern the deck rejects) — time appears only on the item, only when it signals
+    // a problem, via the item's own time pill.
+    rightNow: { on: "On: {title}", available: "Available", onBreak: "On break", out: "Out today" },
     mayNeedHelp: "May need help",
     load: { light: "Light", busy: "Busy", full: "Full" },
+    loadCounts: "{now} · {next} · {later}",
     mirror: "Everyone on the team sees this same board.",
     personNote: "This is what {name} sees.",
     reassignTitle: "Who should do this?",
     findTeammate: "Find a teammate",
     suggested: "Suggested",
     clearFilter: "Clear filter",
+    checkInTitle: "{name}'s queue",
+    checkInEmpty: "Nothing in the queue.",
   },
   trucks: { title: "Next trucks", atRisk: "{n} orders at risk", onTrack: "On track", none: "No trucks left today" },
   truckClock: {
@@ -167,12 +179,14 @@ export const copy = {
   myShift: { title: "My shift", doneOf: "{done} of {total} done", ends: "Shift ends {hhmm}" },
   updates: {
     title: "Updates",
-    forYou: "For you",
-    team: "Your team",
-    activity: "Activity",
+    tabs: { forYou: "For you", team: "Team", system: "System" },
     markRead: "Mark as read",
     empty: "No updates. When something changes, it will show up here.",
+    emptyTab: "Nothing here.",
+    selectHint: "Select an update to read it here.",
     seeAll: "See all updates",
+    from: "From {name}",
+    fromSystem: "System",
   },
   lookup: { empty: "Type an order number, a name, or a word like printer." },
   shortcuts: "J K move · Enter open · E mark done · Z undo · ? all shortcuts",
@@ -285,7 +299,6 @@ export const copy = {
     actionThemeDark: "Switch to dark mode",
     actionThemeLight: "Switch to light mode",
     actionShortcuts: "Keyboard shortcuts",
-    personNotInPrototype: "Assigning from here isn't part of this prototype.",
   },
   shortcutsSheet: {
     title: "Keyboard shortcuts",

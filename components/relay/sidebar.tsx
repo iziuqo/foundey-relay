@@ -35,7 +35,6 @@ export function Sidebar() {
           >
             <item.icon className="size-(--size-icon-md) shrink-0" aria-hidden />
             <span className="hidden truncate xl:inline">{item.label}</span>
-            {item.stub && <span className="hidden text-(length:--text-meta) text-(--text-2) xl:inline">{item.stub}</span>}
           </Link>
         );
       })}

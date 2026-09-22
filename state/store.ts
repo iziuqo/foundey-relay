@@ -31,6 +31,7 @@ interface DemoState extends Snapshot {
   theme: Theme;
   wireframe: boolean;
   readIds: string[];
+  acknowledgedIds: string[];
   toast: ToastState | null;
   undoSnapshot: Snapshot | null;
   pendingPromotion: PendingPromotion | null;
@@ -61,6 +62,7 @@ interface DemoActions {
   clearToast: () => void;
   logInteraction: (atMs: number) => void;
   markRead: (itemId: string) => void;
+  acknowledge: (itemId: string) => void;
   totalToday: (personId: string) => { done: number; total: number };
   openPalette: () => void;
   closePalette: () => void;
@@ -83,6 +85,7 @@ function initialState(): DemoState {
     theme: "light",
     wireframe: false,
     readIds: [],
+    acknowledgedIds: [],
     toast: null,
     undoSnapshot: null,
     pendingPromotion: null,
@@ -240,6 +243,13 @@ export const useStore = create<DemoStore>()(
           state.readIds.includes(itemId) ? state : { readIds: [...state.readIds, itemId] },
         ),
 
+      acknowledge: (itemId) =>
+        set((state) =>
+          state.acknowledgedIds.includes(itemId)
+            ? state
+            : { acknowledgedIds: [...state.acknowledgedIds, itemId] },
+        ),
+
       totalToday: (personId) => {
         const state = get();
         return totalTodayFor(state.items, state.doneLog, personId);
@@ -265,6 +275,7 @@ export const useStore = create<DemoStore>()(
         theme: state.theme,
         wireframe: state.wireframe,
         readIds: state.readIds,
+        acknowledgedIds: state.acknowledgedIds,
       }),
     },
   ),

@@ -1,5 +1,5 @@
 import { rankItems, loadFor, mayNeedHelp, type Ranked, type LoadResult } from "./priority";
-import type { Item, Person, DoneEntry, Tier } from "./types";
+import type { Item, Person, DoneEntry, Tier, UpdateEntry } from "./types";
 import { site } from "./seed";
 
 function effectiveItem(item: Item, now: Date): Item {
@@ -172,4 +172,149 @@ export function teamRisk(items: Item[], team: Person[], now: Date): TeamRisk {
     noOwnerItems,
     outToday,
   };
+}
+
+/** §6.3 board meter: the person's three tier counts, hero folded into its own tier
+ * (mirrors `loadForPerson`'s fold, but keeps the three numbers separate instead of
+ * collapsing them into load points). */
+export interface PersonTierCounts {
+  now: number;
+  next: number;
+  later: number;
+}
+
+export function tierCountsFor(items: Item[], personId: string, now: Date): PersonTierCounts {
+  const q = queueFor(items, personId, now);
+  const withHero = (tier: Tier, count: number) => count + (q.hero?.result.tier === tier ? 1 : 0);
+  return {
+    now: withHero("now", q.now.length),
+    next: withHero("next", q.next.length),
+    later: withHero("later", q.later.length),
+  };
+}
+
+export type NeedsYouAction = "assign" | "checkIn" | "acknowledge";
+
+export interface NeedsYouRow {
+  item: Item;
+  assignee: Person | undefined;
+  action: NeedsYouAction;
+  minutesStalled?: number;
+}
+
+/**
+ * §6.3 "Needs you": one row per item, never a person, deduped with a fixed precedence
+ * so an item that is both unowned and flagged (e.g. bounced twice with `notMine`)
+ * appears once. Precedence: no owner (Assign) > flagged — help asked or stalled
+ * (Check in) > unacknowledged safety (Acknowledge). Built on `teamRisk`'s already
+ * tested `noOwnerItems`/`flagged` rather than re-deriving them.
+ */
+export function needsYouRows(
+  risk: TeamRisk,
+  items: Item[],
+  team: Person[],
+  now: Date,
+  acknowledgedIds: string[],
+): NeedsYouRow[] {
+  const seen = new Set<string>();
+  const rows: NeedsYouRow[] = [];
+
+  for (const item of risk.noOwnerItems) {
+    rows.push({ item, assignee: undefined, action: "assign" });
+    seen.add(item.id);
+  }
+
+  for (const { item, assignee } of risk.flagged) {
+    if (seen.has(item.id)) continue;
+    const minutesStalled = assignee?.currentTaskStartedAt
+      ? Math.round((now.getTime() - new Date(assignee.currentTaskStartedAt).getTime()) / 60000)
+      : undefined;
+    rows.push({ item, assignee, action: "checkIn", minutesStalled });
+    seen.add(item.id);
+  }
+
+  for (const item of effectiveItems(items, now)) {
+    if (seen.has(item.id)) continue;
+    if (item.source === "fyi" || item.status === "done") continue;
+    if (item.safety && !acknowledgedIds.includes(item.id)) {
+      rows.push({ item, assignee: team.find((p) => p.id === item.assigneeId), action: "acknowledge" });
+      seen.add(item.id);
+    }
+  }
+
+  return rows;
+}
+
+export interface AssignCandidate {
+  person: Person;
+  counts: PersonTierCounts;
+  load: LoadResult;
+}
+
+/** §6.3 Assign popover: teammates by load, lowest first. Excludes anyone `out` (they
+ * show no load, §4.2) and the manager (assignment is worker-to-worker triage). */
+export function assignCandidates(team: Person[], items: Item[], now: Date): AssignCandidate[] {
+  return team
+    .filter((p) => !p.isManager && p.status !== "out")
+    .map((person) => ({
+      person,
+      counts: tierCountsFor(items, person.id, now),
+      load: loadForPerson(items, person.id, now),
+    }))
+    .sort((a, b) => a.load.points - b.load.points || a.person.name.localeCompare(b.person.name));
+}
+
+export type UpdateTab = "forYou" | "team" | "system";
+
+export interface UpdateRow {
+  id: string;
+  at: string;
+  tab: UpdateTab;
+  /** The item's own title, when this row is about one (§6.4 / README P1 19 — a row
+   * never shows only its reason line). Null for a plain team/system update, whose
+   * `text` already reads as a complete sentence. */
+  title: string | null;
+  reason: string;
+  authorId: string | null;
+  itemId: string | null;
+}
+
+const updateTabByType: Record<UpdateEntry["type"], UpdateTab> = {
+  activity: "system",
+  system: "system",
+  announcement: "team",
+  handoff: "team",
+};
+
+/**
+ * §6.4: For you (FYI items, each with its own title), Team (announcements and
+ * handoffs), System (activity and system entries) — sorted newest first. The seed
+ * array is not chronological (up-07 06:35 precedes up-08 06:45 in file order). Every
+ * row stays listed regardless of read state; unread is a per-viewer dot the caller
+ * derives from `readIds`, not a filter (a "mark read" row should not vanish).
+ */
+export function updatesFor(items: Item[], updates: UpdateEntry[]): UpdateRow[] {
+  const fyiRows: UpdateRow[] = items
+    .filter((i) => i.source === "fyi")
+    .map((item) => ({
+      id: item.id,
+      at: item.createdAt,
+      tab: "forYou",
+      title: item.title,
+      reason: item.whyText,
+      authorId: null,
+      itemId: item.id,
+    }));
+
+  const entryRows: UpdateRow[] = updates.map((u) => ({
+    id: u.id,
+    at: u.at,
+    tab: updateTabByType[u.type],
+    title: null,
+    reason: u.text,
+    authorId: u.authorId,
+    itemId: null,
+  }));
+
+  return [...fyiRows, ...entryRows].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 }

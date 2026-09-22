@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { copy, t } from "@/lib/copy";
 
 export interface AllClearProps {
@@ -18,6 +19,14 @@ export function AllClear({ doneToday }: AllClearProps) {
       <span className="mt-2 rounded-full border border-(--border-1) bg-(--surface-2) px-3 py-1 text-(length:--text-meta) text-(--text-2)">
         {copy.allClear.hint}
       </span>
+      <div className="mt-2 flex gap-4 text-(length:--text-meta) font-medium text-(--accent)">
+        <Link href="/team" className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) rounded-(--radius-control)">
+          {copy.allClear.team}
+        </Link>
+        <Link href="/updates" className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) rounded-(--radius-control)">
+          {copy.allClear.updates}
+        </Link>
+      </div>
     </div>
   );
 }
