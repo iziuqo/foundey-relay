@@ -66,6 +66,7 @@ type Action =
   | { type: 'CLEAR_TOAST' }
   | { type: 'LOG_INTERACTION'; atMs: number }
   | { type: 'MARK_READ'; itemId: string }
+  | { type: 'SHOW_TOAST'; message: string }
 
 function firstName(person: Person | undefined): string {
   return person ? person.name.split(' ')[0] : 'a teammate'
@@ -240,6 +241,9 @@ function reducer(state: DemoState, action: Action): DemoState {
 
     case 'MARK_READ':
       return state.readIds.includes(action.itemId) ? state : { ...state, readIds: [...state.readIds, action.itemId] }
+
+    case 'SHOW_TOAST':
+      return withToast({ ...state, undoSnapshot: null }, action.message, false)
 
     default:
       return state

@@ -10,7 +10,7 @@ export const copy = {
   },
   hero: { now: 'Do this now', next: 'Do this next', later: 'Up next when you are ready',
           of: '{i} of {n}', whyFirst: 'Why first:', nextStep: 'Next step: {action}',
-          working: 'Working on it · {n} min' },
+          working: 'Working on it · {n} min', ordersWaiting: '{n} orders waiting', truckAt: '{carrier} truck {hhmm}' },
   actions: { start: 'Start', done: 'Mark done', help: 'Ask for help', more: 'More',
              waiting: 'Waiting on someone', notMine: 'Not mine', handOff: 'Hand off to a teammate',
              later: 'Move to later', reassign: 'Reassign', assign: 'Assign', seeWork: 'See work',
@@ -78,9 +78,9 @@ export const copy = {
   howModal: {
     title: 'How we sort your work',
     body: 'We look at four things. How soon it is due. How many orders are waiting on it. Whether customers will feel it. Whether it is about safety or the law.',
-    now: 'Do now means a truck, a person, or many orders are at risk. Safety always goes here.',
-    next: 'Up next matters today, and a clock is running.',
-    later: 'Later today is real work, but nobody is blocked yet.',
+    now: 'means a truck, a person, or many orders are at risk. Safety always goes here.',
+    next: 'matters today, and a clock is running.',
+    later: 'is real work, but nobody is blocked yet.',
     footer: 'Inside each group, the most important thing is on top. You can always ask for help or hand something off.',
   },
   waitingPopover: {
@@ -95,6 +95,7 @@ export const copy = {
     inventory: 'Inventory', safety: 'Safety', compliance: 'Compliance', floor: 'Floor', fyi: 'Info',
   },
   handheld: { needYou: '{n} need you' },
+  chips: { workingOnIt: 'Working on it' },
 }
 
 export function t(str: string, vars: Record<string, string | number> = {}): string {

@@ -7,3 +7,14 @@
   button { font-family: inherit; }
   ul { list-style: none; margin: 0; padding: 0; }
 }
+
+@keyframes toast-shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+

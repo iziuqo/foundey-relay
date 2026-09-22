@@ -36,6 +36,10 @@ export default {
       transitionTimingFunction: {
         out: 'var(--ease-out)', in: 'var(--ease-in)', std: 'var(--ease-std)', pop: 'var(--ease-pop)',
       },
+      transitionDuration: {
+        press: 'var(--m-press)', hover: 'var(--m-hover)', enter: 'var(--m-enter)', exit: 'var(--m-exit)',
+        list: 'var(--m-list)', hero: 'var(--m-hero)', check: 'var(--m-check)', flash: 'var(--m-flash)',
+      },
     },
   },
   plugins: [],
