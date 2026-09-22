@@ -348,7 +348,7 @@
       "status": "open",
       "_expected": {
         "score": 18,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Customer waiting on replacement"
     },
@@ -394,7 +394,7 @@
       "status": "open",
       "_expected": {
         "score": 12,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Due tomorrow, nothing blocked"
     },
@@ -417,7 +417,7 @@
       "status": "open",
       "_expected": {
         "score": 23,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Required by end of day"
     },
@@ -463,7 +463,7 @@
       "status": "open",
       "_expected": {
         "score": 14,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "1,200 units cannot be received"
     },
@@ -509,7 +509,7 @@
       "status": "open",
       "_expected": {
         "score": 8,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Damage report due today"
     },
@@ -555,7 +555,7 @@
       "status": "open",
       "_expected": {
         "score": 22,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Boxes run out before lunch"
     },
@@ -580,7 +580,7 @@
       "checkBackAt": "2026-09-22T14:00:00-07:00",
       "_expected": {
         "score": 8,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Waiting on UPS account rep"
     },
@@ -603,7 +603,7 @@
       "status": "open",
       "_expected": {
         "score": 12,
-        "tier": "Later today"
+        "tier": "When you can"
       },
       "cause": "Customer expects a reply today"
     },

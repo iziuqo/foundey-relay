@@ -1,16 +1,229 @@
 @import "tailwindcss";
 
+/*
+ * Token layers, plan §4.1-4.2, §4.5, §4.7.
+ *
+ *   1. Primitive  — raw OKLCH scales. Never used directly by components.
+ *   2. Semantic   — --bg, --surface-*, --text-*, --border-*, --accent, --focus.
+ *   3. Tier       — --act-*, --next-*, --when-*, --fyi-*, each fg/bg/border/glow.
+ *
+ * Themes and fidelity are attribute swaps on <html>: data-theme="light|dark" and
+ * data-fidelity="hi|wire" (app/layout.tsx sets both before first paint). No `filter`
+ * anywhere — README P0 4, the old grayscale filter was neither a wireframe nor safe
+ * for fixed elements.
+ *
+ * Tailwind utilities never get redefined here (`--spacing` stays 0.25rem, so `h-12`
+ * is always 48px). These are plain custom properties, consumed through Tailwind v4's
+ * arbitrary-var syntax, e.g. `bg-(--surface-1)`, `text-(--text-2)`, `h-(--size-control-md)`.
+ */
+
 :root {
-  --bg: oklch(0.99 0 0);
-  --text-1: oklch(0.2 0 0);
+  /* ---- Primitives: gray (neutrals, full scale) ---- */
+  --gray-1: oklch(0.99 0 0);
+  --gray-2: oklch(0.977 0.001 264);
+  --gray-3: oklch(0.951 0.002 264);
+  --gray-4: oklch(0.928 0.003 264);
+  --gray-5: oklch(0.899 0.003 264);
+  --gray-6: oklch(0.865 0.004 264);
+  --gray-7: oklch(0.818 0.005 264);
+  --gray-8: oklch(0.74 0.006 264);
+  --gray-9: oklch(0.61 0.006 264);
+  --gray-10: oklch(0.556 0.006 264);
+  --gray-11: oklch(0.44 0.006 264);
+  --gray-12: oklch(0.2 0.004 264);
+
+  /* ---- Primitives: red-orange (Act now, safety) ---- */
+  --red-1: oklch(0.985 0.005 30);
+  --red-3: oklch(0.936 0.04 30);
+  --red-6: oklch(0.79 0.12 32);
+  --red-9: oklch(0.605 0.22 29);
+  --red-11: oklch(0.48 0.19 27);
+
+  /* ---- Primitives: amber (Up next) ---- */
+  --amber-1: oklch(0.99 0.01 90);
+  --amber-3: oklch(0.94 0.05 85);
+  --amber-6: oklch(0.83 0.11 75);
+  --amber-9: oklch(0.685 0.16 60);
+  --amber-11: oklch(0.46 0.13 55);
+
+  /* ---- Primitives: slate (When you can) ---- */
+  --slate-1: oklch(0.99 0.002 255);
+  --slate-3: oklch(0.94 0.006 255);
+  --slate-6: oklch(0.82 0.012 255);
+  --slate-9: oklch(0.55 0.02 255);
+  --slate-11: oklch(0.42 0.02 255);
+
+  /* ---- Primitives: blue (For your info) ---- */
+  --blue-1: oklch(0.99 0.005 250);
+  --blue-3: oklch(0.94 0.03 250);
+  --blue-6: oklch(0.82 0.07 250);
+  --blue-9: oklch(0.58 0.16 250);
+  --blue-11: oklch(0.47 0.15 250);
+
+  /* ---- Primitives: indigo (accent) ---- */
+  --indigo-3: oklch(0.94 0.03 275);
+  --indigo-6: oklch(0.78 0.1 275);
+  --indigo-9: oklch(0.535 0.19 275);
+  --indigo-11: oklch(0.46 0.18 275);
+
+  /* ---- Primitives: green (done, success only) ---- */
+  --green-3: oklch(0.94 0.04 150);
+  --green-6: oklch(0.81 0.11 150);
+  --green-9: oklch(0.6 0.15 150);
+  --green-11: oklch(0.46 0.13 150);
+
+  /* ---- Semantic ---- */
+  --bg: var(--gray-1);
+  --surface-1: oklch(1 0 0);
+  --surface-2: var(--gray-2);
+  --surface-3: var(--gray-3);
+  --text-1: var(--gray-12);
+  --text-2: var(--gray-11);
+  --text-3: var(--gray-9);
+  --border-1: var(--gray-5);
+  --border-2: var(--gray-7);
+  --accent: var(--indigo-9);
+  --focus: var(--indigo-9);
+
+  /* ---- Tier: Act now (red-orange; only tier with a row tint, §4.6) ---- */
+  --act-fg: var(--red-11);
+  --act-bg: var(--red-3);
+  --act-border: var(--red-6);
+  --act-glow: oklch(0.605 0.22 29 / 12%);
+
+  /* ---- Tier: Up next (amber) ---- */
+  --next-fg: var(--amber-11);
+  --next-bg: var(--amber-3);
+  --next-border: var(--amber-6);
+  --next-glow: oklch(0.685 0.16 60 / 12%);
+
+  /* ---- Tier: When you can (slate) ---- */
+  --when-fg: var(--slate-11);
+  --when-bg: var(--slate-3);
+  --when-border: var(--slate-6);
+  --when-glow: oklch(0.55 0.02 255 / 12%);
+
+  /* ---- Tier: For your info (blue) ---- */
+  --fyi-fg: var(--blue-11);
+  --fyi-bg: var(--blue-3);
+  --fyi-border: var(--blue-6);
+  --fyi-glow: oklch(0.58 0.16 250 / 12%);
+
+  /* ---- Success (the done check and done counts, nothing else, §4.2) ---- */
+  --success-fg: var(--green-11);
+  --success-bg: var(--green-3);
+  --success-border: var(--green-6);
+
+  /* ---- Depth, §4.5. Light: hairline border + a 1px shadow. ---- */
+  --shadow-e1: 0 1px 2px oklch(0 0 0 / 6%);
+  --shadow-e2: 0 2px 8px oklch(0 0 0 / 8%);
+  --shadow-e3: 0 12px 32px oklch(0 0 0 / 14%);
+
+  /* ---- Radii, §4.4. Concentric: inner = outer minus padding. ---- */
+  --radius-chip: 8px;
+  --radius-control: 12px;
+  --radius-hero: 20px;
+
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
 }
 
+/* ================= Dark theme, D2 ================= */
 :root[data-theme="dark"] {
-  --bg: oklch(0.16 0 0);
-  --text-1: oklch(0.96 0 0);
+  --bg: oklch(0.17 0.003 264);
+  --surface-1: oklch(0.21 0.004 264);
+  --surface-2: oklch(0.24 0.004 264);
+  --surface-3: oklch(0.28 0.005 264);
+  --text-1: oklch(0.96 0.002 264);
+  --text-2: oklch(0.82 0.004 264);
+  --text-3: oklch(0.62 0.006 264);
+  --border-1: oklch(1 0 0 / 10%);
+  --border-2: oklch(1 0 0 / 16%);
+  --accent: var(--indigo-6);
+  --focus: var(--indigo-6);
+
+  --act-fg: oklch(0.76 0.16 29);
+  --act-bg: oklch(0.3 0.07 29);
+  --act-border: oklch(0.42 0.12 29);
+  --act-glow: oklch(0.605 0.22 29 / 22%);
+
+  --next-fg: oklch(0.82 0.11 60);
+  --next-bg: oklch(0.3 0.05 60);
+  --next-border: oklch(0.44 0.08 60);
+  --next-glow: oklch(0.685 0.16 60 / 22%);
+
+  --when-fg: oklch(0.78 0.02 255);
+  --when-bg: oklch(0.28 0.01 255);
+  --when-border: oklch(0.4 0.015 255);
+  --when-glow: oklch(0.55 0.02 255 / 18%);
+
+  --fyi-fg: oklch(0.78 0.1 250);
+  --fyi-bg: oklch(0.28 0.06 250);
+  --fyi-border: oklch(0.42 0.09 250);
+  --fyi-glow: oklch(0.58 0.16 250 / 22%);
+
+  --success-fg: oklch(0.78 0.11 150);
+  --success-bg: oklch(0.27 0.05 150);
+  --success-border: oklch(0.4 0.08 150);
+
+  /* Dark: elevation is a lighter surface plus a 1px inner top highlight, never a darker shadow. */
+  --shadow-e1: inset 0 1px 0 oklch(1 0 0 / 6%);
+  --shadow-e2: inset 0 1px 0 oklch(1 0 0 / 8%), 0 2px 12px oklch(0 0 0 / 40%);
+  --shadow-e3: inset 0 1px 0 oklch(1 0 0 / 8%), 0 16px 40px oklch(0 0 0 / 55%);
+}
+
+/* ================= Wireframe fidelity, §4.7 ================= */
+/* Same components, tokens swapped: all hues become grays, radii become 2px, shadows
+   and glows turn off, and the font becomes a monospace. This *is* deliverable 2 of the
+   brief, live — it replaces v1's grayscale `filter`, which was neither a true
+   wireframe nor safe for fixed elements (README P0 4). */
+:root[data-fidelity="wire"] {
+  --accent: var(--gray-9);
+  --focus: var(--gray-9);
+
+  --act-fg: var(--gray-12);
+  --act-bg: var(--gray-3);
+  --act-border: var(--gray-7);
+  --act-glow: transparent;
+
+  --next-fg: var(--gray-11);
+  --next-bg: var(--gray-3);
+  --next-border: var(--gray-6);
+  --next-glow: transparent;
+
+  --when-fg: var(--gray-10);
+  --when-bg: var(--gray-2);
+  --when-border: var(--gray-5);
+  --when-glow: transparent;
+
+  --fyi-fg: var(--gray-10);
+  --fyi-bg: var(--gray-2);
+  --fyi-border: var(--gray-5);
+  --fyi-glow: transparent;
+
+  --success-fg: var(--gray-12);
+  --success-bg: var(--gray-3);
+  --success-border: var(--gray-7);
+
+  --shadow-e1: none;
+  --shadow-e2: none;
+  --shadow-e3: none;
+
+  --radius-chip: 2px;
+  --radius-control: 2px;
+  --radius-hero: 2px;
+}
+
+:root[data-fidelity="wire"] body {
+  font-family: var(--font-mono);
 }
 
 body {
   background: var(--bg);
   color: var(--text-1);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Every time and count carries tabular numerals, §4.3. */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
