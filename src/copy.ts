@@ -27,7 +27,15 @@ export const copy = {
   },
   time: { dueIn: 'Due in {n} min', due: 'Due {hhmm}', lateMin: 'Late by {n} min', lateHr: 'Late by {n} h',
           tomorrow: 'Tomorrow {hhmm}' },
-  why: { title: 'Why this is ranked here', showScore: 'Show the score', howLink: 'How we sort your work' },
+  why: { title: 'Why this is ranked here', showScore: 'Show the score', howLink: 'How we sort your work',
+         scoreLine: 'Time {t} + Orders {b} + Impact {i} = {score}',
+         factors: {
+           lateBy: 'It is late by {rel}.', dueIn: 'It is due at {hhmm}, in {rel}.',
+           blocked: '{n} orders are waiting on it.', truck: 'It must be ready for the {carrier} truck at {hhmm}.',
+           customerHigh: 'Customers will feel it.', customerLow: 'A customer may notice.',
+           compliance: 'It is required by law or policy.', escalated: 'Someone escalated it.',
+           safety: 'Someone could get hurt. Safety always comes first.',
+         } },
   toast: { done: 'Done. {done} of {total} done today.', restored: 'Restored.', paused: 'Paused {title}.',
            moved: 'Moved to {name}.', sentBack: 'Sent back to the team.', helpSent: 'Sent to Danielle. She will check in.',
            waiting: 'Waiting on {who}. Back at {hhmm}.', notInPrototype: 'This is not part of the prototype.' },
@@ -42,6 +50,11 @@ export const copy = {
     status: 'Day shift · Outbound · {on} working, {brk} on break, {out} out today.',
     live: 'Live · updated {hhmm}',
     tiles: { now: 'Do now across team', help: 'May need help', noOwner: 'No owner', truck: 'Next truck' },
+    tileSubs: {
+      now: '{n} due by {hhmm}', help: '{title}, no update {n} min',
+      noOwner: '{name} is out today', noOwnerNone: 'Everyone is on shift',
+      truck: '{n} orders at risk · in {rel}', truckOnTrack: 'On track',
+    },
     board: 'Team board', needsYou: 'Needs you', needsYouEmpty: 'Nothing needs you right now.',
     rightNow: { working: 'Working on: {title} · {n} min', available: 'Available', onBreak: 'On break', out: 'Out today' },
     mayNeedHelp: 'May need help', load: { light: 'Light', busy: 'Busy', full: 'Full' },
@@ -56,6 +69,32 @@ export const copy = {
   demo: { pill: 'Prototype controls', viewingAs: 'Viewing as', priya: 'Priya (coordinator)', danielle: 'Danielle (manager)',
           clock: 'Now {hhmm}', jump: 'Jump 15 min', reset: 'Reset to 10:40', inject: 'Send a new urgent item',
           wireframe: 'Wireframe mode', resetAll: 'Reset demo' },
+  drawer: {
+    assignedTo: 'Assigned to', ordersWaiting: 'Orders waiting', unitsAffected: 'Units affected',
+    truck: 'Truck', created: 'Created', itemId: 'Item ID',
+    activityCreated: 'Created {hhmm} by {source}', activityStarted: 'Started by {name} at {hhmm}',
+    message: 'Message {name}', messagingToast: 'Messaging is not part of this prototype.',
+  },
+  howModal: {
+    title: 'How we sort your work',
+    body: 'We look at four things. How soon it is due. How many orders are waiting on it. Whether customers will feel it. Whether it is about safety or the law.',
+    now: 'Do now means a truck, a person, or many orders are at risk. Safety always goes here.',
+    next: 'Up next matters today, and a clock is running.',
+    later: 'Later today is real work, but nobody is blocked yet.',
+    footer: 'Inside each group, the most important thing is on top. You can always ask for help or hand something off.',
+  },
+  waitingPopover: {
+    who: 'Who are you waiting on?', suggestions: ['Carrier', 'Maintenance', 'Customer service', 'Vendor'],
+    checkBack: 'Check back at', in30: 'In 30 min', in1h: 'In 1 hour', atCutoff: 'At {hhmm}',
+  },
+  notMineReasons: ['Wrong area', "I don't have access", 'Duplicate', 'Other'],
+  moveLaterOptions: { in1h: 'In 1 hour', afterLunch: 'After lunch (12:30)', pick: 'Pick a time' },
+  settings: { label: 'Settings', tooltip: 'Not part of this prototype' },
+  sourceLabels: {
+    order: 'Order', system: 'System', comms: 'Message', carrier: 'Carrier', customer: 'Customer',
+    inventory: 'Inventory', safety: 'Safety', compliance: 'Compliance', floor: 'Floor', fyi: 'Info',
+  },
+  handheld: { needYou: '{n} need you' },
 }
 
 export function t(str: string, vars: Record<string, string | number> = {}): string {
