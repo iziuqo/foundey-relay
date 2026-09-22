@@ -316,20 +316,41 @@ interface StoreValue {
 
 const StoreContext = createContext<StoreValue | null>(null)
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, init)
+export type DemoOverrides = Partial<Pick<DemoState, 'persona' | 'items' | 'team' | 'doneLog' | 'wireframe' | 'jumpOffsetMs'>>
+
+interface StoreProviderProps {
+  children: React.ReactNode
+  /**
+   * For the deck (§10.5): a frozen provider never ticks, never touches localStorage, and starts
+   * from initialDemoState() plus `overrides` instead of the shared relay-demo-v1 slot. Each deck
+   * frame nests its own frozen StoreProvider so several slides can show different states (e.g. one
+   * "just marked done", another "new urgent band") at once without fighting the live app's state
+   * or each other, since a nested provider shadows the outer context for its own subtree only.
+   */
+  frozen?: boolean
+  overrides?: DemoOverrides
+}
+
+export function StoreProvider({ children, frozen = false, overrides }: StoreProviderProps) {
+  const [state, dispatch] = useReducer(reducer, undefined, () => (frozen ? { ...initialDemoState(), ...overrides } : init()))
   const loadedAtRef = useRef(Date.now())
-  const [now, setNow] = React.useState(() => simNowFrom(SEED_NOW_ISO, loadedAtRef.current, state.jumpOffsetMs))
+  const [now, setNow] = React.useState(() =>
+    frozen ? new Date(new Date(SEED_NOW_ISO).getTime() + (overrides?.jumpOffsetMs ?? 0)) : simNowFrom(SEED_NOW_ISO, loadedAtRef.current, state.jumpOffsetMs),
+  )
 
   useEffect(() => {
+    if (frozen) return
     setNow(simNowFrom(SEED_NOW_ISO, loadedAtRef.current, state.jumpOffsetMs))
     const id = setInterval(() => {
       setNow(simNowFrom(SEED_NOW_ISO, loadedAtRef.current, state.jumpOffsetMs))
     }, 60000)
     return () => clearInterval(id)
-  }, [state.jumpOffsetMs])
+  }, [state.jumpOffsetMs, frozen])
 
-  useEffect(() => savePersisted(state), [state])
+  useEffect(() => {
+    if (frozen) return
+    savePersisted(state)
+  }, [state, frozen])
 
   const value = useMemo<StoreValue>(() => {
     const totalToday = (personId: string) => totalTodayFor(state.items, state.doneLog, personId)

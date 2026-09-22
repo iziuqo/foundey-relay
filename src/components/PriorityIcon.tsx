@@ -14,7 +14,7 @@ export function tierIconMeta(tier: Tier) {
   return TIER_ICON[tier]
 }
 
-export function PriorityIcon({ tier, size = 16 }: { tier: Tier; size?: 16 | 20 | 24 }) {
+export function PriorityIcon({ tier, size = 16 }: { tier: Tier; size?: number }) {
   const { Icon, label } = TIER_ICON[tier]
   return <Icon size={size} color={TIER_ICON[tier].color} aria-label={label} strokeWidth={2} />
 }

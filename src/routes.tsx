@@ -5,6 +5,8 @@ import WorkPage from './pages/Work'
 import TeamPage from './pages/Team'
 import UpdatesPage from './pages/Updates'
 import LookupPage from './pages/Lookup'
+import Deck from './deck/Deck'
+import DeckPrint from './deck/Print'
 
 function Landing() {
   const { state } = useStore()
@@ -20,6 +22,8 @@ export function AppRoutes() {
       <Route path="/updates" element={<UpdatesPage />} />
       <Route path="/lookup" element={<LookupPage />} />
       <Route path="/system" element={<SystemPage />} />
+      <Route path="/deck" element={<Deck />} />
+      <Route path="/deck/print" element={<DeckPrint />} />
     </Routes>
   )
 }

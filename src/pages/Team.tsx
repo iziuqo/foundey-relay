@@ -18,7 +18,7 @@ import { copy, t } from '../copy'
 
 type RiskFilter = 'now' | 'help' | 'noOwner' | null
 
-export default function TeamPage() {
+export default function TeamPage({ frozen = false }: { frozen?: boolean } = {}) {
   const { state, now } = useStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const [assignFor, setAssignFor] = useState<string | null>(null)
@@ -51,7 +51,7 @@ export default function TeamPage() {
     })
   }, [filter, state.team, state.items, now, risk.flagged])
 
-  const personId = searchParams.get('person')
+  const personId = frozen ? null : searchParams.get('person')
   function openPerson(id: string) {
     setSearchParams((p) => {
       p.set('person', id)

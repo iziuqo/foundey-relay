@@ -25,16 +25,21 @@ function scanWholeFile(path) {
 scanWholeFile(join(root, 'src/copy.ts'))
 scanWholeFile(join(root, 'plan/seed.json'))
 
-// slides.tsx: only scan JSX text nodes (between `>` and `<`), skipping attribute/import lines,
-// and also fail on hyphenated words there. Deck prose lives in plain data objects (title/body/notes/
-// callouts) rendered via {expr}, so this rarely fires; it exists as a real backstop, not a formality.
+// slides.tsx: deck prose lives in plain data objects (title/body/notes/callouts) at the top of the
+// file, rendered via {expr}, per §10.7's own suggested shape. So scan every string literal VALUE in
+// the file (single/double/template quoted), not just JSX text nodes — that's where the real prose
+// is, and it's also where a hyphenated word regression ("one-click", "next-day") would actually hide.
 const slidesPath = join(root, 'src/deck/slides.tsx')
 if (existsSync(slidesPath)) {
   const lines = readFileSync(slidesPath, 'utf8').split('\n')
+  const STRING_LITERAL_RE = /'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`/g
   lines.forEach((line, i) => {
-    if (/className=|style=|\bid=|\bkey=|data-[\w-]+=|from ['"]|^\s*import /.test(line)) return
-    for (const m of line.matchAll(/>([^<>{}]+)</g)) {
-      const text = m[1]
+    if (/^\s*import /.test(line) || /\bfrom\s+['"]/.test(line)) return
+    if (/className=|style=|\bid=|\bkey=|data-[\w-]+=/.test(line)) return
+    for (const m of line.matchAll(STRING_LITERAL_RE)) {
+      const text = m[0].slice(1, -1)
+      // CSS custom properties are explicitly exempt (§10.7); URLs are identifiers, not prose.
+      if (/^var\(--[\w-]+\)$/.test(text) || /^--[\w-]+$/.test(text) || /^https?:\/\//.test(text)) continue
       if (DASH_RE.test(text)) {
         console.error(`${slidesPath}:${i + 1}: ${line.trim()}`)
         failed = true

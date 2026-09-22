@@ -77,7 +77,7 @@ function QueueSection({
   )
 }
 
-export default function WorkPage() {
+export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) {
   const { state, dispatch, now, totalToday } = useStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const [howOpen, setHowOpen] = useState(false)
@@ -100,6 +100,7 @@ export default function WorkPage() {
   }
 
   useEffect(() => {
+    if (frozen) return
     function onActivity() {
       dispatch({ type: 'LOG_INTERACTION', atMs: Date.now() })
     }
@@ -109,9 +110,9 @@ export default function WorkPage() {
       window.removeEventListener('pointerdown', onActivity)
       window.removeEventListener('keydown', onActivity)
     }
-  }, [dispatch])
+  }, [dispatch, frozen])
 
-  const openItemId = searchParams.get('item')
+  const openItemId = frozen ? null : searchParams.get('item')
   function openDrawer(id: string) {
     logInteraction()
     setSearchParams((p) => {
@@ -142,6 +143,7 @@ export default function WorkPage() {
   const flatOrder = [...(q.hero ? [q.hero] : []), ...q.now, ...q.next, ...q.later]
 
   useEffect(() => {
+    if (frozen) return
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
@@ -152,7 +154,7 @@ export default function WorkPage() {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q.hero, openItemId])
+  }, [q.hero, openItemId, frozen])
 
   const band = state.pendingPromotion && !state.pendingPromotion.dismissed
     ? {
