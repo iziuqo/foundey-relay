@@ -64,9 +64,9 @@ function Slide01() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 32, marginBottom: 40 }}>
           <svg width={96} height={96} viewBox="0 0 20 20" fill="none">
             <rect width="20" height="20" rx="6" fill="var(--n-900)" />
-            <rect x="5" y="4" width="10" height="2" rx="1" fill="#FFFFFF" />
-            <rect x="5" y="9" width="7" height="2" rx="1" fill="#FFFFFF" />
-            <rect x="5" y="14" width="4" height="2" rx="1" fill="#FFFFFF" />
+            <rect x="5" y="4" width="10" height="2" rx="1" fill="var(--n-0)" />
+            <rect x="5" y="9" width="7" height="2" rx="1" fill="var(--n-0)" />
+            <rect x="5" y="14" width="4" height="2" rx="1" fill="var(--n-0)" />
           </svg>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 120, fontWeight: 600, letterSpacing: '-0.02em' }}>Relay</span>
         </div>

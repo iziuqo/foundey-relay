@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Wordmark } from '../components/Wordmark'
 import { PriorityIcon } from '../components/PriorityIcon'
 import { TimePill } from '../components/TimePill'
@@ -22,11 +22,20 @@ import type { Tier } from '../lib/types'
 
 const NOW = new Date('2026-09-22T10:40:00-07:00')
 
-const NEUTRAL_SWATCHES = [
-  ['--n-0', '#FFFFFF'], ['--n-25', '#FAFAF9'], ['--n-50', '#F6F6F4'], ['--n-75', '#F1F1EE'], ['--n-100', '#E8E8E4'],
-  ['--n-200', '#DAD9D4'], ['--n-300', '#C9C7C0'], ['--n-400', '#8F8D85'], ['--n-500', '#6B6961'], ['--n-600', '#57554F'],
-  ['--n-800', '#2E2D2A'], ['--n-900', '#1C1B19'],
-]
+const NEUTRAL_TOKENS = ['--n-0', '--n-25', '--n-50', '--n-75', '--n-100', '--n-200', '--n-300', '--n-400', '--n-500', '--n-600', '--n-800', '--n-900']
+
+/** Reads each token's actual value straight from the cascade, so the doc can never drift from tokens.css (R3: no raw hex in components). */
+function useTokenValues(tokens: string[]): Record<string, string> {
+  const [values, setValues] = useState<Record<string, string>>({})
+  useEffect(() => {
+    const style = getComputedStyle(document.documentElement)
+    const next: Record<string, string> = {}
+    for (const token of tokens) next[token] = style.getPropertyValue(token).trim()
+    setValues(next)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  return values
+}
 const TIER_SWATCHES: { tier: Tier; fg: string; bg: string }[] = [
   { tier: 'now', fg: '--now-fg', bg: '--now-bg' },
   { tier: 'next', fg: '--next-fg', bg: '--next-bg' },
@@ -78,6 +87,7 @@ export default function SystemPage() {
   const exampleResult = scoreItem(exampleItem, NOW)
   const ranked = rankItems(items.filter((i) => i.assigneeId === 'u1'), NOW)
   const [motionKey, setMotionKey] = useState(0)
+  const neutralValues = useTokenValues(NEUTRAL_TOKENS)
 
   return (
     <div className="min-h-screen bg-n-50 flex">
@@ -121,11 +131,11 @@ export default function SystemPage() {
         <Section id="color" title="Color">
           <h3 className="text-[13px] font-semibold text-n-500 mb-2 uppercase tracking-[0.06em]">Neutrals</h3>
           <div className="grid grid-cols-6 gap-3 mb-8">
-            {NEUTRAL_SWATCHES.map(([token, hex]) => (
+            {NEUTRAL_TOKENS.map((token) => (
               <div key={token}>
                 <div className="h-14 rounded-md border border-n-100" style={{ background: `var(${token})` }} />
                 <div className="text-[11px] text-n-500 mt-1 tnum">{token}</div>
-                <div className="text-[11px] text-n-400 tnum">{hex}</div>
+                <div className="text-[11px] text-n-400 tnum">{neutralValues[token] ?? ''}</div>
               </div>
             ))}
           </div>
