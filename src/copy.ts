@@ -66,7 +66,7 @@ export const copy = {
     reassignTitle: 'Who should do this?', findTeammate: 'Find a teammate', suggested: 'Suggested',
     clearFilter: 'Clear filter',
   },
-  trucks: { title: 'Next trucks', atRisk: '{n} orders at risk', onTrack: 'On track' },
+  trucks: { title: 'Next trucks', atRisk: '{n} orders at risk', onTrack: 'On track', none: 'No trucks left today' },
   myShift: { title: 'My shift', doneOf: '{done} of {total} done', ends: 'Shift ends {hhmm}' },
   updates: { title: 'Updates', forYou: 'For you', team: 'Your team', activity: 'Activity', markRead: 'Mark as read',
              empty: 'No updates. When something changes, it will show up here.', seeAll: 'See all updates' },

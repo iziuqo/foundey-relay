@@ -112,7 +112,7 @@ export default function TeamPage() {
                 <RiskTile
                   icon={TruckIcon}
                   label={copy.team.tiles.truck}
-                  value={cutoff ? `${cutoff.carrier.split(' ')[0]} ${formatClock(new Date(cutoff.departsAt))}` : '—'}
+                  value={cutoff ? `${cutoff.carrier.split(' ')[0]} ${formatClock(new Date(cutoff.departsAt))}` : copy.trucks.none}
                   sub={
                     cutoff
                       ? cutoff.ordersAtRisk > 0
