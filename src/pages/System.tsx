@@ -14,6 +14,7 @@ import { HeroCard } from '../components/HeroCard'
 import { Segmented } from '../components/Segmented'
 import { EmptyState } from '../components/EmptyState'
 import { RiskTile } from '../components/RiskTile'
+import { useStore } from '../state/store'
 import { items, team } from '../data/seed'
 import { scoreItem, rankItems, loadFor } from '../lib/priority'
 import { copy } from '../copy'
@@ -72,14 +73,14 @@ const PRINCIPLES = [
 ]
 
 export default function SystemPage() {
-  const [wireframe, setWireframe] = useState(false)
+  const { state, dispatch } = useStore()
   const exampleItem = items.find((i) => i.id === 'it-01')!
   const exampleResult = scoreItem(exampleItem, NOW)
   const ranked = rankItems(items.filter((i) => i.assigneeId === 'u1'), NOW)
   const [motionKey, setMotionKey] = useState(0)
 
   return (
-    <div className={`min-h-screen bg-n-50 flex ${wireframe ? 'wireframe' : ''}`}>
+    <div className="min-h-screen bg-n-50 flex">
       <nav className="w-[220px] shrink-0 border-r border-n-100 p-6 sticky top-0 h-screen overflow-y-auto">
         <Wordmark />
         <p className="text-[12px] text-n-500 mt-2 mb-6">Design system</p>
@@ -101,7 +102,7 @@ export default function SystemPage() {
             <p className="text-[14px] text-n-600">Paper and ink. Color is reserved for priority and status.</p>
           </div>
           <label className="flex items-center gap-2 text-[13px] text-n-600">
-            <input type="checkbox" checked={wireframe} onChange={(e) => setWireframe(e.target.checked)} />
+            <input type="checkbox" checked={state.wireframe} onChange={() => dispatch({ type: 'TOGGLE_WIREFRAME' })} />
             {copy.demo.wireframe}
           </label>
         </header>

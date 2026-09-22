@@ -40,11 +40,11 @@ export function HeroCard({ ranked, now, position, total, workingMinutes, band }:
 
   return (
     <div
-      className="relative bg-n-0 rounded-xl shadow-e2 p-6"
-      style={{ width: 744, border: `1px solid ${style.border}`, boxShadow: style.rail ? `inset 4px 0 0 ${style.rail}` : undefined }}
+      className="relative bg-n-0 rounded-xl shadow-e2 p-6 w-full"
+      style={{ maxWidth: 744, border: `1px solid ${style.border}`, boxShadow: style.rail ? `inset 4px 0 0 ${style.rail}` : undefined }}
     >
       {band && <NewUrgentBand title={band.title} onShowMe={band.onShowMe} onStayHere={band.onStayHere} />}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
         <PriorityIcon tier={tier} size={20} />
         <span className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: meta.color }}>
           {EYEBROW[tier]}

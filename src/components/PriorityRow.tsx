@@ -4,6 +4,7 @@ import { TimePill } from './TimePill'
 import { SourceTag } from './SourceTag'
 import { Chip } from './Chip'
 import { Button } from './Button'
+import { useIsHandheld } from '../lib/useViewport'
 import { copy } from '../copy'
 import type { Item, Tier } from '../lib/types'
 
@@ -25,6 +26,7 @@ const TIER_BG: Partial<Record<Tier, string>> = { now: 'var(--now-bg)' }
 const TIER_RAIL: Partial<Record<Tier, string>> = { now: 'var(--now-solid)', next: 'var(--next-rail)' }
 
 export function PriorityRow({ item, now, tier, selected, isNew, causeOverride, onOpen, onStart, onDone, readOnly, actionOverride }: Props) {
+  const handheld = useIsHandheld()
   const bg = TIER_BG[tier] ?? 'var(--n-0)'
   const rail = TIER_RAIL[tier]
   const style: CSSProperties = {
@@ -33,7 +35,7 @@ export function PriorityRow({ item, now, tier, selected, isNew, causeOverride, o
     gridTemplateRows: 'auto auto',
     columnGap: 12,
     rowGap: 2,
-    minHeight: 64,
+    minHeight: handheld ? 72 : 64,
     padding: '12px 16px',
     background: bg,
     boxShadow: rail ? `inset 3px 0 0 ${rail}` : undefined,

@@ -74,7 +74,7 @@ export const copy = {
   shortcuts: 'J K move · Enter open · E mark done · Z undo · ? all shortcuts',
   demo: { pill: 'Prototype controls', viewingAs: 'Viewing as', priya: 'Priya (coordinator)', danielle: 'Danielle (manager)',
           clock: 'Now {hhmm}', jump: 'Jump 15 min', reset: 'Reset to 10:40', inject: 'Send a new urgent item',
-          wireframe: 'Wireframe mode', resetAll: 'Reset demo' },
+          wireframe: 'Wireframe mode', resetAll: 'Reset demo', clockLabel: 'Clock' },
   drawer: {
     assignedTo: 'Assigned to', ordersWaiting: 'Orders waiting', unitsAffected: 'Units affected',
     truck: 'Truck', created: 'Created', itemId: 'Item ID',

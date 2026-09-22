@@ -31,7 +31,7 @@ export function ActionBar({ item, now, size = 'md', onAfterDone }: { item: Item;
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap">
       {item.status === 'in_progress' ? (
         <Button variant="primary" size={size === 'lg' ? 'lg' : 'md'} onClick={done}>
           {copy.actions.done}

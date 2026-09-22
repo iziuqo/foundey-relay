@@ -60,6 +60,7 @@ type Action =
   | { type: 'SHOW_PENDING' }
   | { type: 'DISMISS_PENDING' }
   | { type: 'JUMP' }
+  | { type: 'RESET_CLOCK'; jumpOffsetMs: number }
   | { type: 'RESET' }
   | { type: 'SET_PERSONA'; persona: PersonaId }
   | { type: 'TOGGLE_WIREFRAME' }
@@ -221,6 +222,9 @@ function reducer(state: DemoState, action: Action): DemoState {
 
     case 'JUMP':
       return { ...state, jumpOffsetMs: state.jumpOffsetMs + 15 * 60000 }
+
+    case 'RESET_CLOCK':
+      return { ...state, jumpOffsetMs: action.jumpOffsetMs }
 
     case 'RESET':
       return {

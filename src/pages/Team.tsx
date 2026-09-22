@@ -86,7 +86,7 @@ export default function TeamPage() {
             {!isManager && <p className="text-[13px] text-n-500 -mt-2">{copy.team.mirror}</p>}
 
             {isManager && (
-              <div className="flex items-center gap-4">
+              <div className="grid grid-cols-2 md:flex md:items-center gap-4">
                 <RiskTile
                   icon={OctagonAlert}
                   label={copy.team.tiles.now}

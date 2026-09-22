@@ -16,6 +16,7 @@ import { ReassignPopover } from './ReassignPopover'
 import { useStore } from '../state/store'
 import { scoreItem } from '../lib/priority'
 import { queueFor, loadForPerson } from '../lib/selectors'
+import { useIsHandheld } from '../lib/useViewport'
 import { site } from '../data/seed'
 import { formatClock } from '../lib/time'
 import { copy, t } from '../copy'
@@ -192,14 +193,16 @@ export function Drawer(props: Props) {
     return () => document.removeEventListener('keydown', onKey)
   }, [props])
 
+  const handheld = useIsHandheld()
+
   return (
     <motion.aside
-      initial={{ opacity: 0, x: 24 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 24 }}
+      initial={handheld ? { opacity: 1, y: '100%' } : { opacity: 0, x: 24 }}
+      animate={handheld ? { opacity: 1, y: 0 } : { opacity: 1, x: 0 }}
+      exit={handheld ? { opacity: 1, y: '100%' } : { opacity: 0, x: 24 }}
       transition={{ duration: 0.32 }}
-      className="fixed right-0 bg-n-0 shadow-e4 flex flex-col z-30"
-      style={{ top: 56, bottom: 0, width: 480 }}
+      className={`fixed bg-n-0 shadow-e4 flex flex-col z-30 ${handheld ? 'inset-x-0 bottom-0 rounded-t-xl' : 'right-0'}`}
+      style={handheld ? { top: 56 } : { top: 56, bottom: 0, width: 480 }}
       role="complementary"
     >
       {props.kind === 'item' ? (

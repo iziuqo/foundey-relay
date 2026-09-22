@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { useStore } from '../state/store'
+import { useIsHandheld } from '../lib/useViewport'
 import { copy } from '../copy'
 
 /** Bottom left of the content area, x = 248 + 24, 24 from the bottom. §7.9. */
@@ -8,6 +9,7 @@ export function Toast() {
   const { state, dispatch } = useStore()
   const toast = state.toast
   const [paused, setPaused] = useState(false)
+  const handheld = useIsHandheld()
 
   useEffect(() => {
     if (!toast || paused) return
@@ -35,7 +37,11 @@ export function Toast() {
     <div
       role="status"
       className="fixed z-50 flex items-center gap-3 h-12 pl-4 pr-2 rounded-lg shadow-e3 relative overflow-hidden"
-      style={{ left: 248 + 24, bottom: 24, background: 'var(--n-900)', color: 'var(--n-50)' }}
+      style={
+        handheld
+          ? { left: 16, right: 16, bottom: 'calc(64px + env(safe-area-inset-bottom) + 12px)', background: 'var(--n-900)', color: 'var(--n-50)' }
+          : { left: 248 + 24, bottom: 24, background: 'var(--n-900)', color: 'var(--n-50)' }
+      }
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
