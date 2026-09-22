@@ -1,0 +1,812 @@
+{
+  "site": {
+    "code": "SEA4",
+    "name": "SEA4 Fulfillment Center",
+    "timezone": "America/Los_Angeles",
+    "now": "2026-09-22T10:40:00-07:00",
+    "shift": {
+      "name": "Day shift (front half)",
+      "start": "2026-09-22T06:30:00-07:00",
+      "end": "2026-09-22T17:00:00-07:00",
+      "handoffAt": "2026-09-22T16:30:00-07:00"
+    },
+    "cutoffs": [
+      {
+        "id": "cpt-ups",
+        "carrier": "UPS Ground",
+        "door": "Door 14",
+        "departsAt": "2026-09-22T11:30:00-07:00",
+        "ordersPlanned": 610,
+        "ordersAtRisk": 236
+      },
+      {
+        "id": "cpt-amzl",
+        "carrier": "Amazon Logistics linehaul",
+        "door": "Door 9",
+        "departsAt": "2026-09-22T12:15:00-07:00",
+        "ordersPlanned": 1420,
+        "ordersAtRisk": 38
+      },
+      {
+        "id": "cpt-fedex",
+        "carrier": "FedEx Express",
+        "door": "Door 3",
+        "departsAt": "2026-09-22T14:00:00-07:00",
+        "ordersPlanned": 185,
+        "ordersAtRisk": 34
+      },
+      {
+        "id": "cpt-usps",
+        "carrier": "USPS",
+        "door": "Door 6",
+        "departsAt": "2026-09-22T15:30:00-07:00",
+        "ordersPlanned": 540,
+        "ordersAtRisk": 0
+      }
+    ]
+  },
+  "team": [
+    {
+      "id": "m1",
+      "name": "Danielle Okafor",
+      "initials": "DO",
+      "role": "Shift Operations Manager",
+      "area": "Outbound",
+      "isManager": true,
+      "status": "working",
+      "statusNote": "On the floor, Door 14",
+      "currentTaskId": null,
+      "currentTaskStartedAt": null
+    },
+    {
+      "id": "u1",
+      "name": "Priya Raman",
+      "initials": "PR",
+      "role": "Outbound Exception Coordinator",
+      "area": "Pack and Ship",
+      "isManager": false,
+      "status": "working",
+      "statusNote": null,
+      "currentTaskId": "it-01",
+      "currentTaskStartedAt": "2026-09-22T10:24:00-07:00"
+    },
+    {
+      "id": "u2",
+      "name": "Luis Herrera",
+      "initials": "LH",
+      "role": "Inventory Control Coordinator",
+      "area": "ICQA",
+      "isManager": false,
+      "status": "working",
+      "statusNote": null,
+      "currentTaskId": "it-08",
+      "currentTaskStartedAt": "2026-09-22T10:12:00-07:00"
+    },
+    {
+      "id": "u3",
+      "name": "Mei Lin Chen",
+      "initials": "MC",
+      "role": "Transportation Coordinator",
+      "area": "Yard and Dock",
+      "isManager": false,
+      "status": "working",
+      "statusNote": null,
+      "currentTaskId": "it-06",
+      "currentTaskStartedAt": "2026-09-22T10:35:00-07:00"
+    },
+    {
+      "id": "u4",
+      "name": "Tomasz Nowak",
+      "initials": "TN",
+      "role": "Customer Escalations Coordinator",
+      "area": "Customer Issues",
+      "isManager": false,
+      "status": "working",
+      "statusNote": null,
+      "currentTaskId": "it-07",
+      "currentTaskStartedAt": "2026-09-22T09:20:00-07:00",
+      "needsHelpSignal": "Current item in progress 80 min, no update for 50 min"
+    },
+    {
+      "id": "u5",
+      "name": "Aisha Bello",
+      "initials": "AB",
+      "role": "Problem Solve Lead",
+      "area": "Pack floor (handheld)",
+      "isManager": false,
+      "status": "on_break",
+      "statusNote": null,
+      "currentTaskId": null,
+      "currentTaskStartedAt": null
+    },
+    {
+      "id": "u6",
+      "name": "Jordan Whitfield",
+      "initials": "JW",
+      "role": "Safety and Compliance Coordinator",
+      "area": "Site wide",
+      "isManager": false,
+      "status": "working",
+      "statusNote": null,
+      "currentTaskId": "it-02",
+      "currentTaskStartedAt": "2026-09-22T10:33:00-07:00"
+    },
+    {
+      "id": "u7",
+      "name": "Kwame Asante",
+      "initials": "KA",
+      "role": "Outbound Exception Coordinator",
+      "area": "Pack and Ship",
+      "isManager": false,
+      "status": "out",
+      "statusNote": "Called out today",
+      "currentTaskId": null,
+      "currentTaskStartedAt": null
+    }
+  ],
+  "items": [
+    {
+      "id": "it-01",
+      "title": "Label printer offline at Pack 7",
+      "source": "system",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T11:30:00-07:00",
+      "createdAt": "2026-09-22T10:22:00-07:00",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 140,
+      "unitsAffected": 212,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "140 orders need labels before the UPS truck leaves at 11:30.",
+      "primaryAction": "Reroute orders to Pack 9",
+      "status": "in_progress",
+      "_expected": {
+        "score": 62,
+        "tier": "Act now"
+      },
+      "cause": "Blocks 140 orders for UPS 11:30"
+    },
+    {
+      "id": "it-02",
+      "title": "Wet floor on forklift route near Door 11",
+      "source": "safety",
+      "assigneeId": "u6",
+      "dueAt": "2026-09-22T10:45:00-07:00",
+      "createdAt": "2026-09-22T10:31:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": true,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Someone could slip or a forklift could skid, so this comes before everything.",
+      "primaryAction": "Dispatch cleanup crew",
+      "status": "in_progress",
+      "_expected": {
+        "score": 86,
+        "tier": "Act now"
+      },
+      "cause": "Safety risk on forklift route"
+    },
+    {
+      "id": "it-03",
+      "title": "Lithium battery orders missing hazmat labels",
+      "source": "order",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T11:45:00-07:00",
+      "createdAt": "2026-09-22T10:05:00-07:00",
+      "cutoffId": "cpt-amzl",
+      "ordersBlocked": 12,
+      "unitsAffected": 12,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": true,
+      "escalated": false,
+      "whyText": "12 orders cannot legally ship on the 12:15 truck without hazmat labels.",
+      "primaryAction": "Reprint hazmat labels",
+      "status": "open",
+      "_expected": {
+        "score": 61,
+        "tier": "Act now"
+      },
+      "cause": "12 orders cannot ship legally"
+    },
+    {
+      "id": "it-04",
+      "title": "Order 4821 payment mismatch, held at pack",
+      "source": "order",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T08:40:00-07:00",
+      "createdAt": "2026-09-22T05:50:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 1,
+      "unitsAffected": 3,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Overdue, but only one order is waiting, so truck risks come first.",
+      "primaryAction": "Release or cancel order",
+      "status": "open",
+      "_expected": {
+        "score": 50,
+        "tier": "Up next"
+      },
+      "cause": "Overdue, 1 order waiting"
+    },
+    {
+      "id": "it-05",
+      "title": "Reply to vendor about damaged tote count",
+      "source": "comms",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T10:45:00-07:00",
+      "createdAt": "2026-09-22T09:10:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Due in 5 minutes, but no orders are waiting on it.",
+      "primaryAction": "Send reply",
+      "status": "open",
+      "_expected": {
+        "score": 36,
+        "tier": "Up next"
+      },
+      "cause": "Due soon, nothing blocked"
+    },
+    {
+      "id": "it-06",
+      "title": "UPS trailer at Door 14 is short 2 pallets",
+      "source": "carrier",
+      "assigneeId": "u3",
+      "dueAt": "2026-09-22T11:30:00-07:00",
+      "createdAt": "2026-09-22T10:28:00-07:00",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 96,
+      "unitsAffected": 150,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "96 orders miss today's promise if the pallets are not loaded by 11:30.",
+      "primaryAction": "Locate pallets in staging",
+      "status": "in_progress",
+      "_expected": {
+        "score": 62,
+        "tier": "Act now"
+      },
+      "cause": "96 orders miss UPS 11:30"
+    },
+    {
+      "id": "it-07",
+      "title": "Escalation: medical supplies order 4833 not shipped",
+      "source": "customer",
+      "assigneeId": "u4",
+      "dueAt": "2026-09-22T12:00:00-07:00",
+      "createdAt": "2026-09-22T09:15:00-07:00",
+      "cutoffId": "cpt-amzl",
+      "ordersBlocked": 1,
+      "unitsAffected": 4,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": true,
+      "whyText": "Customer service escalated it and it must make the 12:15 truck to arrive on time.",
+      "primaryAction": "Expedite to pack",
+      "status": "in_progress",
+      "_expected": {
+        "score": 50,
+        "tier": "Up next"
+      },
+      "cause": "Escalated, medical supplies"
+    },
+    {
+      "id": "it-08",
+      "title": "Count mismatch in bin P3 A114 holding 18 orders",
+      "source": "inventory",
+      "assigneeId": "u2",
+      "dueAt": "2026-09-22T12:15:00-07:00",
+      "createdAt": "2026-09-22T09:55:00-07:00",
+      "cutoffId": "cpt-amzl",
+      "ordersBlocked": 18,
+      "unitsAffected": 18,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "18 orders were short picked from this bin and ship on the 12:15 truck.",
+      "primaryAction": "Start recount",
+      "status": "in_progress",
+      "_expected": {
+        "score": 40,
+        "tier": "Up next"
+      },
+      "cause": "18 orders short picked"
+    },
+    {
+      "id": "it-09",
+      "title": "Wrong item claim on order 4755",
+      "source": "customer",
+      "assigneeId": null,
+      "dueAt": "2026-09-22T15:00:00-07:00",
+      "createdAt": "2026-09-22T08:20:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 1,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "The customer is waiting on a replacement, but it can go out on the afternoon truck.",
+      "primaryAction": "Create replacement order",
+      "status": "open",
+      "_expected": {
+        "score": 18,
+        "tier": "Later today"
+      },
+      "cause": "Customer waiting on replacement"
+    },
+    {
+      "id": "it-10",
+      "title": "Oversize parcel needs a manual rate, order 4790",
+      "source": "order",
+      "assigneeId": null,
+      "dueAt": "2026-09-22T11:20:00-07:00",
+      "createdAt": "2026-09-22T09:40:00-07:00",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 1,
+      "unitsAffected": 1,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Nobody owns this yet and it has to be rated before the UPS truck.",
+      "primaryAction": "Enter manual rate",
+      "status": "open",
+      "_expected": {
+        "score": 40,
+        "tier": "Up next"
+      },
+      "cause": "No owner, UPS truck 11:30"
+    },
+    {
+      "id": "it-11",
+      "title": "Rush shipping request on order 4796",
+      "source": "order",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-23T09:00:00-07:00",
+      "createdAt": "2026-09-22T09:30:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 2,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Due tomorrow morning and nothing is blocked today.",
+      "primaryAction": "Upgrade shipping service",
+      "status": "open",
+      "_expected": {
+        "score": 12,
+        "tier": "Later today"
+      },
+      "cause": "Due tomorrow, nothing blocked"
+    },
+    {
+      "id": "it-12",
+      "title": "Hazmat shipper training renewals for 3 associates",
+      "source": "compliance",
+      "assigneeId": "u6",
+      "dueAt": "2026-09-22T17:00:00-07:00",
+      "createdAt": "2026-09-21T14:00:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": true,
+      "escalated": false,
+      "whyText": "Required by end of day, but nothing ships differently before then.",
+      "primaryAction": "Assign training",
+      "status": "open",
+      "_expected": {
+        "score": 23,
+        "tier": "Later today"
+      },
+      "cause": "Required by end of day"
+    },
+    {
+      "id": "it-13",
+      "title": "Danielle asked you to confirm the UPS order count",
+      "source": "comms",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T11:00:00-07:00",
+      "createdAt": "2026-09-22T10:26:00-07:00",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Your manager needs the number to decide whether to hold the truck.",
+      "primaryAction": "Reply to Danielle",
+      "status": "open",
+      "_expected": {
+        "score": 36,
+        "tier": "Up next"
+      },
+      "cause": "Danielle needs the count"
+    },
+    {
+      "id": "it-14",
+      "title": "Inbound trailer arrived without shipping notice",
+      "source": "inventory",
+      "assigneeId": "u2",
+      "dueAt": "2026-09-22T13:00:00-07:00",
+      "createdAt": "2026-09-22T10:10:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 1200,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Receiving cannot check in 1,200 units, but no outbound orders depend on them today.",
+      "primaryAction": "Request notice from vendor",
+      "status": "open",
+      "_expected": {
+        "score": 14,
+        "tier": "Later today"
+      },
+      "cause": "1,200 units cannot be received"
+    },
+    {
+      "id": "it-15",
+      "title": "FedEx Express pickup moved earlier to 13:30",
+      "source": "carrier",
+      "assigneeId": "u3",
+      "dueAt": "2026-09-22T13:00:00-07:00",
+      "createdAt": "2026-09-22T10:02:00-07:00",
+      "cutoffId": "cpt-fedex",
+      "ordersBlocked": 34,
+      "unitsAffected": 41,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "34 next day orders must be staged 30 minutes earlier than planned.",
+      "primaryAction": "Move staging time",
+      "status": "open",
+      "_expected": {
+        "score": 38,
+        "tier": "Up next"
+      },
+      "cause": "34 next day orders affected"
+    },
+    {
+      "id": "it-16",
+      "title": "Damaged pallet in receiving, 40 units",
+      "source": "inventory",
+      "assigneeId": "u2",
+      "dueAt": "2026-09-22T16:00:00-07:00",
+      "createdAt": "2026-09-22T09:05:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 40,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "Needs a damage report today, but nothing is waiting on it.",
+      "primaryAction": "File damage report",
+      "status": "open",
+      "_expected": {
+        "score": 8,
+        "tier": "Later today"
+      },
+      "cause": "Damage report due today"
+    },
+    {
+      "id": "it-17",
+      "title": "Address check failed on 7 orders",
+      "source": "order",
+      "assigneeId": "u4",
+      "dueAt": "2026-09-22T12:15:00-07:00",
+      "createdAt": "2026-09-22T09:48:00-07:00",
+      "cutoffId": "cpt-amzl",
+      "ordersBlocked": 7,
+      "unitsAffected": 9,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "7 orders will miss the 12:15 truck unless the addresses are fixed.",
+      "primaryAction": "Correct addresses",
+      "status": "open",
+      "_expected": {
+        "score": 32,
+        "tier": "Up next"
+      },
+      "cause": "7 orders miss the 12:15 truck"
+    },
+    {
+      "id": "it-18",
+      "title": "Pack 3 running low on B4 boxes",
+      "source": "floor",
+      "assigneeId": "u5",
+      "dueAt": "2026-09-22T12:30:00-07:00",
+      "createdAt": "2026-09-22T10:18:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "About 2 hours of boxes left, so restock before lunch.",
+      "primaryAction": "Request restock",
+      "status": "open",
+      "_expected": {
+        "score": 22,
+        "tier": "Later today"
+      },
+      "cause": "Boxes run out before lunch"
+    },
+    {
+      "id": "it-19",
+      "title": "Carrier overcharged 3 parcels last week",
+      "source": "carrier",
+      "assigneeId": "u3",
+      "dueAt": "2026-09-22T17:00:00-07:00",
+      "createdAt": "2026-09-21T16:40:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 3,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "A billing dispute with no effect on today's trucks.",
+      "primaryAction": "Open dispute",
+      "status": "waiting",
+      "waitingOn": "UPS account rep",
+      "checkBackAt": "2026-09-22T14:00:00-07:00",
+      "_expected": {
+        "score": 8,
+        "tier": "Later today"
+      },
+      "cause": "Waiting on UPS account rep"
+    },
+    {
+      "id": "it-20",
+      "title": "Customer asked for a delivery photo, order 4702",
+      "source": "customer",
+      "assigneeId": "u4",
+      "dueAt": "2026-09-22T16:00:00-07:00",
+      "createdAt": "2026-09-22T08:55:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 1,
+      "customerImpact": "low",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "A quick reply the customer expects today, with nothing blocked.",
+      "primaryAction": "Send photo",
+      "status": "open",
+      "_expected": {
+        "score": 12,
+        "tier": "Later today"
+      },
+      "cause": "Customer expects a reply today"
+    },
+    {
+      "id": "it-21",
+      "title": "Forklift FL07 daily inspection not submitted",
+      "source": "compliance",
+      "assigneeId": "u6",
+      "dueAt": "2026-09-22T10:30:00-07:00",
+      "createdAt": "2026-09-22T06:30:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": true,
+      "escalated": false,
+      "whyText": "The forklift cannot legally be used until its daily check is on file.",
+      "primaryAction": "Tag out or inspect",
+      "status": "open",
+      "_expected": {
+        "score": 55,
+        "tier": "Up next"
+      },
+      "cause": "Forklift cannot be used yet"
+    },
+    {
+      "id": "it-22",
+      "title": "System maintenance tonight 23:00 to 23:30",
+      "source": "fyi",
+      "assigneeId": null,
+      "dueAt": null,
+      "createdAt": "2026-09-22T07:00:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "For your info. Scanners will be offline for 30 minutes on night shift.",
+      "primaryAction": "Mark as read",
+      "status": "open",
+      "_expected": {
+        "score": null,
+        "tier": "For your info"
+      },
+      "cause": "For your info"
+    },
+    {
+      "id": "it-23",
+      "title": "New carton size C7 added to the pack menu",
+      "source": "fyi",
+      "assigneeId": null,
+      "dueAt": null,
+      "createdAt": "2026-09-22T08:10:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "For your info. Packers may ask about it.",
+      "primaryAction": "Mark as read",
+      "status": "open",
+      "_expected": {
+        "score": null,
+        "tier": "For your info"
+      },
+      "cause": "For your info"
+    },
+    {
+      "id": "it-24",
+      "title": "Peak season volume forecast posted",
+      "source": "fyi",
+      "assigneeId": null,
+      "dueAt": null,
+      "createdAt": "2026-09-22T09:00:00-07:00",
+      "cutoffId": null,
+      "ordersBlocked": 0,
+      "unitsAffected": 0,
+      "customerImpact": "none",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "whyText": "For your info. Volume is expected to rise 35 percent from mid October.",
+      "primaryAction": "Open forecast",
+      "status": "open",
+      "_expected": {
+        "score": null,
+        "tier": "For your info"
+      },
+      "cause": "For your info"
+    }
+  ],
+  "updates": [
+    {
+      "id": "up-01",
+      "at": "2026-09-22T10:36:00-07:00",
+      "authorId": "u3",
+      "type": "activity",
+      "text": "Door 14 loading resumed after a conveyor jam was cleared."
+    },
+    {
+      "id": "up-02",
+      "at": "2026-09-22T10:31:00-07:00",
+      "authorId": "u6",
+      "type": "activity",
+      "text": "Reported a wet floor near Door 11 and blocked the lane."
+    },
+    {
+      "id": "up-03",
+      "at": "2026-09-22T10:20:00-07:00",
+      "authorId": null,
+      "type": "system",
+      "text": "Pack 7 printer has gone offline 3 times since 06:00."
+    },
+    {
+      "id": "up-04",
+      "at": "2026-09-22T10:15:00-07:00",
+      "authorId": "m1",
+      "type": "announcement",
+      "text": "Kwame is out today. His items are in Unassigned and I will split them by 11:00."
+    },
+    {
+      "id": "up-05",
+      "at": "2026-09-22T09:58:00-07:00",
+      "authorId": null,
+      "type": "system",
+      "text": "Amazon Logistics 12:15 volume is 18 percent above forecast."
+    },
+    {
+      "id": "up-06",
+      "at": "2026-09-22T09:40:00-07:00",
+      "authorId": "u2",
+      "type": "activity",
+      "text": "Resolved: bin P2 B009 recount matched the system."
+    },
+    {
+      "id": "up-07",
+      "at": "2026-09-22T06:35:00-07:00",
+      "authorId": null,
+      "type": "handoff",
+      "text": "Night shift handoff: 3 items carried over. Order 4821 payment hold, a FedEx damage claim, and Pack 7 printer dropping out now and then."
+    },
+    {
+      "id": "up-08",
+      "at": "2026-09-22T06:45:00-07:00",
+      "authorId": "m1",
+      "type": "announcement",
+      "text": "Standup focus today: protect the UPS 11:30 and Amazon 12:15 trucks."
+    }
+  ],
+  "demoInjections": [
+    {
+      "id": "it-25",
+      "title": "Conveyor stopped at Pack 9 merge",
+      "source": "system",
+      "assigneeId": "u1",
+      "dueAt": "2026-09-22T11:05:00-07:00",
+      "createdAt": "2026-09-22T10:40:00-07:00",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 60,
+      "unitsAffected": 88,
+      "customerImpact": "high",
+      "safety": false,
+      "compliance": false,
+      "escalated": false,
+      "cause": "60 orders stuck on conveyor",
+      "whyText": "60 orders are stuck on the belt and the UPS truck leaves at 11:30.",
+      "primaryAction": "Call maintenance",
+      "status": "open",
+      "_expected": {
+        "score": 68,
+        "tier": "Act now"
+      }
+    }
+  ],
+  "doneToday": [
+    {
+      "id": "dn-01",
+      "assigneeId": "u1",
+      "title": "Relabeled 3 damaged cartons",
+      "doneAt": "2026-09-22T06:52:00-07:00"
+    },
+    {
+      "id": "dn-02",
+      "assigneeId": "u1",
+      "title": "Cleared night shift hold on order 4719",
+      "doneAt": "2026-09-22T07:30:00-07:00"
+    },
+    {
+      "id": "dn-03",
+      "assigneeId": "u1",
+      "title": "Confirmed FedEx pickup window",
+      "doneAt": "2026-09-22T08:15:00-07:00"
+    },
+    {
+      "id": "dn-04",
+      "assigneeId": "u1",
+      "title": "Answered Luis about bin P2 B009",
+      "doneAt": "2026-09-22T09:41:00-07:00"
+    }
+  ]
+}
