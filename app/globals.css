@@ -97,6 +97,8 @@
    * (always white) stays safe everywhere; verified in lib/color.test.ts. */
   --accent-solid: var(--indigo-9);
   --accent-solid-fg: oklch(1 0 0);
+  /* The scrim behind a sheet, dialog, or the command palette (§6.2, §6.5). */
+  --overlay: oklch(0.2 0.004 264 / 40%);
 
   /* ---- Tier: Act now (red-orange; only tier with a row tint, §4.6) ---- */
   --act-fg: var(--red-11);
@@ -191,6 +193,7 @@
    * fill (2.03:1). indigo-9 is dark enough in both themes to stay one value. */
   --accent-solid: var(--indigo-9);
   --accent-solid-fg: oklch(1 0 0);
+  --overlay: oklch(0 0 0 / 55%);
 
   --act-fg: oklch(0.76 0.16 29);
   --act-bg: oklch(0.3 0.07 29);
@@ -239,6 +242,7 @@
   --focus: var(--indigo-9);
   --accent-solid: var(--indigo-9);
   --accent-solid-fg: oklch(1 0 0);
+  --overlay: oklch(0.2 0.004 264 / 40%);
 
   --act-fg: var(--red-11);
   --act-bg: var(--red-3);

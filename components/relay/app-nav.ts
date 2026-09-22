@@ -13,5 +13,5 @@ export const appNav: AppNavItem[] = [
   { href: "/work", label: copy.nav.work, icon: ListChecks },
   { href: "/team", label: copy.nav.team, icon: Users, stub: "Phase 5" },
   { href: "/updates", label: copy.nav.updates, icon: Bell, stub: "Phase 5" },
-  { href: "/lookup", label: copy.nav.lookup, icon: Search, stub: "Phase 4" },
+  { href: "/lookup", label: copy.nav.lookup, icon: Search },
 ];

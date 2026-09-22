@@ -36,6 +36,8 @@ interface DemoState extends Snapshot {
   pendingPromotion: PendingPromotion | null;
   lastInteractionAt: number;
   awayPromotions: number;
+  paletteOpen: boolean;
+  shortcutsOpen: boolean;
 }
 
 interface DemoActions {
@@ -60,6 +62,11 @@ interface DemoActions {
   logInteraction: (atMs: number) => void;
   markRead: (itemId: string) => void;
   totalToday: (personId: string) => { done: number; total: number };
+  openPalette: () => void;
+  closePalette: () => void;
+  togglePalette: () => void;
+  openShortcuts: () => void;
+  closeShortcuts: () => void;
 }
 
 export type DemoStore = DemoState & DemoActions;
@@ -81,6 +88,8 @@ function initialState(): DemoState {
     pendingPromotion: null,
     lastInteractionAt: 0,
     awayPromotions: 0,
+    paletteOpen: false,
+    shortcutsOpen: false,
   };
 }
 
@@ -235,6 +244,13 @@ export const useStore = create<DemoStore>()(
         const state = get();
         return totalTodayFor(state.items, state.doneLog, personId);
       },
+
+      openPalette: () => set({ paletteOpen: true }),
+      closePalette: () => set({ paletteOpen: false }),
+      togglePalette: () => set((state) => ({ paletteOpen: !state.paletteOpen })),
+
+      openShortcuts: () => set({ shortcutsOpen: true }),
+      closeShortcuts: () => set({ shortcutsOpen: false }),
     }),
     {
       name: STORAGE_KEY,

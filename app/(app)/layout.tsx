@@ -3,10 +3,19 @@ import { Sidebar } from "@/components/relay/sidebar";
 import { TopBar } from "@/components/relay/top-bar";
 import { BottomDock } from "@/components/relay/bottom-dock";
 import { ToastBridge } from "@/components/relay/toast-bridge";
+import { CommandPalette } from "@/components/relay/command-palette";
+import { ShortcutsSheet } from "@/components/relay/shortcuts-sheet";
+import { GlobalHotkeys } from "@/components/relay/global-hotkeys";
 
-/** §8.2 shell: sidebar, top bar, bottom dock, toaster. The @modal slot for the item
- * detail intercepting route lands in phase 4. */
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+/** §8.2 shell: sidebar, top bar, bottom dock, toaster, and the @modal slot for the
+ * item detail intercepting route (phase 4). */
+export default function AppLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -16,6 +25,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
       <BottomDock />
       <ToastBridge />
+      {modal}
+      <CommandPalette />
+      <ShortcutsSheet />
+      <GlobalHotkeys />
       <Toaster
         position="top-center"
         toastOptions={{

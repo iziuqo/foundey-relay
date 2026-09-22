@@ -25,6 +25,7 @@ export const semanticTokens = [
   "--focus",
   "--accent-solid",
   "--accent-solid-fg",
+  "--overlay",
 ];
 
 // Each --text-N on --bg or --surface-1, the pairs components actually render.

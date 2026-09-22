@@ -83,6 +83,14 @@ export function queueFor(
   };
 }
 
+/** §6.2: item detail's prev/next order — the hero first, then each tier in the order
+ * the queue renders them. Not persisted anywhere; recomputed from a `QueueGroups`. */
+export function flattenedQueue(queue: QueueGroups): Ranked[] {
+  return [queue.hero, ...queue.now, ...queue.next, ...queue.later].filter(
+    (r): r is Ranked => r !== null,
+  );
+}
+
 export function totalTodayFor(
   items: Item[],
   doneLog: DoneEntry[],

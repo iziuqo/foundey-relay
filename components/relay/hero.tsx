@@ -93,7 +93,10 @@ export function Hero({
           trigger={
             <button
               type="button"
-              className="font-medium text-(--accent) underline decoration-(--border-2) underline-offset-2 hover:decoration-(--accent)"
+              className={cn(
+                "font-medium underline decoration-(--border-2) underline-offset-2 hover:decoration-current",
+                tierFgClass[tier],
+              )}
             >
               {copy.why.title}
             </button>
