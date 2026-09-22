@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
 
 export const TIME_ZONE = "America/Los_Angeles";
 
@@ -55,6 +55,40 @@ export function relativeDuration(minutes: number): string {
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
+/** ISO instant at 12:30 site time on `now`'s site-local day. §8.6 "after lunch" snooze option; the demo's one fixed day runs PDT, matching SEED_NOW_ISO's -07:00 (state/clock.ts). */
+export function afterLunchIso(now: Date): string {
+  return `${dayKey(now)}T12:30:00-07:00`;
+}
+
+/** ISO instant at `hhmm` (24h, "HH:MM") site time on `now`'s site-local day. */
+export function siteTimeIso(now: Date, hhmm: string): string {
+  return `${dayKey(now)}T${hhmm}:00-07:00`;
+}
+
+export type DueKind =
+  | { kind: "late-min"; n: number }
+  | { kind: "late-hr"; n: number }
+  | { kind: "tomorrow"; hhmm: string }
+  | { kind: "due-in"; n: number }
+  | { kind: "due-at"; hhmm: string };
+
+/**
+ * Classifies a due instant relative to `now` into the shape the time pill and truck
+ * clock read off (plan §6.1 time pills, §3.2 truck capsules). Pure and testable —
+ * callers map the `kind` onto copy.ts strings; this file stays copy-free.
+ */
+export function dueKind(dueAt: string, now: Date): DueKind {
+  const target = new Date(dueAt);
+  const ml = minutesBetween(now, target);
+  if (ml < 0) {
+    const abs = Math.abs(ml);
+    return abs < 60 ? { kind: "late-min", n: abs } : { kind: "late-hr", n: Math.round(abs / 60) };
+  }
+  if (isTomorrow(target, now)) return { kind: "tomorrow", hhmm: formatClock(target) };
+  if (ml <= 240) return { kind: "due-in", n: ml };
+  return { kind: "due-at", hhmm: formatClock(target) };
+}
+
 /**
  * The hour of `date` in site time (0-23). Some ICU builds format midnight as "24" for
  * `hour12: false`, so that's normalized back to 0. This is the only correct way to ask
@@ -88,21 +122,37 @@ export function simNowFrom(
   return new Date(seedMs + (Date.now() - loadedAtMs) + jumpOffsetMs);
 }
 
+const noSubscription = () => () => {};
+
+/**
+ * §8.3: the server render and the first client render must produce the exact same
+ * `now` (the seed instant, elapsed = 0) or React flags a hydration mismatch — which is
+ * exactly what happens if `now` is derived from `Date.now()` during render, since the
+ * server's and the client's render passes happen at genuinely different wall-clock
+ * instants (network latency between them). `useSyncExternalStore`'s server/client
+ * snapshot split is the React-documented way to read a client-only value without that
+ * mismatch: `getServerSnapshot` (and the client's matching first paint) says
+ * `hasMounted = false`, so both render the seed instant exactly; only the following,
+ * strictly client-side re-render — after hydration has already committed, which is
+ * also where the clock is meant to start (Providers.tsx) — flips it to `true`.
+ */
+function useHasMounted(): boolean {
+  return useSyncExternalStore(noSubscription, () => true, () => false);
+}
+
 /**
  * Re-renders on every simulated minute (and immediately when the jump offset changes,
  * since `now` is derived fresh every render rather than cached in state — the effect
  * below only subscribes to the interval "external system" to force those re-renders).
  */
-export function useNow(
-  seedNowIso: string,
-  loadedAtMs: number,
-  jumpOffsetMs: number,
-  intervalMs = 60000,
-): Date {
+export function useNow(seedNowIso: string, jumpOffsetMs: number, intervalMs = 60000): Date {
+  const hasMounted = useHasMounted();
+  const [loadedAtMs] = useState(() => Date.now());
   const [, forceTick] = useReducer((c: number) => c + 1, 0);
   useEffect(() => {
     const id = setInterval(forceTick, intervalMs);
     return () => clearInterval(id);
   }, [intervalMs]);
+  if (!hasMounted) return new Date(seedNowIso);
   return simNowFrom(seedNowIso, loadedAtMs, jumpOffsetMs);
 }

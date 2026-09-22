@@ -1,0 +1,190 @@
+"use client";
+
+import { useEffect } from "react";
+import { useStore } from "@/state/store";
+import { SEED_NOW_ISO } from "@/state/clock";
+import { resolveHotkey } from "@/state/hotkeys";
+import { useNow } from "@/lib/time";
+import { queueFor, totalTodayFor, nextCutoff } from "@/lib/selectors";
+import { site, items as seedItemsForFyi } from "@/lib/seed";
+import { copy } from "@/lib/copy";
+import { StatusSentence } from "@/components/relay/status-sentence";
+import { Hero } from "@/components/relay/hero";
+import { AllClear } from "@/components/relay/all-clear";
+import { Queue } from "@/components/relay/queue";
+import { TruckClock } from "@/components/relay/truck-clock";
+import { ShiftTimeline } from "@/components/relay/shift-timeline";
+import { Button } from "@/components/ui/button";
+
+function FyiPreview() {
+  const fyi = [...seedItemsForFyi]
+    .filter((i) => i.source === "fyi")
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
+  if (fyi.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2 rounded-(--radius-control) border border-(--border-1) p-3">
+      <p className="text-(length:--text-meta) font-semibold tracking-wide text-(--text-2) uppercase">
+        {copy.tiers.fyi.label}
+      </p>
+      <ul className="flex flex-col gap-2">
+        {fyi.map((item) => (
+          <li key={item.id} className="text-(length:--text-meta) text-(--text-1)">
+            {item.title}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function WorkPage() {
+  const persona = useStore((s) => s.persona);
+  const items = useStore((s) => s.items);
+  const doneLog = useStore((s) => s.doneLog);
+  const team = useStore((s) => s.team);
+  const jumpOffsetMs = useStore((s) => s.jumpOffsetMs);
+  const pendingPromotion = useStore((s) => s.pendingPromotion);
+  const start = useStore((s) => s.start);
+  const markDone = useStore((s) => s.markDone);
+  const askHelp = useStore((s) => s.askHelp);
+  const waiting = useStore((s) => s.waiting);
+  const notMine = useStore((s) => s.notMine);
+  const moveLater = useStore((s) => s.moveLater);
+  const showPending = useStore((s) => s.showPending);
+  const logInteraction = useStore((s) => s.logInteraction);
+
+  const now = useNow(SEED_NOW_ISO, jumpOffsetMs);
+  const person = team.find((p) => p.id === persona) ?? team[0];
+
+  const pending = pendingPromotion && !pendingPromotion.dismissed ? pendingPromotion : null;
+  const queue = queueFor(items, person.id, now, pending?.frozenHeroId ?? undefined);
+  const { done, total } = totalTodayFor(items, doneLog, person.id);
+  const cutoff = nextCutoff(now);
+  const pendingItem = pending ? items.find((i) => i.id === pending.itemId) : undefined;
+  const nowTierCount = queue.now.length + (queue.hero?.result.tier === "now" ? 1 : 0);
+  const nextRanked = queue.now[0] ?? queue.next[0] ?? queue.later[0] ?? null;
+
+  useEffect(() => {
+    logInteraction(Date.now());
+    function markActive() {
+      logInteraction(Date.now());
+    }
+    window.addEventListener("pointerdown", markActive);
+    window.addEventListener("keydown", markActive);
+    return () => {
+      window.removeEventListener("pointerdown", markActive);
+      window.removeEventListener("keydown", markActive);
+    };
+  }, [logInteraction]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const name = resolveHotkey(event, event.target as HTMLElement | null);
+      if (!name) return;
+      if (name === "moveDown" || name === "moveUp") {
+        const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-row-nav]"));
+        if (rows.length === 0) return;
+        const activeIndex = rows.findIndex((el) => el === document.activeElement);
+        const nextIndex =
+          activeIndex === -1
+            ? name === "moveDown"
+              ? 0
+              : rows.length - 1
+            : Math.min(rows.length - 1, Math.max(0, activeIndex + (name === "moveDown" ? 1 : -1)));
+        event.preventDefault();
+        rows[nextIndex]?.focus();
+      } else if (name === "markDone" && queue.hero) {
+        event.preventDefault();
+        markDone(queue.hero.item.id, now.toISOString());
+      } else if (name === "askHelp" && queue.hero) {
+        event.preventDefault();
+        askHelp(queue.hero.item.id);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [queue.hero, markDone, askHelp, now]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-col gap-6 p-4 xl:flex-row xl:items-start xl:gap-8 xl:p-8">
+      <div data-testid="work-main" className="flex min-w-0 flex-1 flex-col gap-6 xl:min-w-[36rem]">
+        <StatusSentence
+          name={person.name.split(" ")[0]}
+          now={now}
+          nowTierCount={nowTierCount}
+          done={done}
+          total={total}
+          nextCutoff={cutoff}
+        />
+
+        <div className="xl:hidden">
+          <TruckClock cutoffs={site.cutoffs} now={now} />
+        </div>
+
+        {queue.hero ? (
+          <Hero
+            ranked={queue.hero}
+            nextRanked={nextRanked}
+            now={now}
+            nextCutoffAt={cutoff?.departsAt ?? null}
+            pendingTitle={pendingItem?.title ?? null}
+            onShowMe={showPending}
+            onStart={() => start(queue.hero!.item.id, person.id, now.toISOString())}
+            onMarkDone={() => markDone(queue.hero!.item.id, now.toISOString())}
+            onAskHelp={() => askHelp(queue.hero!.item.id)}
+            onWaiting={(who, checkBackAt) => waiting(queue.hero!.item.id, who, checkBackAt)}
+            onMoveLater={(snoozeUntil) => moveLater(queue.hero!.item.id, snoozeUntil)}
+            onNotMine={() => notMine(queue.hero!.item.id)}
+          />
+        ) : (
+          <AllClear doneToday={done} />
+        )}
+
+        {(queue.now.length > 0 ||
+          queue.next.length > 0 ||
+          queue.later.length > 0 ||
+          queue.waiting.length > 0 ||
+          queue.snoozed.length > 0) && (
+          <Queue
+            now={now}
+            nowGroup={queue.now}
+            nextGroup={queue.next}
+            laterGroup={queue.later}
+            waiting={queue.waiting}
+            snoozed={queue.snoozed}
+            done={doneLog.filter((d) => d.assigneeId === person.id)}
+            nextCutoffAt={cutoff?.departsAt ?? null}
+            onStart={(id) => start(id, person.id, now.toISOString())}
+            onMarkDone={(id) => markDone(id, now.toISOString())}
+            onWaiting={(id, who, checkBackAt) => waiting(id, who, checkBackAt)}
+            onMoveLater={(id, snoozeUntil) => moveLater(id, snoozeUntil)}
+            onNotMine={(id) => notMine(id)}
+          />
+        )}
+      </div>
+
+      <aside data-testid="work-rail" className="hidden w-full shrink-0 flex-col gap-6 xl:flex xl:w-[clamp(18rem,26vw,22rem)]">
+        <TruckClock cutoffs={site.cutoffs} now={now} stacked />
+        <ShiftTimeline now={now} shift={site.shift} cutoffs={site.cutoffs} />
+        <FyiPreview />
+      </aside>
+
+      {queue.hero && (
+        <div className="fixed inset-x-3 bottom-20 z-30 lg:hidden">
+          <Button
+            size="lg"
+            className="w-full shadow-(--shadow-e3)"
+            onClick={
+              queue.hero.item.status === "in_progress"
+                ? () => markDone(queue.hero!.item.id, now.toISOString())
+                : () => start(queue.hero!.item.id, person.id, now.toISOString())
+            }
+          >
+            {queue.hero.item.status === "in_progress" ? copy.actions.done : queue.hero.item.primaryAction}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}

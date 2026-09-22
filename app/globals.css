@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Theming is an attribute swap (data-theme="light|dark"), not prefers-color-scheme or
+ * a `dark` class — so `dark:` utilities need to target that attribute instead of
+ * Tailwind's default media-query variant. Used sparingly (e.g. the hero's dark-only
+ * tier glow, §4.5); color otherwise flows through the token layer below. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /*
  * Token layers, plan §4.1-4.2, §4.5, §4.7.
  *
@@ -306,9 +312,11 @@
   --radius-chip: 2px;
   --radius-control: 2px;
   --radius-hero: 2px;
-}
 
-[data-fidelity="wire"] {
+  /* Self-targeting: /system/components nests a live `data-fidelity="wire"` preview div
+   * (not the whole html/body), and its own descendants inherit font-family straight
+   * from it. --font-mono has no dependency on next/font's generated --font-inter
+   * variable, so this resolves fine even where --font-inter isn't in scope. */
   font-family: var(--font-mono);
 }
 
@@ -335,7 +343,50 @@ body {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* The app's fidelity attribute lives on <html>, above body — and body's own
+ * font-family above always wins over whatever <html> merely inherited down to it
+ * (a rule matching body directly beats one that only cascades onto it). So the swap
+ * needs to target body explicitly too; a self-targeting rule alone (above) only
+ * reaches /system's nested wire/hi preview divs, not the main app shell. */
+[data-fidelity="wire"] body {
+  font-family: var(--font-mono);
+}
+
 /* Every time and count carries tabular numerals, §4.3. */
 .tnum {
   font-variant-numeric: tabular-nums;
+}
+
+/* §2.2 / §6.1 all clear: the one place the gradient comes back (v1's advisor rejected
+ * it everywhere else). The 20s hue drift (M12) is real motion, so it's off under
+ * prefers-reduced-motion — full MotionConfig-driven parity with the rest of the motion
+ * catalog is phase 6; this is its resting/reduced state either way. */
+.aurora {
+  background: radial-gradient(
+      ellipse 80% 60% at 20% 20%,
+      oklch(0.8 0.1 275 / 35%),
+      transparent 60%
+    ),
+    radial-gradient(ellipse 70% 60% at 80% 30%, oklch(0.82 0.09 250 / 30%), transparent 60%),
+    radial-gradient(ellipse 80% 70% at 50% 90%, oklch(0.85 0.08 150 / 22%), transparent 60%);
+  background-size: 200% 200%;
+  animation: aurora-drift 20s ease-in-out infinite;
+}
+
+@keyframes aurora-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora {
+    animation: none;
+  }
 }
