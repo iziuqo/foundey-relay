@@ -85,7 +85,8 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
 
   const personId = state.persona
   const person = state.team.find((p) => p.id === personId)
-  const q = useMemo(() => queueFor(state.items, personId, now), [state.items, personId, now])
+  const frozenHeroId = state.pendingPromotion?.frozenHeroId ?? null
+  const q = useMemo(() => queueFor(state.items, personId, now, frozenHeroId), [state.items, personId, now, frozenHeroId])
   const { done: doneCount, total: totalCount } = totalToday(personId)
 
   const rankedId = (r: Ranked) => r.item.id

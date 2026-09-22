@@ -26,8 +26,15 @@ export interface QueueGroups {
   total: number
 }
 
-/** One person's queue: tiered, sorted, with the hero split out of its tier. §6.2, §4.2. */
-export function queueFor(items: Item[], personId: string, now: Date): QueueGroups {
+/**
+ * One person's queue: tiered, sorted, with the hero split out of its tier. §6.2, §4.2.
+ *
+ * `forcedHeroId`, when given, pins the hero to that item instead of the naturally top ranked one.
+ * §7.6: while a higher ranked item's arrival band is showing (the user was active in the last 8s),
+ * "the hero does not change" until they press Show me — the newly arrived item still ranks and
+ * lists normally, it just doesn't unseat the current hero on its own.
+ */
+export function queueFor(items: Item[], personId: string, now: Date, forcedHeroId?: string | null): QueueGroups {
   const mine = effectiveItems(
     items.filter((i) => i.assigneeId === personId && i.source !== 'fyi'),
     now,
@@ -41,9 +48,11 @@ export function queueFor(items: Item[], personId: string, now: Date): QueueGroup
   const nowTier = byTier('now')
   const nextTier = byTier('next')
   const laterTier = byTier('later')
-  const hero = nowTier[0] ?? nextTier[0] ?? laterTier[0] ?? null
+  const natural = nowTier[0] ?? nextTier[0] ?? laterTier[0] ?? null
+  const forced = forcedHeroId ? ranked.find((r) => r.item.id === forcedHeroId) : undefined
+  const hero = forced ?? natural
 
-  const withoutHero = (list: Ranked[]) => (hero && list[0]?.item.id === hero.item.id ? list.slice(1) : list)
+  const withoutHero = (list: Ranked[]) => (hero ? list.filter((r) => r.item.id !== hero.item.id) : list)
 
   return {
     hero,
