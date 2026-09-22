@@ -9,10 +9,12 @@ behind the plan is in [`plan/research/`](plan/research/).
 ## Links
 
 - Prototype: [foundey-relay.vercel.app](https://foundey-relay.vercel.app)
-- Deck: [foundey-relay.vercel.app/deck](https://foundey-relay.vercel.app/deck) (added in a later commit)
+- Deck: [foundey-relay.vercel.app/deck](https://foundey-relay.vercel.app/deck)
 - Design system: [foundey-relay.vercel.app/system](https://foundey-relay.vercel.app/system)
 - GitHub: [github.com/iziuqo/foundey-relay](https://github.com/iziuqo/foundey-relay) (private; contains the brief PDF)
-- Figma: _added once available, see §13 of the plan_
+- Figma — Design System: [figma.com/design/6LcEBYGmZ5g2ClZEZL1sVW](https://www.figma.com/design/6LcEBYGmZ5g2ClZEZL1sVW/foundey) (variables, text/effect styles, PriorityIcon/Button/Chip component sets)
+- Figma — Prototype: [figma.com/design/kCzpf4SUDbgCiTETVLHUKB](https://www.figma.com/design/kCzpf4SUDbgCiTETVLHUKB)
+- Figma — Deck: [figma.com/slides/kg9EEVz7cQ1d8z62HMgokd](https://www.figma.com/slides/kg9EEVz7cQ1d8z62HMgokd) (all 27 slides)
 
 ## Running it locally
 

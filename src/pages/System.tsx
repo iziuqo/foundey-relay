@@ -103,6 +103,24 @@ export default function SystemPage() {
             </li>
           ))}
         </ul>
+        <p className="text-[12px] text-n-500 mt-8 mb-2 uppercase tracking-[0.06em]">Figma</p>
+        <ul className="flex flex-col gap-1">
+          <li>
+            <a href="https://www.figma.com/design/6LcEBYGmZ5g2ClZEZL1sVW/foundey" target="_blank" rel="noreferrer" className="block text-[13px] text-accent hover:underline py-1">
+              Design system
+            </a>
+          </li>
+          <li>
+            <a href="https://www.figma.com/design/kCzpf4SUDbgCiTETVLHUKB" target="_blank" rel="noreferrer" className="block text-[13px] text-accent hover:underline py-1">
+              Prototype
+            </a>
+          </li>
+          <li>
+            <a href="https://www.figma.com/slides/kg9EEVz7cQ1d8z62HMgokd" target="_blank" rel="noreferrer" className="block text-[13px] text-accent hover:underline py-1">
+              Deck
+            </a>
+          </li>
+        </ul>
       </nav>
 
       <main className="flex-1 max-w-[900px] px-10 py-10">
