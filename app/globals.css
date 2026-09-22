@@ -84,6 +84,13 @@
   --border-2: var(--gray-7);
   --accent: var(--indigo-9);
   --focus: var(--indigo-9);
+  /* Solid fills (e.g. the primary button) need their own pair: --accent alone isn't
+   * contrast-safe as a fill in every theme/fidelity (dark's --accent is a light indigo
+   * meant for text/rings against a dark bg; wire's is a mid gray) — white text on top
+   * of either fails WCAG AA. --accent-solid is tuned per block so --accent-solid-fg
+   * (always white) stays safe everywhere; verified in lib/color.test.ts. */
+  --accent-solid: var(--indigo-9);
+  --accent-solid-fg: oklch(1 0 0);
 
   /* ---- Tier: Act now (red-orange; only tier with a row tint, §4.6) ---- */
   --act-fg: var(--red-11);
@@ -125,10 +132,43 @@
   --radius-hero: 20px;
 
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+
+  /* ---- Size contract, §4.4. Controls in one row share one height and one
+     vertical center (asserted in G2). Handheld uses the lg step or a 48px floor. ---- */
+  --size-control-sm: 2rem;    /* 32px */
+  --size-control-md: 2.5rem;  /* 40px */
+  --size-control-lg: 3rem;    /* 48px */
+  --size-chip-sm: 1.5rem;     /* 24px */
+  --size-chip-md: 1.75rem;    /* 28px */
+  --size-row-min: 3.5rem;     /* 56px, desktop queue row */
+  --size-row-min-handheld: 4rem; /* 64px */
+  --size-icon-sm: 1rem;       /* 16px */
+  --size-icon-md: 1.25rem;    /* 20px */
+  --size-icon-lg: 1.5rem;     /* 24px */
+
+  /* ---- Type, §4.3. Fluid between 390 and 1440 with clamp(). tnum on every
+     time and count is applied with the .tnum class, not baked in here. ---- */
+  --text-display: clamp(2.5rem, 1.9rem + 2.6vw, 3.5rem);
+  --leading-display: clamp(2.75rem, 2.1rem + 2.7vw, 3.75rem);
+  --text-hero: clamp(1.625rem, 1.4rem + 0.9vw, 2rem);
+  --leading-hero: clamp(2rem, 1.75rem + 1vw, 2.375rem);
+  --text-title: 1.25rem;
+  --leading-title: 1.75rem;
+  --text-row: 1.0625rem;
+  --leading-row: 1.5rem;
+  --text-body: 1rem;
+  --leading-body: 1.5rem;
+  --text-meta: 0.875rem;
+  --leading-meta: 1.25rem;
+  --text-kbd: 0.75rem;
+  --leading-kbd: 1rem;
 }
 
-/* ================= Dark theme, D2 ================= */
-:root[data-theme="dark"] {
+/* ================= Dark theme, D2 =================
+ * Not `:root`-scoped: /system's Foundations page nests a `data-theme="dark"` preview
+ * panel next to a light one so tokens can be compared and contrast-measured side by
+ * side without flipping the whole app. Custom properties inherit normally either way. */
+[data-theme="dark"] {
   --bg: oklch(0.17 0.003 264);
   --surface-1: oklch(0.21 0.004 264);
   --surface-2: oklch(0.24 0.004 264);
@@ -140,6 +180,11 @@
   --border-2: oklch(1 0 0 / 16%);
   --accent: var(--indigo-6);
   --focus: var(--indigo-6);
+  /* indigo-9, not indigo-6 — dark's --accent is deliberately light for legibility as
+   * text/a ring against the dark bg, but that same lightness fails white text as a
+   * fill (2.03:1). indigo-9 is dark enough in both themes to stay one value. */
+  --accent-solid: var(--indigo-9);
+  --accent-solid-fg: oklch(1 0 0);
 
   --act-fg: oklch(0.76 0.16 29);
   --act-bg: oklch(0.3 0.07 29);
@@ -171,14 +216,64 @@
   --shadow-e3: inset 0 1px 0 oklch(1 0 0 / 8%), 0 16px 40px oklch(0 0 0 / 55%);
 }
 
+/* Explicit light, mirroring the :root defaults above — needed so a local
+ * data-theme="light" preview panel (/system, side by side with a dark one) resets
+ * correctly even when nested under a global data-theme="dark" ancestor. */
+[data-theme="light"] {
+  --bg: var(--gray-1);
+  --surface-1: oklch(1 0 0);
+  --surface-2: var(--gray-2);
+  --surface-3: var(--gray-3);
+  --text-1: var(--gray-12);
+  --text-2: var(--gray-11);
+  --text-3: var(--gray-9);
+  --border-1: var(--gray-5);
+  --border-2: var(--gray-7);
+  --accent: var(--indigo-9);
+  --focus: var(--indigo-9);
+  --accent-solid: var(--indigo-9);
+  --accent-solid-fg: oklch(1 0 0);
+
+  --act-fg: var(--red-11);
+  --act-bg: var(--red-3);
+  --act-border: var(--red-6);
+  --act-glow: oklch(0.605 0.22 29 / 12%);
+
+  --next-fg: var(--amber-11);
+  --next-bg: var(--amber-3);
+  --next-border: var(--amber-6);
+  --next-glow: oklch(0.685 0.16 60 / 12%);
+
+  --when-fg: var(--slate-11);
+  --when-bg: var(--slate-3);
+  --when-border: var(--slate-6);
+  --when-glow: oklch(0.55 0.02 255 / 12%);
+
+  --fyi-fg: var(--blue-11);
+  --fyi-bg: var(--blue-3);
+  --fyi-border: var(--blue-6);
+  --fyi-glow: oklch(0.58 0.16 250 / 12%);
+
+  --success-fg: var(--green-11);
+  --success-bg: var(--green-3);
+  --success-border: var(--green-6);
+
+  --shadow-e1: 0 1px 2px oklch(0 0 0 / 6%);
+  --shadow-e2: 0 2px 8px oklch(0 0 0 / 8%);
+  --shadow-e3: 0 12px 32px oklch(0 0 0 / 14%);
+}
+
 /* ================= Wireframe fidelity, §4.7 ================= */
 /* Same components, tokens swapped: all hues become grays, radii become 2px, shadows
    and glows turn off, and the font becomes a monospace. This *is* deliverable 2 of the
    brief, live — it replaces v1's grayscale `filter`, which was neither a true
    wireframe nor safe for fixed elements (README P0 4). */
-:root[data-fidelity="wire"] {
+[data-fidelity="wire"] {
   --accent: var(--gray-9);
   --focus: var(--gray-9);
+  /* gray-11, not gray-9 — gray-9 is only 3.79:1 against white text (fails AA). */
+  --accent-solid: var(--gray-11);
+  --accent-solid-fg: oklch(1 0 0);
 
   --act-fg: var(--gray-12);
   --act-bg: var(--gray-3);
@@ -190,12 +285,12 @@
   --next-border: var(--gray-6);
   --next-glow: transparent;
 
-  --when-fg: var(--gray-10);
+  --when-fg: var(--gray-11);
   --when-bg: var(--gray-2);
   --when-border: var(--gray-5);
   --when-glow: transparent;
 
-  --fyi-fg: var(--gray-10);
+  --fyi-fg: var(--gray-11);
   --fyi-bg: var(--gray-2);
   --fyi-border: var(--gray-5);
   --fyi-glow: transparent;
@@ -213,8 +308,25 @@
   --radius-hero: 2px;
 }
 
-:root[data-fidelity="wire"] body {
+[data-fidelity="wire"] {
   font-family: var(--font-mono);
+}
+
+/* Explicit hi-fi reset — deliberately narrow. Radii and font are fidelity-only
+ * properties (same at every theme), so a local data-fidelity="hi" preview panel can
+ * safely reset just these two. Color and shadow are NOT reset here: those tokens are
+ * theme-dependent (light vs. dark redefine them), and since [data-theme="dark"] and
+ * [data-fidelity="hi"] carry equal specificity, an unconditional color reset here would
+ * win over the dark theme on any element carrying both attributes (the normal case for
+ * <html>) and silently break dark mode. A hi-fi-under-a-wire-ancestor panel that needs
+ * accurate color would need real theme-aware tokens to reset to; §9's gates don't
+ * require that nesting, so it isn't built. */
+[data-fidelity="hi"] {
+  --radius-chip: 8px;
+  --radius-control: 12px;
+  --radius-hero: 20px;
+
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {

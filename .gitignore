@@ -6,3 +6,7 @@ exports/slides
 .vercel
 .DS_Store
 tsconfig.tsbuildinfo
+test-results
+playwright-report
+blob-report
+playwright/.cache
