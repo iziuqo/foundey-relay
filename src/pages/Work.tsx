@@ -26,33 +26,35 @@ function QueueSection({
   tier,
   ranked,
   now,
+  visibleCount,
+  onShowMore,
+  selectedId,
   onOpen,
   onStart,
   onDone,
-  defaultCollapsed,
+  collapsible,
+  collapsed,
+  onToggleCollapsed,
 }: {
   tier: Extract<Tier, 'now' | 'next' | 'later' | 'fyi'>
   ranked: Ranked[]
   now: Date
+  visibleCount: number
+  onShowMore: () => void
+  selectedId: string | null
   onOpen: (id: string) => void
   onStart: (id: string) => void
   onDone: (id: string) => void
-  defaultCollapsed?: boolean
+  collapsible?: boolean
+  collapsed?: boolean
+  onToggleCollapsed?: () => void
 }) {
-  const [collapsed, setCollapsed] = useState(!!defaultCollapsed)
-  const [visible, setVisible] = useState(3)
-  const shown = ranked.slice(0, visible)
+  const shown = ranked.slice(0, visibleCount)
   const remaining = ranked.length - shown.length
 
   return (
     <>
-      <TierHeader
-        tier={tier}
-        count={ranked.length}
-        collapsible={tier === 'later' && defaultCollapsed !== undefined}
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((c) => !c)}
-      />
+      <TierHeader tier={tier} count={ranked.length} collapsible={collapsible} collapsed={collapsed} onToggle={onToggleCollapsed} />
       {!collapsed && (
         <>
           {ranked.length === 0 ? (
@@ -60,13 +62,22 @@ function QueueSection({
           ) : (
             <ul>
               {shown.map((r) => (
-                <PriorityRow key={r.item.id} item={r.item} now={now} tier={r.result.tier} onOpen={() => onOpen(r.item.id)} onStart={() => onStart(r.item.id)} onDone={() => onDone(r.item.id)} />
+                <PriorityRow
+                  key={r.item.id}
+                  item={r.item}
+                  now={now}
+                  tier={r.result.tier}
+                  selected={selectedId === r.item.id}
+                  onOpen={() => onOpen(r.item.id)}
+                  onStart={() => onStart(r.item.id)}
+                  onDone={() => onDone(r.item.id)}
+                />
               ))}
             </ul>
           )}
           {remaining > 0 && (
             <div className="px-4 py-2">
-              <button onClick={() => setVisible((v) => v + remaining)} className="text-[13px] font-medium text-n-600 hover:text-n-900">
+              <button onClick={onShowMore} className="text-[13px] font-medium text-n-600 hover:text-n-900">
                 {t(copy.actions.showMore, { n: remaining })}
               </button>
             </div>
@@ -82,6 +93,9 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
   const [searchParams, setSearchParams] = useSearchParams()
   const [howOpen, setHowOpen] = useState(false)
   const [liveMessage, setLiveMessage] = useState('')
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [laterCollapsedManual, setLaterCollapsedManual] = useState<boolean | null>(null)
+  const [visibleCounts, setVisibleCounts] = useState({ now: 3, next: 3, later: 3 })
 
   const personId = state.persona
   const person = state.team.find((p) => p.id === personId)
@@ -91,6 +105,7 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
 
   const rankedId = (r: Ranked) => r.item.id
   const laterCollapsedDefault = q.now.length + q.next.length >= 4
+  const laterCollapsed = laterCollapsedManual ?? laterCollapsedDefault
   const stableNow = useStableOrder(q.now, state.lastInteractionAt, 10000, rankedId)
   const stableNext = useStableOrder(q.next, state.lastInteractionAt, 10000, rankedId)
   const stableLater = useStableOrder(q.later, state.lastInteractionAt, 10000, rankedId)
@@ -143,19 +158,52 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
 
   const flatOrder = [...(q.hero ? [q.hero] : []), ...q.now, ...q.next, ...q.later]
 
+  // What's actually on screen right now, in order: the hero, then each expanded tier's visible rows.
+  // J/K walk this list (not the full flatOrder) so selection never lands on a hidden row. §7.8.
+  const navigableIds = useMemo(() => {
+    const ids: string[] = []
+    if (q.hero) ids.push(q.hero.item.id)
+    ids.push(...stableNow.order.slice(0, visibleCounts.now).map(rankedId))
+    ids.push(...stableNext.order.slice(0, visibleCounts.next).map(rankedId))
+    if (!laterCollapsed) ids.push(...stableLater.order.slice(0, visibleCounts.later).map(rankedId))
+    return ids
+  }, [q.hero, stableNow.order, stableNext.order, stableLater.order, visibleCounts, laterCollapsed])
+
+  useEffect(() => {
+    setSelectedIndex((i) => Math.min(i, Math.max(0, navigableIds.length - 1)))
+  }, [navigableIds.length])
+
   useEffect(() => {
     if (frozen) return
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+      const key = e.key.toLowerCase()
       if (e.key === '?') setHowOpen((o) => !o)
-      if (e.key.toLowerCase() === 'e' && q.hero) done(q.hero.item.id)
+      if (key === 'e') {
+        const id = navigableIds[selectedIndex]
+        if (id) done(id)
+      }
       if (e.key === 'Escape' && openItemId) closeDrawer()
+      if ((key === 'j' || e.key === 'ArrowDown') && navigableIds.length > 0) {
+        e.preventDefault()
+        logInteraction()
+        setSelectedIndex((i) => Math.min(navigableIds.length - 1, i + 1))
+      }
+      if ((key === 'k' || e.key === 'ArrowUp') && navigableIds.length > 0) {
+        e.preventDefault()
+        logInteraction()
+        setSelectedIndex((i) => Math.max(0, i - 1))
+      }
+      if (e.key === 'Enter') {
+        const id = navigableIds[selectedIndex]
+        if (id) openDrawer(id)
+      }
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q.hero, openItemId, frozen])
+  }, [navigableIds, selectedIndex, openItemId, frozen])
 
   const band = state.pendingPromotion && !state.pendingPromotion.dismissed
     ? {
@@ -181,6 +229,8 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
     : doNowTotal > 0
       ? `${t(doNowTotal === 1 ? copy.status.needYouOne : copy.status.needYou, { n: doNowTotal })} ${progressText}`
       : t(copy.status.nothingUrgent, { n: flatOrder.length })
+
+  const selectedId = selectedIndex > 0 ? navigableIds[selectedIndex] : null
 
   return (
     <AppShell>
@@ -234,16 +284,41 @@ export default function WorkPage({ frozen = false }: { frozen?: boolean } = {}) 
                   )}
                 </AnimatePresence>
 
-                <QueueSection tier="now" ranked={stableNow.order} now={now} onOpen={openDrawer} onStart={start} onDone={done} />
-                <QueueSection tier="next" ranked={stableNext.order} now={now} onOpen={openDrawer} onStart={start} onDone={done} />
+                <QueueSection
+                  tier="now"
+                  ranked={stableNow.order}
+                  now={now}
+                  visibleCount={visibleCounts.now}
+                  onShowMore={() => setVisibleCounts((v) => ({ ...v, now: v.now + stableNow.order.length }))}
+                  selectedId={selectedId}
+                  onOpen={openDrawer}
+                  onStart={start}
+                  onDone={done}
+                />
+                <QueueSection
+                  tier="next"
+                  ranked={stableNext.order}
+                  now={now}
+                  visibleCount={visibleCounts.next}
+                  onShowMore={() => setVisibleCounts((v) => ({ ...v, next: v.next + stableNext.order.length }))}
+                  selectedId={selectedId}
+                  onOpen={openDrawer}
+                  onStart={start}
+                  onDone={done}
+                />
                 <QueueSection
                   tier="later"
                   ranked={stableLater.order}
                   now={now}
+                  visibleCount={visibleCounts.later}
+                  onShowMore={() => setVisibleCounts((v) => ({ ...v, later: v.later + stableLater.order.length }))}
+                  selectedId={selectedId}
                   onOpen={openDrawer}
                   onStart={start}
                   onDone={done}
-                  defaultCollapsed={laterCollapsedDefault}
+                  collapsible
+                  collapsed={laterCollapsed}
+                  onToggleCollapsed={() => setLaterCollapsedManual(!laterCollapsed)}
                 />
               </div>
             )}
