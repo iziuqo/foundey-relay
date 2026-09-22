@@ -8,9 +8,10 @@ behind the plan is in [`plan/research/`](plan/research/).
 
 ## Links
 
-- Prototype: _recorded after deploy, see below_
-- Deck: _prototype URL_ + `/deck`
-- Design system: _prototype URL_ + `/system`
+- Prototype: [foundey-relay.vercel.app](https://foundey-relay.vercel.app)
+- Deck: [foundey-relay.vercel.app/deck](https://foundey-relay.vercel.app/deck) (added in a later commit)
+- Design system: [foundey-relay.vercel.app/system](https://foundey-relay.vercel.app/system)
+- GitHub: [github.com/iziuqo/foundey-relay](https://github.com/iziuqo/foundey-relay) (private; contains the brief PDF)
 - Figma: _added once available, see §13 of the plan_
 
 ## Running it locally
