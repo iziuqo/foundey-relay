@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, LayoutGroup } from "motion/react";
 import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
 import { resolveHotkey } from "@/state/hotkeys";
@@ -64,6 +65,35 @@ export default function WorkPage() {
   const pendingItem = pending ? items.find((i) => i.id === pending.itemId) : undefined;
   const nowTierCount = queue.now.length + (queue.hero?.result.tier === "now" ? 1 : 0);
   const nextRanked = queue.now[0] ?? queue.next[0] ?? queue.later[0] ?? null;
+  const heroId = queue.hero?.item.id ?? null;
+
+  // G4: focus moves to the new hero after a done action (and back after undo) — any
+  // hero-id change caused by something other than the page's first paint. Two renders
+  // (state flips a beat after the id changes) is deliberately simpler than mutating a
+  // ref mid-render to catch it in one.
+  const mountedRef = useRef(false);
+  const [focusHeroId, setFocusHeroId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    setFocusHeroId(heroId);
+  }, [heroId]);
+
+  // M5's tint wash, scoped to a row a demo injection just added (§8.4) — the one
+  // "something moved for a reason other than my own click" case the app has today.
+  const knownItemIdsRef = useRef<Set<string>>(new Set(items.map((i) => i.id)));
+  const [justPromotedId, setJustPromotedId] = useState<string | null>(null);
+  useEffect(() => {
+    const known = knownItemIdsRef.current;
+    const added = items.find((i) => !known.has(i.id));
+    knownItemIdsRef.current = new Set(items.map((i) => i.id));
+    if (!added) return;
+    setJustPromotedId(added.id);
+    const timer = setTimeout(() => setJustPromotedId(null), 900);
+    return () => clearTimeout(timer);
+  }, [items]);
 
   useEffect(() => {
     logInteraction(Date.now());
@@ -122,46 +152,57 @@ export default function WorkPage() {
           <TruckClock cutoffs={site.cutoffs} now={now} />
         </div>
 
-        {queue.hero ? (
-          <Hero
-            ranked={queue.hero}
-            nextRanked={nextRanked}
-            now={now}
-            nextCutoffAt={cutoff?.departsAt ?? null}
-            pendingTitle={pendingItem?.title ?? null}
-            onShowMe={showPending}
-            onStart={() => start(queue.hero!.item.id, person.id, now.toISOString())}
-            onMarkDone={() => markDone(queue.hero!.item.id, now.toISOString())}
-            onAskHelp={() => askHelp(queue.hero!.item.id)}
-            onWaiting={(who, checkBackAt) => waiting(queue.hero!.item.id, who, checkBackAt)}
-            onMoveLater={(snoozeUntil) => moveLater(queue.hero!.item.id, snoozeUntil)}
-            onNotMine={() => notMine(queue.hero!.item.id)}
-          />
-        ) : (
-          <AllClear doneToday={done} />
-        )}
+        {/* M1/M5: one LayoutGroup so the hero and the queue rows share a single FLIP
+            tree — the shared `layoutId` on ItemShell (item-shell.tsx) only bridges
+            row <-> hero when both live under the same group. */}
+        <LayoutGroup>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {queue.hero ? (
+              <Hero
+                key={queue.hero.item.id}
+                ranked={queue.hero}
+                nextRanked={nextRanked}
+                now={now}
+                nextCutoffAt={cutoff?.departsAt ?? null}
+                pendingTitle={pendingItem?.title ?? null}
+                focusOnMount={focusHeroId === queue.hero.item.id}
+                onShowMe={showPending}
+                onStart={() => start(queue.hero!.item.id, person.id, now.toISOString())}
+                onMarkDone={() => markDone(queue.hero!.item.id, now.toISOString())}
+                onAskHelp={() => askHelp(queue.hero!.item.id)}
+                onWaiting={(who, checkBackAt) => waiting(queue.hero!.item.id, who, checkBackAt)}
+                onMoveLater={(snoozeUntil) => moveLater(queue.hero!.item.id, snoozeUntil)}
+                onNotMine={() => notMine(queue.hero!.item.id)}
+              />
+            ) : (
+              <AllClear key="all-clear" doneToday={done} />
+            )}
+          </AnimatePresence>
 
-        {(queue.now.length > 0 ||
-          queue.next.length > 0 ||
-          queue.later.length > 0 ||
-          queue.waiting.length > 0 ||
-          queue.snoozed.length > 0) && (
-          <Queue
-            now={now}
-            nowGroup={queue.now}
-            nextGroup={queue.next}
-            laterGroup={queue.later}
-            waiting={queue.waiting}
-            snoozed={queue.snoozed}
-            done={doneLog.filter((d) => d.assigneeId === person.id)}
-            nextCutoffAt={cutoff?.departsAt ?? null}
-            onStart={(id) => start(id, person.id, now.toISOString())}
-            onMarkDone={(id) => markDone(id, now.toISOString())}
-            onWaiting={(id, who, checkBackAt) => waiting(id, who, checkBackAt)}
-            onMoveLater={(id, snoozeUntil) => moveLater(id, snoozeUntil)}
-            onNotMine={(id) => notMine(id)}
-          />
-        )}
+          {(queue.now.length > 0 ||
+            queue.next.length > 0 ||
+            queue.later.length > 0 ||
+            queue.waiting.length > 0 ||
+            queue.snoozed.length > 0) && (
+            <Queue
+              now={now}
+              nowGroup={queue.now}
+              nextGroup={queue.next}
+              laterGroup={queue.later}
+              waiting={queue.waiting}
+              snoozed={queue.snoozed}
+              done={doneLog.filter((d) => d.assigneeId === person.id)}
+              nextCutoffAt={cutoff?.departsAt ?? null}
+              nextHeroId={nextRanked?.item.id ?? null}
+              justPromotedId={justPromotedId}
+              onStart={(id) => start(id, person.id, now.toISOString())}
+              onMarkDone={(id) => markDone(id, now.toISOString())}
+              onWaiting={(id, who, checkBackAt) => waiting(id, who, checkBackAt)}
+              onMoveLater={(id, snoozeUntil) => moveLater(id, snoozeUntil)}
+              onNotMine={(id) => notMine(id)}
+            />
+          )}
+        </LayoutGroup>
       </div>
 
       <aside data-testid="work-rail" className="hidden w-full shrink-0 flex-col gap-6 xl:flex xl:w-[clamp(18rem,26vw,22rem)]">

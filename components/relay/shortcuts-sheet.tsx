@@ -15,9 +15,9 @@ export function ShortcutsSheet() {
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && closeShortcuts()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-(--overlay)" />
+        <Dialog.Overlay className="dialog-overlay fixed inset-0 z-50 bg-(--overlay)" />
         <Dialog.Content
-          className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) p-5 shadow-(--shadow-e3)"
+          className="dialog-content fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) p-5 shadow-(--shadow-e3)"
           aria-describedby={undefined}
         >
           <div className="flex items-center justify-between">

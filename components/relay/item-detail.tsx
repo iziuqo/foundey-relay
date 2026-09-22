@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, MoreHorizontal, X, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, X } from "lucide-react";
+import { motion } from "motion/react";
 import { copy, t } from "@/lib/copy";
+import { transition } from "@/lib/motion";
 import { formatClock } from "@/lib/time";
 import { site } from "@/lib/seed";
 import { Button } from "@/components/ui/button";
@@ -142,7 +144,28 @@ export function ItemDetail({
                 (!canAct || done) && "pointer-events-none",
               )}
             >
-              {done && <Check className="size-(--size-icon-sm)" aria-hidden />}
+              {done && (
+                // M1 "check path draws (180ms)" — its natural home is here, the one
+                // place a completed item's checkmark actually stays on screen (the
+                // hero's own item disappears the moment it's done).
+                <motion.svg
+                  viewBox="0 0 16 16"
+                  className="size-(--size-icon-sm)"
+                  aria-hidden
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <motion.path
+                    d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.18, ease: transition.base.ease }}
+                  />
+                </motion.svg>
+              )}
             </button>
             <span className={cn("text-(length:--text-body) text-(--text-1)", done && "text-(--text-2) line-through")}>
               {t(copy.hero.nextStep, { action: item.primaryAction })}

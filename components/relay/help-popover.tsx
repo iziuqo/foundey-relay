@@ -35,7 +35,7 @@ export function HelpPopover({ trigger, onSend }: HelpPopoverProps) {
           side="bottom"
           align="start"
           sideOffset={8}
-          className="z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 shadow-(--shadow-e3)"
         >
           <p className="text-(length:--text-meta) font-semibold text-(--text-1)">{copy.help.title}</p>
           <div className="mt-2 flex flex-col gap-1.5">

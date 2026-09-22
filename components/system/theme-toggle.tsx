@@ -2,6 +2,7 @@
 
 import { useStore } from "@/state/store";
 import { Button } from "@/components/ui/button";
+import { switchTheme } from "@/lib/theme-transition";
 
 export function ThemeToggle() {
   const theme = useStore((s) => s.theme);
@@ -14,7 +15,12 @@ export function ThemeToggle() {
       <Button
         variant="secondary"
         size="sm"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        onClick={(e) =>
+          switchTheme(() => setTheme(theme === "dark" ? "light" : "dark"), {
+            x: e.clientX,
+            y: e.clientY,
+          })
+        }
         aria-pressed={theme === "dark"}
       >
         {theme === "dark" ? "Dark" : "Light"}

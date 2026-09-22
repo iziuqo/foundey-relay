@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
+import { AnimatePresence } from "motion/react";
 import { ChevronDown } from "lucide-react";
+import NumberFlow from "@number-flow/react";
 import { copy, t } from "@/lib/copy";
 import { cn } from "@/lib/cn";
 import { formatClock } from "@/lib/time";
@@ -29,6 +31,10 @@ export interface QueueProps extends QueueActions {
   snoozed: Item[];
   done: DoneEntry[];
   nextCutoffAt: string | null;
+  /** The one row next in line for the hero slot (M1's shared-element source). */
+  nextHeroId?: string | null;
+  /** The row an external reorder just promoted into place (M5's tint wash). */
+  justPromotedId?: string | null;
 }
 
 function TierGroup({
@@ -37,6 +43,8 @@ function TierGroup({
   rows,
   now,
   nextCutoffAt,
+  nextHeroId,
+  justPromotedId,
   actions,
 }: {
   tier: "now" | "next" | "later";
@@ -44,6 +52,8 @@ function TierGroup({
   rows: Ranked[];
   now: Date;
   nextCutoffAt: string | null;
+  nextHeroId?: string | null;
+  justPromotedId?: string | null;
   actions: QueueActions;
 }) {
   if (rows.length === 0) return null;
@@ -52,22 +62,26 @@ function TierGroup({
       <div className="flex h-9 items-center gap-2 border-b border-(--border-1) bg-(--surface-2) px-3">
         <TierIcon tier={tier} className={cn("size-(--size-icon-sm)", tierFgClass[tier])} />
         <span className={cn("text-(length:--text-meta) font-semibold", tierFgClass[tier])}>{label}</span>
-        <span className="tnum text-(length:--text-meta) text-(--text-2)">{rows.length}</span>
+        <NumberFlow value={rows.length} className="tnum text-(length:--text-meta) text-(--text-2)" />
       </div>
       <ul>
-        {rows.map((ranked) => (
-          <QueueRow
-            key={ranked.item.id}
-            ranked={ranked}
-            now={now}
-            nextCutoffAt={nextCutoffAt}
-            onStart={() => actions.onStart(ranked.item.id)}
-            onMarkDone={() => actions.onMarkDone(ranked.item.id)}
-            onWaiting={(who, checkBackAt) => actions.onWaiting(ranked.item.id, who, checkBackAt)}
-            onMoveLater={(snoozeUntil) => actions.onMoveLater(ranked.item.id, snoozeUntil)}
-            onNotMine={() => actions.onNotMine(ranked.item.id)}
-          />
-        ))}
+        <AnimatePresence initial={false}>
+          {rows.map((ranked) => (
+            <QueueRow
+              key={ranked.item.id}
+              ranked={ranked}
+              now={now}
+              nextCutoffAt={nextCutoffAt}
+              willBecomeHero={ranked.item.id === nextHeroId}
+              justPromoted={ranked.item.id === justPromotedId}
+              onStart={() => actions.onStart(ranked.item.id)}
+              onMarkDone={() => actions.onMarkDone(ranked.item.id)}
+              onWaiting={(who, checkBackAt) => actions.onWaiting(ranked.item.id, who, checkBackAt)}
+              onMoveLater={(snoozeUntil) => actions.onMoveLater(ranked.item.id, snoozeUntil)}
+              onNotMine={() => actions.onNotMine(ranked.item.id)}
+            />
+          ))}
+        </AnimatePresence>
       </ul>
     </div>
   );
@@ -140,6 +154,8 @@ export function Queue({
   snoozed,
   done,
   nextCutoffAt,
+  nextHeroId,
+  justPromotedId,
   onStart,
   onMarkDone,
   onWaiting,
@@ -149,9 +165,36 @@ export function Queue({
   const actions: QueueActions = { onStart, onMarkDone, onWaiting, onMoveLater, onNotMine };
   return (
     <div className="overflow-hidden rounded-(--radius-control) border border-(--border-1)">
-      <TierGroup tier="now" label={copy.tiers.now.label} rows={nowGroup} now={now} nextCutoffAt={nextCutoffAt} actions={actions} />
-      <TierGroup tier="next" label={copy.tiers.next.label} rows={nextGroup} now={now} nextCutoffAt={nextCutoffAt} actions={actions} />
-      <TierGroup tier="later" label={copy.tiers.later.label} rows={laterGroup} now={now} nextCutoffAt={nextCutoffAt} actions={actions} />
+      <TierGroup
+        tier="now"
+        label={copy.tiers.now.label}
+        rows={nowGroup}
+        now={now}
+        nextCutoffAt={nextCutoffAt}
+        nextHeroId={nextHeroId}
+        justPromotedId={justPromotedId}
+        actions={actions}
+      />
+      <TierGroup
+        tier="next"
+        label={copy.tiers.next.label}
+        rows={nextGroup}
+        now={now}
+        nextCutoffAt={nextCutoffAt}
+        nextHeroId={nextHeroId}
+        justPromotedId={justPromotedId}
+        actions={actions}
+      />
+      <TierGroup
+        tier="later"
+        label={copy.tiers.later.label}
+        rows={laterGroup}
+        now={now}
+        nextCutoffAt={nextCutoffAt}
+        nextHeroId={nextHeroId}
+        justPromotedId={justPromotedId}
+        actions={actions}
+      />
 
       {waiting.length > 0 && (
         <CollapsibleSection label={t(copy.tiers.waitingGroup, { n: waiting.length })}>

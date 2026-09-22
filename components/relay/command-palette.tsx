@@ -3,16 +3,18 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, useCommandState } from "cmdk";
+import { motion } from "motion/react";
+import { spring } from "@/lib/motion";
 import { copy, t } from "@/lib/copy";
 import { useNow } from "@/lib/time";
 import { flattenedQueue, queueFor } from "@/lib/selectors";
 import { scoreItem } from "@/lib/priority";
 import { demoInjections } from "@/lib/seed";
-import { cn } from "@/lib/cn";
 import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
 import type { PersonaId } from "@/state/store";
+import { switchTheme } from "@/lib/theme-transition";
 import { TierIcon } from "./tier-icon";
 import { tierFgClass } from "./tier-tokens";
 import { useIsDesktopShell } from "./use-media-query";
@@ -142,8 +144,8 @@ function useCommandGroups(onNavigate: (href: string) => void, onDone: () => void
         id: "action-theme",
         label: theme === "dark" ? copy.palette.actionThemeLight : copy.palette.actionThemeDark,
         onSelect: () => {
-          setTheme(theme === "dark" ? "light" : "dark");
           onDone();
+          switchTheme(() => setTheme(theme === "dark" ? "light" : "dark"));
         },
         searchValue: "theme dark light",
       },
@@ -195,16 +197,24 @@ function useCommandGroups(onNavigate: (href: string) => void, onDone: () => void
 const groupHeadingClass =
   "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-(length:--text-meta) [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-(--text-2) [&_[cmdk-group-heading]]:uppercase";
 
+/** M9: the selected row's highlight glides between rows (a shared `layoutId`) instead
+ * of jumping — cmdk exposes the current selection via `useCommandState` so each row can
+ * tell whether it's the one carrying the highlight right now. */
 function Row({ row }: { row: CommandRow }) {
+  const active = useCommandState((state) => state.value.toLowerCase() === row.searchValue.toLowerCase());
   return (
     <CommandItem
       value={row.searchValue}
       onSelect={row.onSelect}
-      className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-(--radius-control) px-3 py-2.5",
-        "data-[selected=true]:bg-(--surface-2)",
-      )}
+      className="relative flex cursor-pointer items-center gap-3 rounded-(--radius-control) px-3 py-2.5"
     >
+      {active && (
+        <motion.div
+          layoutId="palette-highlight"
+          transition={spring.snappy}
+          className="absolute inset-0 -z-10 rounded-(--radius-control) bg-(--surface-2)"
+        />
+      )}
       {row.icon}
       <span className="min-w-0 flex-1 truncate text-(length:--text-body) text-(--text-1)">{row.label}</span>
       {row.sub && <span className="truncate text-(length:--text-meta) text-(--text-2)">{row.sub}</span>}
@@ -292,10 +302,10 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && closePalette()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-(--overlay)" />
+        <Dialog.Overlay className="palette-overlay fixed inset-0 z-50 bg-(--overlay) [backdrop-filter:blur(8px)]" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
+          className="palette-content fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
         >
           <Dialog.Title className="sr-only">{copy.palette.title}</Dialog.Title>
           <Command shouldFilter loop label={copy.palette.title}>

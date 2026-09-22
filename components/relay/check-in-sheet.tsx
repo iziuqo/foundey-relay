@@ -12,6 +12,7 @@ import { TimePill } from "./time-pill";
 import { tierFgClass } from "./tier-tokens";
 import { PersonAvatar } from "./person-avatar";
 import { useIsDesktopShell } from "./use-media-query";
+import { useDeferredClose } from "./use-deferred-close";
 
 export interface CheckInSheetProps {
   person: Person;
@@ -33,6 +34,7 @@ export function CheckInSheet({ person, items, now, highlightItemId, onClose }: C
   const queue = queueFor(items, person.id, now);
   const rows = flattenedQueue(queue);
   const highlightRef = useRef<HTMLLIElement | null>(null);
+  const { open, requestClose, onAnimationEnd, onDialogAnimationEnd } = useDeferredClose(onClose);
 
   useEffect(() => {
     highlightRef.current?.scrollIntoView({ block: "center" });
@@ -88,12 +90,13 @@ export function CheckInSheet({ person, items, now, highlightItemId, onClose }: C
 
   if (isDesktop) {
     return (
-      <Dialog.Root open onOpenChange={(next) => !next && onClose()}>
+      <Dialog.Root open={open} onOpenChange={(next) => !next && requestClose()}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-(--overlay)" />
+          <Dialog.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed inset-y-0 right-0 z-50 flex w-[28rem] flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
+            onAnimationEnd={onDialogAnimationEnd}
+            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-[28rem] flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
           >
             {content}
           </Dialog.Content>
@@ -103,9 +106,14 @@ export function CheckInSheet({ person, items, now, highlightItemId, onClose }: C
   }
 
   return (
-    <Drawer.Root open onOpenChange={(next) => !next && onClose()} snapPoints={[0.5, 0.92]}>
+    <Drawer.Root
+      open={open}
+      onOpenChange={(next) => !next && requestClose()}
+      onAnimationEnd={onAnimationEnd}
+      snapPoints={[0.5, 0.92]}
+    >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-40 bg-(--overlay)" />
+        <Drawer.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
         <Drawer.Content
           aria-describedby={undefined}
           className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--radius-hero) border-t border-(--border-1) bg-(--surface-1) outline-none"

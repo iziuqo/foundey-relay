@@ -46,7 +46,7 @@ export function AssignPopover({ trigger, candidates, onAssign }: AssignPopoverPr
           align="end"
           sideOffset={8}
           aria-labelledby="assign-popover-title"
-          className="z-50 flex w-80 flex-col gap-2 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 shadow-(--shadow-e3)"
+          className="popover-content z-50 flex w-80 flex-col gap-2 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 shadow-(--shadow-e3)"
         >
           <p id="assign-popover-title" className="px-1 text-(length:--text-meta) font-semibold text-(--text-1)">
             {copy.team.reassignTitle}

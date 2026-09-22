@@ -138,7 +138,8 @@ export const useStore = create<DemoStore>()(
             pendingPromotion:
               state.pendingPromotion?.frozenHeroId === itemId ? null : state.pendingPromotion,
           };
-          return withToast(patch, t(copy.toast.done, { done, total }), true);
+          // M1: a 6s undo ring, not the generic 8s toast window.
+          return withToast(patch, t(copy.toast.done, { done, total }), true, 6000);
         }),
 
       undo: () =>

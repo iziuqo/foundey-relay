@@ -66,7 +66,7 @@ export function ItemOverflowPopover({
           side="bottom"
           align="end"
           sideOffset={8}
-          className="z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-2 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-2 shadow-(--shadow-e3)"
         >
           {flow !== "menu" && (
             <button

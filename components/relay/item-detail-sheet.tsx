@@ -7,21 +7,24 @@ import { copy } from "@/lib/copy";
 import { ItemDetail } from "./item-detail";
 import { useItemDetail } from "./use-item-detail";
 import { useIsDesktopShell } from "./use-media-query";
+import { useDeferredClose } from "./use-deferred-close";
 
 /**
  * §5 / §6.2: the intercepting route's sheet. Right sheet (Radix Dialog) at the desktop
  * shell's breakpoint, a bottom sheet with snap points (Vaul) below it — same line as
  * the sidebar/dock split (§5). Prev/next inside the sheet *replace* the history entry
  * instead of pushing, so one Escape or close always lands back on the page underneath,
- * however many items were paged through.
+ * however many items were paged through. M8: closing waits for the real exit
+ * animation (spring.sheet) via `useDeferredClose` before calling `router.back()`.
  */
 export function ItemDetailSheet({ id }: { id: string }) {
   const router = useRouter();
   const isDesktop = useIsDesktopShell();
   const data = useItemDetail(id);
+  const { open, requestClose, onAnimationEnd, onDialogAnimationEnd } = useDeferredClose(() => router.back());
 
   function close() {
-    router.back();
+    requestClose();
   }
 
   function goTo(nextId: string) {
@@ -59,12 +62,13 @@ export function ItemDetailSheet({ id }: { id: string }) {
 
   if (isDesktop) {
     return (
-      <Dialog.Root open onOpenChange={(next) => !next && close()}>
+      <Dialog.Root open={open} onOpenChange={(next) => !next && close()}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-(--overlay)" />
+          <Dialog.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed inset-y-0 right-0 z-50 flex w-[28rem] flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none xl:w-[40rem]"
+            onAnimationEnd={onDialogAnimationEnd}
+            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-[28rem] flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none xl:w-[40rem]"
           >
             <Dialog.Title className="sr-only">{title}</Dialog.Title>
             {content}
@@ -75,9 +79,9 @@ export function ItemDetailSheet({ id }: { id: string }) {
   }
 
   return (
-    <Drawer.Root open onOpenChange={(next) => !next && close()} snapPoints={[0.5, 0.92]}>
+    <Drawer.Root open={open} onOpenChange={(next) => !next && close()} onAnimationEnd={onAnimationEnd} snapPoints={[0.5, 0.92]}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-40 bg-(--overlay)" />
+        <Drawer.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
         <Drawer.Content
           aria-describedby={undefined}
           className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--radius-hero) border-t border-(--border-1) bg-(--surface-1) outline-none"

@@ -2,20 +2,29 @@
 
 import Link from "next/link";
 import { MoreHorizontal } from "lucide-react";
+import { motion } from "motion/react";
 import { copy } from "@/lib/copy";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/cn";
+import { transition } from "@/lib/motion";
 import type { Ranked } from "@/lib/priority";
 import { TierIcon } from "./tier-icon";
 import { TimePill } from "./time-pill";
 import { ItemOverflowPopover } from "./item-overflow-popover";
+import { ItemShell } from "./item-shell";
 import { tierFgClass } from "./tier-tokens";
 
 export interface QueueRowProps {
   ranked: Ranked;
   now: Date;
   nextCutoffAt: string | null;
+  /** True for the one row that's next in line for the hero slot — carries the shared
+   * `layoutId` shell that morphs into the hero card on a done action (M1). */
+  willBecomeHero?: boolean;
+  /** True right after this row was promoted into place by an external reorder (the new
+   * urgent item's "Show me"/idle timeout, §8.4) — plays the M5 tint wash once. */
+  justPromoted?: boolean;
   onStart: () => void;
   onMarkDone: () => void;
   onWaiting: (waitingOn: string, checkBackAt: string) => void;
@@ -28,13 +37,33 @@ export interface QueueRowProps {
  * 160ms/quick). The row's main target is a link to /items/[id] inside the li; row
  * actions are sibling buttons, never nested inside that link (README P1 14).
  */
-export function QueueRow({ ranked, now, nextCutoffAt, onStart, onMarkDone, onWaiting, onMoveLater, onNotMine }: QueueRowProps) {
+export function QueueRow({
+  ranked,
+  now,
+  nextCutoffAt,
+  willBecomeHero,
+  justPromoted,
+  onStart,
+  onMarkDone,
+  onWaiting,
+  onMoveLater,
+  onNotMine,
+}: QueueRowProps) {
   const { item, result } = ranked;
   const tier = result.tier as "now" | "next" | "later";
   const inProgress = item.status === "in_progress";
 
   return (
-    <li className="group relative flex min-h-(--size-row-min-handheld) items-center gap-3 border-b border-(--border-1) px-3 last:border-0 lg:min-h-(--size-row-min)">
+    <motion.li
+      layout="position"
+      initial={false}
+      exit={{ opacity: 0, transition: transition.quick }}
+      className={cn(
+        "group relative flex min-h-(--size-row-min-handheld) items-center gap-3 border-b border-(--border-1) px-3 last:border-0 lg:min-h-(--size-row-min)",
+        justPromoted && "tint-wash",
+      )}
+    >
+      {willBecomeHero && <ItemShell itemId={item.id} tier={tier} variant="row" />}
       <TierIcon tier={tier} safety={item.safety} className={cn("shrink-0", tierFgClass[tier])} />
       <Link
         href={`/items/${item.id}`}
@@ -69,6 +98,6 @@ export function QueueRow({ ranked, now, nextCutoffAt, onStart, onMarkDone, onWai
           />
         </div>
       </div>
-    </li>
+    </motion.li>
   );
 }

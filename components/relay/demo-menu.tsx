@@ -12,6 +12,7 @@ import { cn } from "@/lib/cn";
 import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
 import type { PersonaId } from "@/state/store";
+import { switchTheme } from "@/lib/theme-transition";
 
 /**
  * §6.6: a top bar "Demo" popover for persona switching, sending the canned urgent
@@ -56,7 +57,7 @@ export function DemoMenu() {
           side="bottom"
           align="end"
           sideOffset={8}
-          className="z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 shadow-(--shadow-e3)"
         >
           <p className="text-(length:--text-meta) font-semibold tracking-wide text-(--text-2) uppercase">{copy.demo.viewingAs}</p>
           <div className="mt-1.5 flex gap-1.5">
@@ -118,7 +119,12 @@ export function DemoMenu() {
               aria-label={copy.demo.theme}
               variant={theme === "dark" ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={(e) =>
+                switchTheme(() => setTheme(theme === "dark" ? "light" : "dark"), {
+                  x: e.clientX,
+                  y: e.clientY,
+                })
+              }
             >
               {theme === "dark" ? <Moon aria-hidden /> : <Sun aria-hidden />}
             </IconButton>

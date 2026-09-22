@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/cn";
+import { spring } from "@/lib/motion";
 import type { UpdateTab } from "@/lib/selectors";
 
 export interface UpdateTabsProps {
@@ -40,11 +42,21 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
           onClick={() => onChange(tab.id)}
           onKeyDown={(e) => onKeyDown(e, index)}
           className={cn(
-            "tnum flex items-center gap-1.5 rounded-(--radius-chip) px-3 py-1.5 text-(length:--text-meta) font-medium transition-colors",
+            "tnum relative flex items-center gap-1.5 rounded-(--radius-chip) px-3 py-1.5 text-(length:--text-meta) font-medium",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)",
-            active === tab.id ? "bg-(--surface-1) text-(--text-1) shadow-(--shadow-e1)" : "text-(--text-2) hover:text-(--text-1)",
+            active === tab.id ? "text-(--text-1)" : "text-(--text-2) hover:text-(--text-1)",
           )}
         >
+          {/* M10: the active pill glides between tabs (a shared layoutId) instead of
+              jumping — each tab renders it only while active, so it's always exactly
+              one element moving, not one per tab fading in place. */}
+          {active === tab.id && (
+            <motion.div
+              layoutId="update-tab-pill"
+              transition={spring.snappy}
+              className="absolute inset-0 -z-10 rounded-(--radius-chip) bg-(--surface-1) shadow-(--shadow-e1)"
+            />
+          )}
           {tab.label}
           {tab.count > 0 && <span className="text-(--text-2)">{tab.count}</span>}
         </button>

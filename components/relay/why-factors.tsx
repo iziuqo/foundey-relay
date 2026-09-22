@@ -1,7 +1,9 @@
+import { motion } from "motion/react";
 import { copy, t } from "@/lib/copy";
 import { formatClock, minutesBetween, relativeDuration } from "@/lib/time";
 import { site } from "@/lib/seed";
 import { cn } from "@/lib/cn";
+import { transition } from "@/lib/motion";
 import type { Ranked } from "@/lib/priority";
 import type { Item } from "@/lib/types";
 
@@ -43,7 +45,20 @@ function verdictLine(ranked: Ranked): string {
   return t(copy.why.verdict.later, { score });
 }
 
-function FactorBar({ label, value, max, reason }: { label: string; value: number; max: number; reason: string }) {
+function FactorBar({
+  label,
+  value,
+  max,
+  reason,
+  index,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  reason: string;
+  /** M6: bars fill left to right with a 60ms stagger. */
+  index: number;
+}) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
     <div className="flex flex-col gap-1">
@@ -52,10 +67,17 @@ function FactorBar({ label, value, max, reason }: { label: string; value: number
         <span className="tnum text-(length:--text-meta) font-medium text-(--text-2)">{value}</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--surface-2)">
-        {/* eslint-disable-next-line react/forbid-dom-props -- dynamic bar geometry from
-            live scores, not a color/shadow/background token (plan §9.2 P1 9-11 is about
-            those); the fill itself is still the token bg-(--accent-solid). */}
-        <div className="h-full rounded-full bg-(--accent-solid)" style={{ width: `${pct}%` }} />
+        {/* `style` here is dynamic bar geometry from live scores, not a color/shadow/
+            background token (plan §9.2 P1 9-11 is about those) — the fill itself is
+            still the token bg-(--accent-solid). motion.div isn't a plain DOM element to
+            the forbid-dom-props rule, so no disable comment is needed here. */}
+        <motion.div
+          className="h-full origin-left rounded-full bg-(--accent-solid)"
+          style={{ width: `${pct}%` }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ ...transition.base, delay: index * 0.06 }}
+        />
       </div>
       <p className="text-(length:--text-meta) text-(--text-2)">{reason}</p>
     </div>
@@ -97,9 +119,9 @@ export function WhyFactors({ ranked, nextRanked, now, showTitle = true }: WhyFac
         </p>
       )}
       <div className={cn("flex flex-col gap-3", showTitle && "mt-3")}>
-        <FactorBar label="Time" value={result.T} max={T_MAX} reason={timeReason(item, now)} />
-        <FactorBar label="Orders blocked" value={result.B} max={B_MAX} reason={blockedReason(item)} />
-        <FactorBar label="Impact" value={result.I} max={I_MAX} reason={impactReasons(item)} />
+        <FactorBar index={0} label="Time" value={result.T} max={T_MAX} reason={timeReason(item, now)} />
+        <FactorBar index={1} label="Orders blocked" value={result.B} max={B_MAX} reason={blockedReason(item)} />
+        <FactorBar index={2} label="Impact" value={result.I} max={I_MAX} reason={impactReasons(item)} />
       </div>
       <p className="tnum mt-3 border-t border-(--border-1) pt-3 text-(length:--text-meta) font-medium text-(--text-1)">
         {t(copy.why.scoreLine, { t: result.T, b: result.B, i: result.I, score: result.score ?? 0 })}

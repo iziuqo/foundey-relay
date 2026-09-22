@@ -170,6 +170,15 @@
   --leading-meta: 1.25rem;
   --text-kbd: 0.75rem;
   --leading-kbd: 1rem;
+
+  /* ---- Motion, §7.1. Same values as lib/motion.ts (seconds there, ms here) — kept in
+     sync by hand since Tailwind utilities and Motion's `transition` prop read from
+     different places. Used through `duration-(--dur-quick)` etc. ---- */
+  --dur-instant: 90ms;
+  --dur-quick: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 600ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ================= Dark theme, D2 =================
@@ -361,36 +370,317 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* M12: an animated custom property, so the browser can interpolate a value (a hue) that
+ * a plain `background-position` drift can't reach — this is what "hue drift via an
+ * animated @property angle" (plan §7.2) means in practice. Declared with `inherits:
+ * true` and an `<angle>` syntax so `calc(275deg + var(--aurora-hue))` is a real color,
+ * not a string concatenation. */
+@property --aurora-hue {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
 /* §2.2 / §6.1 all clear: the one place the gradient comes back (v1's advisor rejected
- * it everywhere else). The 20s hue drift (M12) is real motion, so it's off under
- * prefers-reduced-motion — full MotionConfig-driven parity with the rest of the motion
- * catalog is phase 6; this is its resting/reduced state either way. */
+ * it everywhere else). Rare and never competes with ranking, so the one loop the motion
+ * catalog allows (§7.2 M12) lives here. */
 .aurora {
   background: radial-gradient(
       ellipse 80% 60% at 20% 20%,
-      oklch(0.8 0.1 275 / 35%),
+      oklch(0.8 0.1 calc(275deg + var(--aurora-hue)) / 35%),
       transparent 60%
     ),
-    radial-gradient(ellipse 70% 60% at 80% 30%, oklch(0.82 0.09 250 / 30%), transparent 60%),
-    radial-gradient(ellipse 80% 70% at 50% 90%, oklch(0.85 0.08 150 / 22%), transparent 60%);
-  background-size: 200% 200%;
-  animation: aurora-drift 20s ease-in-out infinite;
+    radial-gradient(
+      ellipse 70% 60% at 80% 30%,
+      oklch(0.82 0.09 calc(250deg + var(--aurora-hue)) / 30%),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 70% at 50% 90%,
+      oklch(0.85 0.08 calc(150deg + var(--aurora-hue)) / 22%),
+      transparent 60%
+    );
+  background-size: 160% 160%;
+  background-position: 30% 40%;
+  animation: aurora-hue-drift 20s linear infinite;
 }
 
-@keyframes aurora-drift {
-  0% {
-    background-position: 0% 50%;
+@keyframes aurora-hue-drift {
+  to {
+    --aurora-hue: 360deg;
   }
-  50% {
-    background-position: 100% 50%;
+}
+
+/* prefers-reduced-motion, §7.1: "positions change instantly, opacity crossfades at
+ * 120ms, loops are static, NumberFlow disables its roll." NumberFlow respects the media
+ * query on its own (`respectMotionPreference`, on by default) and Motion's components
+ * are covered by `<MotionConfig reducedMotion="user">` in app/providers.tsx, which
+ * disables transform/layout animation while leaving opacity and color free to keep
+ * animating — so only plain CSS transitions/animations (button press, row actions,
+ * .aurora, and anything from Sonner/Vaul's own stylesheets) need a rule here. This
+ * collapses all of them to near-zero rather than reproducing each row's own nuance
+ * (e.g. M7's "fade only" becomes "instant" too) — one robust, testable rule beats many
+ * fragile per-property ones, and the visual difference at ~0.01ms is not perceptible. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  100% {
-    background-position: 0% 50%;
+}
+
+/* M13 theme switch: the browser's default view-transition is a cross-fade of the old
+ * and new snapshots. That fights the circular reveal `lib/theme-transition.ts` drives
+ * by hand (it animates `::view-transition-new(root)`'s `clip-path`), so the default
+ * animation and blend mode are turned off here and the new snapshot is left opaque and
+ * on top — exactly the "reveal" shape, not a dissolve. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* M5: "a moved row gets a 900ms tint wash so the eye can find it" — applied to the one
+ * row promoted by an external reorder (§8.4's "Show me"/idle timeout), never a row the
+ * user's own click just moved. Reduced motion keeps the tint (per §7.2's "tint is not
+ * motion") but drops straight to the resting color instead of animating the wash. */
+.tint-wash {
+  animation: tint-wash 900ms ease-out;
+}
+
+@keyframes tint-wash {
+  from {
+    background-color: var(--accent-glow-wash, oklch(0.535 0.19 275 / 14%));
+  }
+  to {
+    background-color: transparent;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora {
+  .tint-wash {
     animation: none;
+    background-color: transparent;
+  }
+}
+
+/* M1/M2 undo toast (undo-toast.tsx): the ring counts down the toast's own
+ * `durationMs` via `stroke-dashoffset`, driven by two custom properties the component
+ * sets inline per toast. Sonner pauses the toast's own dismiss timer on hover — this
+ * pauses the ring's CSS animation the same way, via the ordinary `:hover` pseudo-class
+ * on the toast's DOM (no dependency on Sonner's internals beyond that wrapper existing). */
+.undo-ring-circle {
+  animation: undo-ring-countdown var(--toast-duration) linear forwards;
+}
+
+@keyframes undo-ring-countdown {
+  to {
+    stroke-dashoffset: calc(var(--circumference) * 1px);
+  }
+}
+
+[data-sonner-toast]:hover .undo-ring-circle {
+  animation-play-state: paused;
+}
+
+/* M4 new urgent band: a one-time light sweep across the border on arrival, layered
+ * over the accent border already drawn by the element itself (new-urgent-band.tsx). */
+.glow-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, oklch(1 0 0 / 35%) 50%, transparent 70%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  animation: glow-sweep 900ms ease-out;
+  pointer-events: none;
+}
+
+@keyframes glow-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-sweep::after {
+    display: none;
+  }
+}
+
+/* M6 (why popover) and the same treatment reused for every Radix Popover in the app
+ * (help, overflow, assign, demo menu): scales from the trigger's own edge — Radix sets
+ * `--radix-popover-content-transform-origin` for exactly this — rather than the
+ * viewport center, so it reads as coming *from* the button that opened it. Radix
+ * Presence measures each animation's own `animation-duration` to know when it's safe to
+ * unmount after close, so `.popover-content` needs a real duration on both states, not
+ * just the open one. */
+.popover-content {
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+
+.popover-content[data-state="open"] {
+  animation: popover-in var(--dur-base) var(--ease-out);
+}
+
+.popover-content[data-state="closed"] {
+  animation: popover-out var(--dur-quick) var(--ease-out);
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes popover-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* M8 sheet (the desktop right-sheet only — Vaul already animates its own bottom sheet
+ * natively on handheld, §5's dock/sidebar split). `spring.sheet`'s stiffness/damping
+ * has no direct CSS equivalent, so this approximates it with a slight overshoot
+ * cubic-bezier rather than reaching for Motion here too.
+ *
+ * Every pair below uses two distinctly *named* `@keyframes` (an `-in` and an `-out`)
+ * instead of one `@keyframes` reused with `animation-direction: reverse` on the closed
+ * state. That reuse was tried first and doesn't work: once the open animation has
+ * played through to completion, changing only `animation-direction`/`-duration` while
+ * `animation-name` stays the same string doesn't restart a finished CSS animation
+ * (browsers keep it "finished" rather than replaying it), so the close side would
+ * silently never fire an `animationend` event — the exact signal `useDeferredClose`
+ * (use-deferred-close.ts) waits on before calling `router.back()`. A different name
+ * for the closed state's keyframes forces a genuinely new animation instance. */
+.sheet-overlay[data-state="open"] {
+  animation: sheet-overlay-in var(--dur-base) var(--ease-out);
+}
+
+.sheet-overlay[data-state="closed"] {
+  animation: sheet-overlay-out var(--dur-base) var(--ease-out);
+}
+
+@keyframes sheet-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-overlay-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.sheet-content[data-state="open"] {
+  animation: sheet-in 320ms cubic-bezier(0.32, 0.72, 0.35, 1.1);
+}
+
+.sheet-content[data-state="closed"] {
+  animation: sheet-out 240ms var(--ease-out);
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* M9 command palette: backdrop blur ramps in behind it, and the panel scales from
+ * 0.97 — combined with the panel's own static `-translate-x-1/2` centering transform
+ * in each keyframe's own state, since an animation's `transform` replaces (rather than
+ * composes with) the element's base value for its duration. */
+.palette-overlay[data-state="open"] {
+  animation: palette-overlay-in var(--dur-base) var(--ease-out);
+}
+
+.palette-overlay[data-state="closed"] {
+  animation: palette-overlay-out var(--dur-quick) var(--ease-out);
+}
+
+@keyframes palette-overlay-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes palette-overlay-out {
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+.palette-content[data-state="open"] {
+  animation: palette-in var(--dur-base) var(--ease-out);
+}
+
+.palette-content[data-state="closed"] {
+  animation: palette-out var(--dur-quick) var(--ease-out);
+}
+
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.97);
+  }
+}
+
+@keyframes palette-out {
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.97);
+  }
+}
+
+/* A centered Dialog (the shortcuts sheet) — same scale-in idea as .popover-content,
+ * with both axes of its own static centering transform folded into each keyframe. */
+.dialog-overlay[data-state="open"] {
+  animation: sheet-overlay-in var(--dur-base) var(--ease-out);
+}
+
+.dialog-overlay[data-state="closed"] {
+  animation: sheet-overlay-out var(--dur-base) var(--ease-out);
+}
+
+.dialog-content[data-state="open"] {
+  animation: dialog-in var(--dur-base) var(--ease-out);
+}
+
+.dialog-content[data-state="closed"] {
+  animation: dialog-out var(--dur-quick) var(--ease-out);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
   }
 }
