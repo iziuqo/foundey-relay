@@ -6,13 +6,13 @@ import { useEffect, useRef, useState } from 'react'
  * visible rows while the user interacted in the last 10 seconds." Surfaces `changed`
  * so the caller can show the "1 item changed place. Show it" bar.
  */
-export function useStableOrder<T extends { id: string }>(freshOrder: T[], lastInteractionAt: number, freezeMs = 10000) {
+export function useStableOrder<T>(freshOrder: T[], lastInteractionAt: number, freezeMs = 10000, getId: (x: T) => string = (x) => (x as { id: string }).id) {
   const frozenRef = useRef<T[]>(freshOrder)
   const [changed, setChanged] = useState(false)
 
   useEffect(() => {
-    const freshIds = freshOrder.map((x) => x.id).join(',')
-    const frozenIds = frozenRef.current.map((x) => x.id).join(',')
+    const freshIds = freshOrder.map(getId).join(',')
+    const frozenIds = frozenRef.current.map(getId).join(',')
     if (freshIds === frozenIds) {
       if (changed) setChanged(false)
       return

@@ -21,12 +21,12 @@ export const copy = {
     next:  { label: 'Up next',      helper: 'Matters today. A clock is running.' },
     later: { label: 'Later today',  helper: 'Real work. Nobody is blocked yet.' },
     fyi:   { label: 'For your info',helper: 'No action needed.' },
-    done:  { label: 'Done today' },
+    done:  { label: 'Done today', withCount: 'Done today ({n})' },
     empty: 'Nothing here.',
     waitingGroup: 'Waiting on others ({n})', laterGroup: 'Moved to later ({n})',
   },
   time: { dueIn: 'Due in {n} min', due: 'Due {hhmm}', lateMin: 'Late by {n} min', lateHr: 'Late by {n} h',
-          tomorrow: 'Tomorrow {hhmm}' },
+          tomorrow: 'Tomorrow {hhmm}', ago: '{rel} ago', justNow: 'Just now' },
   why: { title: 'Why this is ranked here', showScore: 'Show the score', howLink: 'How we sort your work',
          scoreLine: 'Time {t} + Orders {b} + Impact {i} = {score}',
          factors: {
@@ -46,6 +46,7 @@ export const copy = {
               meta: '{n} done today.', team: 'Help your team', updates: 'See updates' },
   newUrgent: 'New and more urgent: {title}.',
   changedPlace: '1 item changed place.', showIt: 'Show it',
+  live: { doneNext: 'Done. Next: {title}.', doneCaughtUp: 'Done. All caught up.', newUrgentItem: 'New urgent item: {title}.' },
   team: {
     status: 'Day shift · Outbound · {on} working, {brk} on break, {out} out today.',
     live: 'Live · updated {hhmm}',
@@ -62,6 +63,7 @@ export const copy = {
     reassignTitle: 'Who should do this?', findTeammate: 'Find a teammate', suggested: 'Suggested',
   },
   trucks: { title: 'Next trucks', atRisk: '{n} orders at risk', onTrack: 'On track' },
+  myShift: { title: 'My shift', doneOf: '{done} of {total} done', ends: 'Shift ends {hhmm}' },
   updates: { title: 'Updates', forYou: 'For you', team: 'Your team', activity: 'Activity', markRead: 'Mark as read',
              empty: 'No updates. When something changes, it will show up here.', seeAll: 'See all updates' },
   lookup: { empty: 'Type an order number, a name, or a word like printer.' },
@@ -96,6 +98,7 @@ export const copy = {
   },
   handheld: { needYou: '{n} need you' },
   chips: { workingOnIt: 'Working on it' },
+  shift: { line: '{name} · {h}h {m}m left', ended: '{name} · Shift ended' },
 }
 
 export function t(str: string, vars: Record<string, string | number> = {}): string {

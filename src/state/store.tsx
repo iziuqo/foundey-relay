@@ -307,7 +307,7 @@ interface StoreValue {
   dispatch: React.Dispatch<Action>
   now: Date
   loadedAt: number
-  totalToday: (personId: string) => number
+  totalToday: (personId: string) => { done: number; total: number }
 }
 
 const StoreContext = createContext<StoreValue | null>(null)
@@ -328,7 +328,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => savePersisted(state), [state])
 
   const value = useMemo<StoreValue>(() => {
-    const totalToday = (personId: string) => totalTodayFor(state.items, state.doneLog, personId).total
+    const totalToday = (personId: string) => totalTodayFor(state.items, state.doneLog, personId)
     return { state, dispatch, now, loadedAt: loadedAtRef.current, totalToday }
   }, [state, now])
 
