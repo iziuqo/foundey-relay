@@ -36,6 +36,16 @@ interface DemoState extends Snapshot {
   undoSnapshot: Snapshot | null;
   pendingPromotion: PendingPromotion | null;
   lastInteractionAt: number;
+  /**
+   * Bumped by `markDone` and by nothing else — M4 ①'s check listens to this.
+   *
+   * It used to watch `doneLog.length`, which is a *count*, and a count goes up for
+   * reasons other than "you just finished something": the store rehydrates from
+   * localStorage after mount, so a returning user with completed work got a green tick on
+   * page load, and so did anyone switching to a persona with more done entries. Not in
+   * `partialize`, so it cannot survive a reload and re-fire.
+   */
+  completionKey: number;
   awayPromotions: number;
   paletteOpen: boolean;
   shortcutsOpen: boolean;
@@ -88,6 +98,7 @@ function initialState(): DemoState {
     readIds: [],
     acknowledgedIds: [],
     toast: null,
+    completionKey: 0,
     undoSnapshot: null,
     pendingPromotion: null,
     lastInteractionAt: 0,
@@ -139,8 +150,11 @@ export const useStore = create<DemoStore>()(
             pendingPromotion:
               state.pendingPromotion?.frozenHeroId === itemId ? null : state.pendingPromotion,
           };
-          // M1: a 6s undo ring, not the generic 8s toast window.
-          return withToast(patch, t(copy.toast.done, { done, total }), true, 6000);
+          patch.completionKey = state.completionKey + 1;
+          // M6: 8s, the catalog's number. It was 6 — which made the undo window on the
+          // one action people actually undo the shortest in the app, and shorter than
+          // the toast that tells you you can undo it.
+          return withToast(patch, t(copy.toast.done, { done, total }), true, 8000);
         }),
 
       undo: () =>
@@ -237,6 +251,7 @@ export const useStore = create<DemoStore>()(
       clearToast: () =>
         set((state) => ({
           toast: null,
+    completionKey: 0,
           undoSnapshot: state.toast?.undoable ? state.undoSnapshot : null,
         })),
 

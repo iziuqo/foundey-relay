@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, useCommandState } from "cmdk";
 import { motion } from "motion/react";
-import { spring } from "@/lib/motion";
+import { transition } from "@/lib/motion";
 import { copy, t } from "@/lib/copy";
 import { useNow } from "@/lib/time";
 import { flattenedQueue, queueFor } from "@/lib/selectors";
@@ -205,7 +205,7 @@ function Row({ row }: { row: CommandRow }) {
       {active && (
         <motion.div
           layoutId="palette-highlight"
-          transition={spring.layout}
+          transition={transition.highlight}
           className="absolute inset-0 -z-10 rounded-(--radius-control) bg-(--surface-2)"
         />
       )}

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { FOCUS } from "@/components/ui/sizing";
 import { cn } from "@/lib/cn";
-import { transition } from "@/lib/motion";
+import { spring, stagger, stepDelay, transition } from "@/lib/motion";
 import type { Ranked } from "@/lib/priority";
 import { TierIcon } from "./tier-icon";
 import { TimePill, timePillText } from "./time-pill";
@@ -18,13 +18,16 @@ import { tierFgClass } from "./tier-tokens";
 
 export interface QueueRowProps {
   ranked: Ranked;
+  /** Position within this tier group — M4 ④'s 24ms-per-row stagger reads off it. */
+  index: number;
   now: Date;
   nextCutoffAt: string | null;
   /** True for the one row that's next in line for the hero slot — carries the shared
    * `layoutId` shell that morphs into the hero card on a done action (M1). */
   willBecomeHero?: boolean;
-  /** True right after this row was promoted into place by an external reorder (the new
-   * urgent item's "Show me"/idle timeout, §8.4) — plays the M5 tint wash once. */
+  /** True right after this row's rank changed for a reason the user did not cause —
+   * plays catalog M8's 900ms tint wash once, which is the only thing that says "this is
+   * the one that moved". Never set for a row the user's own done or undo moved. */
   justPromoted?: boolean;
   onStart: () => void;
   onMarkDone: () => void;
@@ -51,6 +54,7 @@ export interface QueueRowProps {
  */
 export function QueueRow({
   ranked,
+  index,
   now,
   nextCutoffAt,
   willBecomeHero,
@@ -70,6 +74,11 @@ export function QueueRow({
       layout="position"
       initial={false}
       exit={{ opacity: 0, transition: transition.quick }}
+      // M4 ④: the gap closes *down* the list rather than everywhere at once — 24ms per
+      // row, capped at five, so a long queue settles rather than ripples. Without an
+      // explicit layout transition this fell back to Motion's own default spring, which
+      // is a fourth curve nobody chose (lib/motion.ts's first rule).
+      transition={{ layout: { ...spring.layout, delay: stepDelay(index, stagger.rows) } }}
       data-craft-row
       data-tier={tier}
       className={cn(
@@ -117,7 +126,7 @@ export function QueueRow({
         <div className="transition-[opacity,transform] duration-(--dur-quick) ease-(--ease-out) group-hover:-translate-x-1 group-hover:opacity-0 group-focus-within:-translate-x-1 group-focus-within:opacity-0">
           <TimePill dueAt={item.dueAt} now={now} tier={tier} />
         </div>
-        <div className="absolute right-0 flex translate-x-2 items-center gap-1 opacity-0 transition-[opacity,transform] duration-(--dur-quick) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100 max-md:hidden">
+        <div className="absolute right-0 flex translate-x-1.5 items-center gap-1 opacity-0 transition-[opacity,transform] duration-(--dur-quick) ease-(--ease-out) group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100 max-md:hidden">
           <Button size="sm" variant="secondary" onClick={inProgress ? onMarkDone : onStart}>
             {inProgress ? copy.actions.done : copy.actions.start}
           </Button>

@@ -294,12 +294,41 @@
   --ease-inout: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
-  --dur-instant: 90ms;  /* row tint, press */
-  --dur-quick: 140ms;   /* reveals, crossfades */
-  --dur-base: 200ms;    /* panels, the check draw */
-  --dur-roll: 320ms;    /* number roll */
-  --dur-move: 420ms;    /* undo, theme reveal */
-  --dur-slow: 900ms;    /* the moved-row wash, aurora fade-in */
+  /* The two springs, as CSS can have them. Radix and Vaul drive their surfaces with
+   * keyframes, and a keyframe cannot take a spring — so the sheet used to carry a
+   * bespoke `cubic-bezier(0.32, 0.72, 0.35, 1.1)` that was a *guess* at spring-sheet and
+   * a fourth curve in practice. These are the same springs sampled: x(t) for
+   * {stiffness, damping, mass} at 36 points, out to where the envelope falls under 0.1%.
+   * The durations beside them are those settle times, so a CSS sheet and a Motion sheet
+   * now move identically rather than approximately. */
+  --spring-sheet: linear(
+    0, 0.0191, 0.0672, 0.1335, 0.2096, 0.2899, 0.37, 0.4472, 0.5196, 0.5861, 0.6463,
+    0.6999, 0.7473, 0.7885, 0.8243, 0.8549, 0.881, 0.903, 0.9215, 0.9369, 0.9496, 0.9601,
+    0.9687, 0.9757, 0.9813, 0.9858, 0.9894, 0.9922, 0.9944, 0.9961, 0.9974, 0.9984,
+    0.9991, 0.9996, 1, 1.0002, 1
+  );
+  --dur-spring-sheet: 406ms;
+
+  /* One duration per value the catalog actually names, each commented with the moment
+   * it serves. M8 added the nine that were missing: rounding 260 to 200 or 600 to 900
+   * because "that token was closest" is how a catalog stops being the spec and starts
+   * being a suggestion. Seconds of the same numbers live in lib/motion.ts. */
+  --dur-press-in: 80ms;   /* M3 press down */
+  --dur-press-out: 120ms; /* M3 release · M13 the palette's selection glide */
+  --dur-instant: 90ms;    /* M1 row tint */
+  --dur-quick: 140ms;     /* M1 action cluster · M4 hero exit · M5 hero crossfade */
+  --dur-scrim: 160ms;     /* M13 scrim · M6 toast exit */
+  --dur-fill: 180ms;      /* M10 popover panel · M16 skeleton crossfade */
+  --dur-base: 200ms;      /* M4 the check draw · M13 palette panel · M15 tab pill */
+  --dur-toast: 220ms;     /* M6 toast entrance */
+  --dur-bars: 240ms;      /* M10 the weight bars */
+  --dur-band: 260ms;      /* M9 the new-urgent band's slide */
+  --dur-roll: 320ms;      /* M7, M18 number roll */
+  --dur-move: 420ms;      /* M5 undo · M14 theme reveal · M17 headline */
+  --dur-flash: 500ms;     /* M18 the hairline flash, on increase only */
+  --dur-hue: 600ms;       /* M7 the countdown's one hue shift */
+  --dur-sweep: 700ms;     /* M9 the tier rail's sweep, once ever per arrival */
+  --dur-slow: 900ms;      /* M8 the moved-row wash · M17 the aurora fading in */
 }
 
 @media (width < 64rem) {
@@ -756,6 +785,33 @@ samp {
   box-shadow: none;
 }
 
+/* M1, and it was missing: the catalog's row hover is a background *and* an action
+ * cluster, and only the cluster was ever built. The bg is what tells the eye which row
+ * the pointer is on at two metres, where a 32px button appearing on the far right of a
+ * 1440px row does not.
+ *
+ * 90ms, and background-color only — the row must not move. The cluster's track is
+ * reserved at all times (queue-row.tsx), so nothing here can shift the layout.
+ *
+ * Act now keeps its tint and gets its own, slightly deeper hover: `--surface-2` on that
+ * row would *remove* the one tint §4.5 spends on the highest tier, so hovering it would
+ * make it look less urgent. */
+.queue-row {
+  transition: background-color var(--dur-instant) var(--ease-out);
+}
+
+/* Pointer only. On a touch screen `:hover` latches on tap and stays after the sheet it
+ * opened is closed, leaving a row highlighted with nothing hovering it. */
+@media (hover: hover) {
+  .queue-row:hover {
+    background-color: var(--surface-2);
+  }
+
+  .queue-row[data-tier="now"]:hover {
+    background-color: color-mix(in oklab, var(--act-bg), var(--text-1) 4%);
+  }
+}
+
 @media (width < 48rem) {
   /* Two tracks, not four. A 130px time chip on the right leaves a 19px title 156px to
    * live in at 390, which truncates it to four words — so on a handheld the time folds
@@ -901,16 +957,22 @@ samp {
   }
 }
 
-/* prefers-reduced-motion, §7.1: "positions change instantly, opacity crossfades at
- * 120ms, loops are static, NumberFlow disables its roll." NumberFlow respects the media
- * query on its own (`respectMotionPreference`, on by default) and Motion's components
- * are covered by `<MotionConfig reducedMotion="user">` in app/providers.tsx, which
- * disables transform/layout animation while leaving opacity and color free to keep
- * animating — so only plain CSS transitions/animations (button press, row actions,
- * .aurora, and anything from Sonner/Vaul's own stylesheets) need a rule here. This
- * collapses all of them to near-zero rather than reproducing each row's own nuance
- * (e.g. M7's "fade only" becomes "instant" too) — one robust, testable rule beats many
- * fragile per-property ones, and the visual difference at ~0.01ms is not perceptible. */
+/* prefers-reduced-motion, and M8 rewrote how it works. §7.1 asks for "positions change
+ * instantly, opacity crossfades at 120ms, loops are static, NumberFlow disables its
+ * roll", and the catalog gives all eighteen moments a *designed* reduced variant — most
+ * of which read "instant, but the colour cue stays", because colour is not motion. What
+ * was here before was one blanket rule that collapsed every animation of every property
+ * to 0.01ms, which is a different promise: it also deleted the tint wash that tells you
+ * which row moved, the ring that tells you how long undo has left, and the 120–160ms
+ * fades the catalog explicitly keeps. The rule below is still the safety net — anything
+ * nobody has thought about, including Sonner's and Vaul's own stylesheets, still
+ * collapses — and the exemptions under it are the short, named list of animations that
+ * carry information rather than decoration.
+ *
+ * Motion's own components are covered separately by `<MotionConfig reducedMotion="user">`
+ * in app/providers.tsx, which stops transform and layout animation while leaving opacity
+ * and colour free; NumberFlow respects the query itself. So this file only has to reach
+ * plain CSS. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -919,6 +981,81 @@ samp {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Colour, not motion — M8's wash and M18's flash are how "this one moved" and "this
+   * number went up" are legible at all once nothing is allowed to move. A class
+   * selector outranks the `*` above, so these win without a second `!important` war. */
+  .tint-wash {
+    animation-duration: var(--dur-slow) !important;
+  }
+
+  /* Information, not motion: the ring is the only thing that says how much of the undo
+   * window is left, and someone who has asked for less motion has not asked for less
+   * time. */
+  .undo-ring-circle {
+    animation-duration: var(--toast-duration) !important;
+  }
+
+  /* M6, M11, M13 keep a fade — the catalog's own reduced variants, at the catalog's own
+   * durations. What they lose is the part that moves: each of these normally slides,
+   * scales or blurs in, and under reduce the keyframes are swapped for a plain opacity
+   * ramp rather than the slide being run at 0.01ms, which is a jump cut. */
+  .popover-content[data-state="open"],
+  .sheet-overlay[data-state="open"],
+  .sheet-content[data-state="open"],
+  .palette-overlay[data-state="open"],
+  .palette-content[data-state="open"],
+  .dialog-overlay[data-state="open"],
+  .dialog-content[data-state="open"] {
+    animation-name: reduced-fade-in !important;
+    animation-duration: var(--dur-press-out) !important;
+  }
+
+  .popover-content[data-state="closed"],
+  .sheet-overlay[data-state="closed"],
+  .sheet-content[data-state="closed"],
+  .palette-overlay[data-state="closed"],
+  .palette-content[data-state="closed"],
+  .dialog-overlay[data-state="closed"],
+  .dialog-content[data-state="closed"] {
+    animation-name: reduced-fade-out !important;
+    animation-duration: var(--dur-press-out) !important;
+  }
+
+  /* The palette's blur is a GPU cost with no informational content; the scrim's opacity
+   * already says "the app is behind this". */
+  .palette-overlay {
+    backdrop-filter: none !important;
+  }
+
+  /* M6's toast holds longer instead (toast-bridge.tsx) but still arrives as a fade
+   * rather than a slide, which is Sonner's `--y` translate. The duration has to be
+   * restated here: the 220ms override above is an attribute selector and outranks the
+   * `*` rule, so without this line the toast keeps sliding under reduced motion — the
+   * one place where matching Sonner's specificity to fix one thing quietly broke
+   * another. */
+  [data-sonner-toast] {
+    --y: translateY(0) !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes reduced-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reduced-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -942,7 +1079,7 @@ samp {
  * user's own click just moved. Reduced motion keeps the tint (per §7.2's "tint is not
  * motion") but drops straight to the resting color instead of animating the wash. */
 .tint-wash {
-  animation: tint-wash 900ms ease-out;
+  animation: tint-wash var(--dur-slow) var(--ease-out);
 }
 
 @keyframes tint-wash {
@@ -954,11 +1091,63 @@ samp {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tint-wash {
-    animation: none;
-    background-color: transparent;
+/* M6 toast placement. "Bottom-left" is a different corner at every width, because the
+ * furniture nailed to that corner changes: below 768 the handheld dock and /work's
+ * sticky primary own the bottom of the screen; from 1024 the nav rail owns the left
+ * edge, and its own account control sits exactly where an unoffset toast would land.
+ *
+ * These are read by the `offset`/`mobileOffset` props on <Toaster> rather than
+ * overriding Sonner's own `--offset-*`: Sonner writes those inline on the container, so
+ * a rule here loses to them no matter how specific it is (tried, and the toast stayed in
+ * the corner). Handing the component a custom property it writes inline *as a reference*
+ * puts the breakpoints back in the stylesheet, where the rest of the shell's geometry
+ * already lives. */
+:root {
+  --toast-x: 1rem;
+  /* Below 768: the dock, and /work's sticky primary above it. */
+  --toast-y: calc(var(--h-dock) + 5.25rem);
+}
+
+/* 768–1023: the sticky primary is gone but the dock is not — it is `lg:hidden`, so it
+ * survives another 256px past the point the primary folds back into the hero card. A
+ * single "≥768 means desktop" step put the toast on top of it for that whole range. */
+@media (width >= 48rem) {
+  :root {
+    --toast-y: calc(var(--h-dock) + 1.5rem);
   }
+}
+
+/* 1024 and up: the dock is gone and the rail has taken over. */
+@media (width >= 64rem) {
+  :root {
+    --toast-y: 1.5rem;
+  }
+}
+
+@media (width >= 64rem) {
+  :root {
+    --toast-x: 5.5rem; /* the 64px collapsed rail, plus the gutter */
+  }
+}
+
+@media (width >= 80rem) {
+  :root {
+    --toast-x: 16.5rem; /* the 240px expanded rail, plus the gutter */
+  }
+}
+
+/* M6 toast motion. Sonner ships 400ms transitions of its own on every toast; these are
+ * the catalog's 220 in / 160 out on the token curves, which is also the only way to
+ * keep one curve set once a third-party component is drawing one of the app's surfaces.
+ * The `!important` is answering Sonner's own stylesheet, not a specificity guess. */
+[data-sonner-toast] {
+  transition-duration: var(--dur-toast) !important;
+  transition-timing-function: var(--ease-out) !important;
+}
+
+[data-sonner-toast][data-removed="true"] {
+  transition-duration: var(--dur-scrim) !important;
+  transition-timing-function: var(--ease-in) !important;
 }
 
 /* M1/M2 undo toast (undo-toast.tsx): the ring counts down the toast's own
@@ -989,7 +1178,7 @@ samp {
   background: linear-gradient(100deg, transparent 30%, oklch(1 0 0 / 35%) 50%, transparent 70%);
   background-size: 250% 100%;
   background-position: 100% 0;
-  animation: glow-sweep 900ms ease-out;
+  animation: glow-sweep var(--dur-sweep) var(--ease-out);
   pointer-events: none;
 }
 
@@ -1002,6 +1191,8 @@ samp {
   }
 }
 
+/* Decoration, not information — the band's own arrival already says what happened, so
+ * the sweep is the one M9 element reduced motion removes outright rather than fades. */
 @media (prefers-reduced-motion: reduce) {
   .glow-sweep::after {
     display: none;
@@ -1042,9 +1233,9 @@ samp {
 }
 
 /* M8 sheet (the desktop right-sheet only — Vaul already animates its own bottom sheet
- * natively on handheld, §5's dock/sidebar split). `spring.sheet`'s stiffness/damping
- * has no direct CSS equivalent, so this approximates it with a slight overshoot
- * cubic-bezier rather than reaching for Motion here too.
+ * natively on handheld, §5's dock/sidebar split). It runs on `--spring-sheet`, which is
+ * `spring.sheet` itself sampled into a `linear()` easing (see the Motion tokens) — not
+ * an approximation of it, which is what the hand-tuned overshoot bezier here used to be.
  *
  * Every pair below uses two distinctly *named* `@keyframes` (an `-in` and an `-out`)
  * instead of one `@keyframes` reused with `animation-direction: reverse` on the closed
@@ -1076,11 +1267,11 @@ samp {
 }
 
 .sheet-content[data-state="open"] {
-  animation: sheet-in 320ms cubic-bezier(0.32, 0.72, 0.35, 1.1);
+  animation: sheet-in var(--dur-spring-sheet) var(--spring-sheet);
 }
 
 .sheet-content[data-state="closed"] {
-  animation: sheet-out 240ms var(--ease-out);
+  animation: sheet-out var(--dur-bars) var(--ease-out);
 }
 
 @keyframes sheet-in {
@@ -1100,11 +1291,11 @@ samp {
  * in each keyframe's own state, since an animation's `transform` replaces (rather than
  * composes with) the element's base value for its duration. */
 .palette-overlay[data-state="open"] {
-  animation: palette-overlay-in var(--dur-base) var(--ease-out);
+  animation: palette-overlay-in var(--dur-scrim) var(--ease-inout);
 }
 
 .palette-overlay[data-state="closed"] {
-  animation: palette-overlay-out var(--dur-quick) var(--ease-out);
+  animation: palette-overlay-out var(--dur-scrim) var(--ease-inout);
 }
 
 @keyframes palette-overlay-in {
@@ -1122,7 +1313,7 @@ samp {
 }
 
 .palette-content[data-state="open"] {
-  animation: palette-in var(--dur-base) var(--ease-out);
+  animation: palette-in var(--dur-base) var(--ease-inout);
 }
 
 .palette-content[data-state="closed"] {

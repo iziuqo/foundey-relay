@@ -1,6 +1,7 @@
 "use client";
 
 import { flushSync } from "react-dom";
+import { duration, ease, prefersReducedMotion } from "./motion";
 
 /** The single place that writes theme/fidelity onto `<html>` — app/providers.tsx calls
  * this from its store subscription on every change (mount, reset, wireframe toggle,
@@ -14,10 +15,6 @@ export function applyThemeAttrs(theme: string, wireframe: boolean): void {
 interface Origin {
   x: number;
   y: number;
-}
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 /**
@@ -57,7 +54,14 @@ export function switchTheme(apply: () => void, origin?: Origin): void {
   void transition.ready.then(() => {
     document.documentElement.animate(
       { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-      { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" },
+      {
+        duration: duration.move * 1000,
+        // The same `--ease-inout` every overlay in the app glides on. The literal
+        // `"ease-in-out"` keyword that was here is a different curve entirely, and the
+        // largest single animation in the product is the last place to run a fourth one.
+        easing: `cubic-bezier(${ease.inOut.join(", ")})`,
+        pseudoElement: "::view-transition-new(root)",
+      },
     );
   }, () => {});
 }

@@ -8,6 +8,10 @@ import { defineConfig, devices } from "@playwright/test";
 // longer on disk — which happened. Keeping the humans on 3000 and the tests on 3100
 // removes that failure mode entirely.
 //
+// The test server also gets its own build directory (NEXT_DIST_DIR, see next.config.ts):
+// two `next dev` processes cannot share one `.next/`, and the second one dies on the dev
+// lock with an error that says nothing about locks.
+//
 // Run `npm run dev:test` first to keep a warm server between runs; otherwise Playwright
 // starts and stops one per run.
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
@@ -30,7 +34,7 @@ export default defineConfig({
     // CI still builds for real: the gates are graded against a production build.
     command: process.env.CI
       ? `npm run build && npx next start -p ${PORT}`
-      : `npx next dev -p ${PORT}`,
+      : `NEXT_DIST_DIR=.next-test npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

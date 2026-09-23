@@ -4,7 +4,7 @@ import { copy, t } from "@/lib/copy";
 import { formatClock, minutesBetween, relativeDuration } from "@/lib/time";
 import { site } from "@/lib/seed";
 import { cn } from "@/lib/cn";
-import { transition } from "@/lib/motion";
+import { stagger, stepDelay, transition } from "@/lib/motion";
 import type { Ranked } from "@/lib/priority";
 import type { Item } from "@/lib/types";
 
@@ -58,7 +58,7 @@ function FactorBar({
   value: number;
   max: number;
   reason: string;
-  /** M10: bars fill left to right with a 60ms stagger, on first open per item only. */
+  /** M10: bars fill left to right with a 50ms stagger, on first open per item only. */
   index: number;
   animate: boolean;
 }) {
@@ -90,7 +90,11 @@ function FactorBar({
           style={{ width: `${pct}%` }}
           initial={animate ? { scaleX: 0 } : false}
           animate={{ scaleX: 1 }}
-          transition={animate ? { ...transition.base, delay: index * 0.06 } : { duration: 0 }}
+          transition={
+            animate
+              ? { ...transition.bars, delay: stepDelay(index, stagger.bars) }
+              : { duration: 0 }
+          }
         />
       </div>
       <p className="text-(length:--text-meta) text-(--text-2)">{reason}</p>

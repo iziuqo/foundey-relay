@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import NumberFlow from "@number-flow/react";
 import { copy, t } from "@/lib/copy";
 import { cn } from "@/lib/cn";
 import { formatClock } from "@/lib/time";
+import { spring } from "@/lib/motion";
 import { SectionBand } from "@/components/ui/section-band";
 import { FOCUS } from "@/components/ui/sizing";
 import type { Ranked } from "@/lib/priority";
@@ -36,8 +37,9 @@ export interface QueueProps extends QueueActions {
   nextCutoffAt: string | null;
   /** The one row next in line for the hero slot (M1's shared-element source). */
   nextHeroId?: string | null;
-  /** The row an external reorder just promoted into place (M5's tint wash). */
-  justPromotedId?: string | null;
+  /** Rows whose rank changed for a reason the user did not cause (catalog M8): each
+   *  carries a 900ms tint wash so the eye can find what moved. */
+  washIds?: readonly string[];
 }
 
 function TierGroup({
@@ -47,7 +49,7 @@ function TierGroup({
   now,
   nextCutoffAt,
   nextHeroId,
-  justPromotedId,
+  washIds,
   actions,
 }: {
   tier: "now" | "next" | "later";
@@ -56,12 +58,22 @@ function TierGroup({
   now: Date;
   nextCutoffAt: string | null;
   nextHeroId?: string | null;
-  justPromotedId?: string | null;
+  washIds?: readonly string[];
   actions: QueueActions;
 }) {
   if (rows.length === 0) return null;
   return (
-    <div>
+    // The group moves as one, and `layout="position"` rather than `layout` because
+    // moving is all it should do: plain `layout` animates size with a scale transform,
+    // which would stretch the band's text and the row separators inside it every time the
+    // group gained or lost a row. The same rule ItemShell keeps content out of.
+    //
+    // Its rows animate their positions (M4 ④) but the band does
+    // not, so with a static wrapper the band jumped to its final position on frame one
+    // while the rows were still gliding into theirs — and for ~200ms a band sat on top
+    // of the row above it (visible in evidence/m8's first capture). A band is the label
+    // for the rows under it; it travels with them.
+    <motion.div layout="position" transition={spring.layout}>
       {/* The band is neutral and the hue lives in the icon and the label — `z01`'s
           structure with the colour moved off the band, so it never competes with the
           rows beneath it (advisor §7.2). */}
@@ -77,14 +89,15 @@ function TierGroup({
       />
       <ul>
         <AnimatePresence initial={false}>
-          {rows.map((ranked) => (
+          {rows.map((ranked, index) => (
             <QueueRow
               key={ranked.item.id}
+              index={index}
               ranked={ranked}
               now={now}
               nextCutoffAt={nextCutoffAt}
               willBecomeHero={ranked.item.id === nextHeroId}
-              justPromoted={ranked.item.id === justPromotedId}
+              justPromoted={washIds?.includes(ranked.item.id) ?? false}
               onStart={() => actions.onStart(ranked.item.id)}
               onMarkDone={() => actions.onMarkDone(ranked.item.id)}
               onWaiting={(who, checkBackAt) => actions.onWaiting(ranked.item.id, who, checkBackAt)}
@@ -94,7 +107,7 @@ function TierGroup({
           ))}
         </AnimatePresence>
       </ul>
-    </div>
+    </motion.div>
   );
 }
 
@@ -164,7 +177,7 @@ export function Queue({
   done,
   nextCutoffAt,
   nextHeroId,
-  justPromotedId,
+  washIds,
   onStart,
   onMarkDone,
   onWaiting,
@@ -193,7 +206,7 @@ export function Queue({
           now={now}
           nextCutoffAt={nextCutoffAt}
           nextHeroId={nextHeroId}
-          justPromotedId={justPromotedId}
+          washIds={washIds}
           actions={actions}
         />
       ))}

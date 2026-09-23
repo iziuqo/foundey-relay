@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, MoreHorizontal, X } from "lucide-react";
 import { motion } from "motion/react";
 import { copy, t } from "@/lib/copy";
-import { transition } from "@/lib/motion";
+import { stagger, stepDelay, transition } from "@/lib/motion";
 import { formatClock } from "@/lib/time";
 import { site } from "@/lib/seed";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,29 @@ function PropertyRow({ label, value }: { label: string; value: React.ReactNode }
  * item copy un-truncated. Shared by the full page (`/items/[id]`) and the
  * intercepting-route sheet, which differ only in their chrome around this.
  */
+/**
+ * M11: the sheet's inner sections arrive 28ms apart, four at most — the sheet itself is
+ * the move, and this is the beat that tells the eye the panel has *contents* rather than
+ * being one slab that appeared. Capped at four because the fifth is past the fold at
+ * every width this sheet renders at, so it would be staggering something nobody is
+ * looking at while they read the title.
+ *
+ * Fade and 6px only, never height: the sections are stacked, so animating any of their
+ * boxes would move every section under them for the whole stagger.
+ */
+function SheetSection({ index, className, children }: { index: number; className?: string; children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...transition.base, delay: stepDelay(index, stagger.sections) }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function ItemDetail({
   item,
   assignee,
@@ -138,15 +161,17 @@ export function ItemDetail({
       </div>
 
       <div className="p-4">
-        <h1 data-testid="item-detail-title" className="t-hero text-(--text-1)">
-          {item.title}
-        </h1>
-        <p className="mt-2 t-body text-(--text-2)">{item.cause}</p>
+        <SheetSection index={0}>
+          <h1 data-testid="item-detail-title" className="t-hero text-(--text-1)">
+            {item.title}
+          </h1>
+          <p className="mt-2 t-body text-(--text-2)">{item.cause}</p>
+        </SheetSection>
 
         {item.source !== "fyi" && (
-          <div className="mt-5 rounded-(--radius-control) border border-(--border-1) bg-(--surface-2) p-4">
+          <SheetSection index={1} className="mt-5 rounded-(--radius-control) border border-(--border-1) bg-(--surface-2) p-4">
             <WhyFactors ranked={ranked} nextRanked={nextRanked} now={now} />
-          </div>
+          </SheetSection>
         )}
 
         <div className="mt-5 flex items-center gap-3 rounded-(--radius-control) border border-(--border-1) p-3">
@@ -180,7 +205,7 @@ export function ItemDetail({
                   d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.18, ease: transition.base.ease }}
+                  transition={transition.base}
                 />
               </motion.svg>
             )}
@@ -190,7 +215,7 @@ export function ItemDetail({
           </span>
         </div>
 
-        <div className="mt-6">
+        <SheetSection index={2} className="mt-6">
           <p className="t-eyebrow text-(--text-2)">{copy.itemDetail.sourceHistory}</p>
           {/* At the sheet's widest step (34rem / 1440) there's room for the properties
               and the activity log side by side (§5.7's "2 cols"); every narrower step
@@ -233,9 +258,9 @@ export function ItemDetail({
               )}
             </ul>
           </div>
-        </div>
+        </SheetSection>
 
-        <div className="mt-6">
+        <SheetSection index={3} className="mt-6">
           <p className="t-eyebrow text-(--text-2)">{copy.itemDetail.people}</p>
           <div className="mt-2 flex items-center justify-between gap-3 rounded-(--radius-control) border border-(--border-1) p-3">
             <div className="flex min-w-0 items-center gap-2.5">
@@ -259,7 +284,7 @@ export function ItemDetail({
               />
             )}
           </div>
-        </div>
+        </SheetSection>
       </div>
 
       {canAct && !done && (

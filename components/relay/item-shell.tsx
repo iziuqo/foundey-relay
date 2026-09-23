@@ -10,6 +10,14 @@ export interface ItemShellProps {
   itemId: string;
   tier: EncodedTier;
   variant: "row" | "hero";
+  /**
+   * False takes this layer out of the shared-element tree for one render. M5 (undo) is
+   * the only caller that does: the restored hero's counterpart row is the row it is
+   * about to *replace*, so leaving the `layoutId` on would morph the two into each
+   * other and play the promotion in reverse — the one thing the catalog says undo must
+   * never look like.
+   */
+  shared?: boolean;
   className?: string;
 }
 
@@ -27,11 +35,11 @@ export interface ItemShellProps {
  * in a normal sibling instead and crossfades on its own terms (Hero's own "fades up
  * 8px", §7.2 M1), so nothing gets distorted mid-morph.
  */
-export function ItemShell({ itemId, tier, variant, className }: ItemShellProps) {
+export function ItemShell({ itemId, tier, variant, shared = true, className }: ItemShellProps) {
   return (
     <motion.div
-      layoutId={`item-shell-${itemId}`}
-      layout
+      layoutId={shared ? `item-shell-${itemId}` : undefined}
+      layout={shared}
       transition={spring.layout}
       aria-hidden
       className={cn(

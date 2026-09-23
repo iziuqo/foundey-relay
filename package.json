@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "dev:test": "next dev -p 3100",
+    "dev:test": "NEXT_DIST_DIR=.next-test next dev -p 3100",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

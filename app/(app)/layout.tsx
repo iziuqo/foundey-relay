@@ -15,7 +15,8 @@ import { GlobalHotkeys } from "@/components/relay/global-hotkeys";
 // was). useOpenSearch (used by the always visible SearchTrigger) lives in its own
 // module for the same reason (use-open-search.ts).
 const CommandPalette = dynamic(
-  () => import("@/components/relay/command-palette").then((m) => m.CommandPalette),
+  () =>
+    import("@/components/relay/command-palette").then((m) => m.CommandPalette),
   { ssr: false },
 );
 
@@ -37,7 +38,9 @@ export default function AppLayout({
             acuity limit at two metres, so it costs nothing there and gives the empty
             right side of /work at 1920 something to be. M1 defined the utility; nothing
             had applied it. */}
-        <main className="canvas-texture min-w-0 flex-1 pb-[120px] lg:pb-0">{children}</main>
+        <main className="canvas-texture min-w-0 flex-1 pb-[120px] lg:pb-0">
+          {children}
+        </main>
       </div>
       <BottomDock />
       <ToastBridge />
@@ -45,16 +48,22 @@ export default function AppLayout({
       <CommandPalette />
       <ShortcutsSheet />
       <GlobalHotkeys />
+      {/* M6: bottom-left, out of the content column and out of the chrome. Sonner's own
+          toast styling is off — every toast in this app is the `Toast` shell
+          (toast-bridge.tsx), so there is one toast design rather than two. The mobile
+          offset clears both the dock and /work's sticky primary; below 768 those are two
+          fixed bars already, and a toast landing on either of them is craft check 10. */}
+      {/* M6: bottom-left, out of the content column and out of the chrome. Sonner's own
+          toast styling is off — every toast in this app is the `Toast` shell
+          (toast-bridge.tsx), so there is one toast design rather than two. Where the
+          corner actually is depends on which fixed furniture that width has (the rail,
+          the dock, /work's sticky primary), so the offsets are breakpoint rules in
+          globals.css rather than a single number here. */}
       <Toaster
-        position="top-center"
-        toastOptions={{
-          classNames: {
-            toast:
-              "!rounded-(--radius-control) !border !border-(--border-1) !bg-(--surface-1) !text-(--text-1) !shadow-(--shadow-e3)",
-            actionButton: "!bg-(--accent-solid) !text-(--accent-solid-fg)",
-            description: "!text-(--text-2)",
-          },
-        }}
+        position="bottom-left"
+        offset={{ left: "var(--toast-x)", right: "var(--toast-x)", bottom: "var(--toast-y)" }}
+        mobileOffset={{ left: "var(--toast-x)", right: "var(--toast-x)", bottom: "var(--toast-y)" }}
+        toastOptions={{ unstyled: true }}
       />
     </div>
   );

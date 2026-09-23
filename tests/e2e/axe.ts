@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
+import { animationsSettled } from "./settle";
 
 /**
  * Runs axe and returns one short line per violation, ready to assert against `[]`.
@@ -13,6 +14,7 @@ import type { Page } from "@playwright/test";
  * rest, which is rare.
  */
 export async function axeViolations(page: Page): Promise<string[]> {
+  await animationsSettled(page);
   const { violations } = await new AxeBuilder({ page }).analyze();
   return violations.map((v) => {
     const nodes = `${v.nodes.length} node${v.nodes.length === 1 ? "" : "s"}`;

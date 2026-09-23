@@ -83,7 +83,11 @@ export const FOCUS =
  * Scaling a whole 64px row instead of the control inside it is the failure to avoid.
  */
 export const PRESS =
-  "transition-[background-color,color,border-color,transform] duration-(--dur-instant) ease-(--ease-out) " +
+  "transition-[background-color,color,border-color,transform] duration-(--dur-press-out) ease-(--ease-out) " +
+  // M3 is two durations, not one: 80ms down and 120ms up. A press that returns as fast
+  // as it depresses reads as a twitch; the slower release is what makes it feel like a
+  // physical key coming back.
+  "active:duration-(--dur-press-in) data-[force=active]:duration-(--dur-press-in) " +
   "active:scale-[0.985] data-[force=active]:scale-[0.985] " +
   "motion-reduce:transition-none motion-reduce:active:scale-100";
 

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { animationsSettled } from "./settle";
 import { cssColorToOklch } from "../../lib/color";
 
 /**
@@ -51,6 +52,9 @@ const CONTROLS = "button, input, select, a[role='button'], [role='button']";
  * own to tip check 2's share of one size over 55%.
  */
 async function textNodes(page: Page) {
+  // Settled, never sampled: an entrance animation in flight hides real content from the
+  // opacity filter below and silently changes every ratio measured off this list.
+  await animationsSettled(page);
   return page.evaluate(() => {
     const out: { text: string; size: number; tracking: string; color: string; tabular: string }[] = [];
     const walker = document.createTreeWalker(document.querySelector("main") ?? document.body, NodeFilter.SHOW_TEXT);

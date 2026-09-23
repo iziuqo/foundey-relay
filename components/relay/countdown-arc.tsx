@@ -74,7 +74,7 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
           strokeLinecap="round"
           strokeDasharray={`${dash} ${CIRCUMFERENCE}`}
           className={cn(
-            "transition-[stroke] duration-(--dur-slow) ease-(--ease-out)",
+            "transition-[stroke] duration-(--dur-hue) ease-(--ease-out)",
             tierStrokeClass[strokeTier],
           )}
         />
@@ -82,7 +82,7 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
       <span
         aria-hidden
         className={cn(
-          "tnum absolute inset-0 flex items-center justify-center text-center transition-colors duration-(--dur-slow) ease-(--ease-out)",
+          "tnum absolute inset-0 flex items-center justify-center text-center transition-colors duration-(--dur-hue) ease-(--ease-out)",
           bare ? "t-hero" : "t-section",
           urgent ? "text-(--act-fg)" : "text-(--text-1)",
         )}

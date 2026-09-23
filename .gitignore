@@ -1,6 +1,7 @@
 node_modules
 dist
 .next
+.next-test
 next-env.d.ts
 exports/slides
 exports/lighthouse
@@ -11,3 +12,10 @@ test-results
 playwright-report
 blob-report
 playwright/.cache
+
+# D10: the redesign working notes, the 22 third-party reference screenshots and the
+# per-milestone evidence stay out of the repo — the repo gets the artifacts, not the
+# notes. Listed here rather than left merely untracked because `git add -A` at the end of
+# a milestone otherwise stages ~400 of them, which is a mistake every session gets to
+# make exactly once.
+plan/redesign/

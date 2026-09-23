@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/cn";
-import { spring } from "@/lib/motion";
+import { transition } from "@/lib/motion";
 import { FOCUS } from "@/components/ui/sizing";
 import type { UpdateTab } from "@/lib/selectors";
 
@@ -54,7 +54,7 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
           {active === tab.id && (
             <motion.div
               layoutId="update-tab-pill"
-              transition={spring.layout}
+              transition={transition.glide}
               className="absolute inset-0 -z-10 rounded-(--r-2) bg-(--surface-1) shadow-(--e1)"
             />
           )}
