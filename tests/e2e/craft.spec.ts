@@ -20,7 +20,7 @@ import { cssColorToOklch } from "../../lib/color";
  * route to this list is part of that milestone's exit gate, not an afterthought.
  * ---------------------------------------------------------------------------------
  */
-const MIGRATED = ["/system/components", "/work", "/items/it-01", "/team"];
+const MIGRATED = ["/system/components", "/work", "/items/it-01", "/team", "/updates", "/lookup"];
 
 /** Radius is a function of height: r = round(h × 0.28), snapped to the ladder. */
 const RADIUS_FOR_HEIGHT: [number, number][] = [
@@ -42,6 +42,13 @@ const CONTROLS = "button, input, select, a[role='button'], [role='button']";
  * "Start" that puts no ink on the screen. Counting those as visible text made check 2
  * read five phantom 14px nodes on `/work` and would have had this suite grading the DOM
  * rather than the page.
+ *
+ * It also has to exclude `sr-only` accessible names (Dialog/Drawer titles, a page's own
+ * `<h1>` when the nav already names the location): Tailwind's `sr-only` clips them to a
+ * `clip-path: inset(50%)` box that still measures 1×1px, so they were passing the
+ * width/height check while contributing zero ink — on a short page like `/lookup`
+ * (ten text nodes in total) two invisible 16px accessible names were enough on their
+ * own to tip check 2's share of one size over 55%.
  */
 async function textNodes(page: Page) {
   return page.evaluate(() => {
@@ -50,6 +57,7 @@ async function textNodes(page: Page) {
     const transparent = (el: Element) => {
       for (let node: Element | null = el; node; node = node.parentElement) {
         if (parseFloat(getComputedStyle(node).opacity) === 0) return true;
+        if (getComputedStyle(node).clipPath === "inset(50%)") return true;
       }
       return false;
     };

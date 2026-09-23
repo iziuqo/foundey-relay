@@ -13,7 +13,11 @@ import { AllClear } from "@/components/relay/all-clear";
 import { WhyPopover } from "@/components/relay/why-popover";
 import { WhyFactors } from "@/components/relay/why-factors";
 import { TruckClock } from "@/components/relay/truck-clock";
+import { NeedsYouList } from "@/components/relay/needs-you-list";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
+import { copy } from "@/lib/copy";
 
 const NOW = new Date(SEED_NOW_ISO);
 const PERSON_ID = "u1";
@@ -115,7 +119,7 @@ export function PatternsPage() {
                 onNotMine={() => {}}
               />
             ) : (
-              <AllClear key="all-clear" doneToday={snapshot.doneLog.length} />
+              <AllClear key="all-clear" done={snapshot.doneLog} />
             )}
           </AnimatePresence>
           {(queue.now.length > 0 || queue.next.length > 0 || queue.later.length > 0) && (
@@ -189,6 +193,47 @@ export function PatternsPage() {
           <div>
             <p className="mb-2 text-(length:--text-meta) font-medium text-(--text-2)">Strip</p>
             <TruckClock cutoffs={site.cutoffs} now={NOW} />
+          </div>
+        </div>
+      </PatternSection>
+
+      <PatternSection
+        title="Empty and error states"
+        note={`§5.4: every list, the palette, the rail, and the detail sheet get a designed state,
+          not a bare sentence. Error is EmptyState's shape plus a neutral icon — red is not on the
+          chroma whitelist (§4.2), so the only signal is the icon and the copy. A rail state never
+          carries an action (§5.1 bans interactive elements there); a list or a sheet can.`}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="mb-2 t-meta font-medium text-(--text-2)">List — empty (&ldquo;Needs you&rdquo;)</p>
+            <NeedsYouList rows={[]} candidates={[]} onAssign={() => {}} onCheckIn={() => {}} onAcknowledge={() => {}} />
+          </div>
+          <div>
+            <p className="mb-2 t-meta font-medium text-(--text-2)">Rail — empty, no action (truck clock)</p>
+            <div className="max-w-xs rounded-(--r-4) border border-(--line-1) p-3">
+              <TruckClock cutoffs={[]} now={NOW} stacked />
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 t-meta font-medium text-(--text-2)">Detail sheet — empty (updates preview)</p>
+            <div className="rounded-(--r-4) border border-(--line-1) bg-(--surface-1)">
+              <EmptyState title={copy.updates.selectHint} />
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 t-meta font-medium text-(--text-2)">Detail sheet — error (a real one: /items/does-not-exist)</p>
+            <div className="rounded-(--r-4) border border-(--line-1) bg-(--surface-1)">
+              <ErrorState
+                title={copy.itemDetail.notFound}
+                description={copy.itemDetail.notFoundHint}
+                action={
+                  <Button variant="secondary" size="sm">
+                    {copy.itemDetail.close}
+                  </Button>
+                }
+              />
+            </div>
           </div>
         </div>
       </PatternSection>

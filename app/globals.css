@@ -834,6 +834,27 @@ samp {
   }
 }
 
+/* ================= The updates row — v3 M7 =================
+ * Every row is one shape regardless of content: an unread dot, an avatar/icon, a
+ * two-line text stack, one right-hand time track. A "for you" row has both a title and
+ * a reason; a team/system row has only a full-sentence reason and no title — that
+ * difference used to mean a three-line row next to a two-line one (63/64/64/63/63's
+ * update-list cousin), so the row promotes the reason into the title line when there is
+ * no title, rather than growing or shrinking to fit what it's given. */
+.update-row {
+  display: grid;
+  grid-template-columns: 1.25rem 2rem minmax(0, 1fr) auto;
+  column-gap: 0.75rem;
+  align-items: center;
+  height: var(--h-row);
+  padding-inline: 0.75rem;
+  box-shadow: inset 0 -1px 0 var(--line-1);
+}
+
+.update-row:last-child {
+  box-shadow: none;
+}
+
 /* M12: an animated custom property, so the browser can interpolate a value (a hue) that
  * a plain `background-position` drift can't reach — this is what "hue drift via an
  * animated @property angle" (plan §7.2) means in practice. Declared with `inherits:
@@ -845,28 +866,33 @@ samp {
   initial-value: 0deg;
 }
 
-/* §2.2 / §6.1 all clear: the one place the gradient comes back (v1's advisor rejected
+/* §2.2 / §5.4 all clear: the one place the gradient comes back (v1's advisor rejected
  * it everywhere else). Rare and never competes with ranking, so the one loop the motion
- * catalog allows (§7.2 M12) lives here. */
+ * catalog allows (§7.2 M12) lives here. Chroma ceiling 0.09, opacity ceiling 0.55 (here
+ * well under it), confined to the top 40% of the card behind the finish headline — all
+ * three ellipses centre at 15–35% and none extends past the card's midline. `--chroma`
+ * (0 under `data-fidelity="wire"`) zeroes every ellipse's chroma the same way the tier
+ * glows do, rather than hiding the effect outright — wire keeps the motion, loses the
+ * hue. */
 .aurora {
   background: radial-gradient(
-      ellipse 80% 60% at 20% 20%,
-      oklch(0.8 0.1 calc(275deg + var(--aurora-hue)) / 35%),
+      ellipse 80% 55% at 20% 15%,
+      oklch(0.8 calc(0.09 * var(--chroma)) calc(275deg + var(--aurora-hue)) / 35%),
       transparent 60%
     ),
     radial-gradient(
-      ellipse 70% 60% at 80% 30%,
-      oklch(0.82 0.09 calc(250deg + var(--aurora-hue)) / 30%),
+      ellipse 70% 50% at 80% 20%,
+      oklch(0.82 calc(0.08 * var(--chroma)) calc(250deg + var(--aurora-hue)) / 30%),
       transparent 60%
     ),
     radial-gradient(
-      ellipse 80% 70% at 50% 90%,
-      oklch(0.85 0.08 calc(150deg + var(--aurora-hue)) / 22%),
+      ellipse 75% 50% at 50% 35%,
+      oklch(0.85 calc(0.07 * var(--chroma)) calc(150deg + var(--aurora-hue)) / 22%),
       transparent 60%
     );
   background-size: 160% 160%;
-  background-position: 30% 40%;
-  animation: aurora-hue-drift 20s linear infinite;
+  background-position: 30% 20%;
+  animation: aurora-hue-drift 24s linear infinite;
 }
 
 @keyframes aurora-hue-drift {

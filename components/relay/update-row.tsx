@@ -2,6 +2,7 @@ import { Cpu } from "lucide-react";
 import { copy, t } from "@/lib/copy";
 import { relativeDuration, minutesBetween } from "@/lib/time";
 import { cn } from "@/lib/cn";
+import { FOCUS } from "@/components/ui/sizing";
 import type { UpdateRow } from "@/lib/selectors";
 import type { Person } from "@/lib/types";
 import { PersonAvatar } from "./person-avatar";
@@ -21,39 +22,64 @@ export interface UpdateRowViewProps {
   onSelect: () => void;
 }
 
-/** §6.4: every row shows its item title plus the reason line (README P1 19 — v1's "For
- * you" rows showed only the reason). Unread dot. One row shape covers both an
- * item-backed row (title set) and a plain team/system entry (title null, `reason` is
- * already a full sentence). */
+/**
+ * §6.4: one row shape for every entry (`.update-row`, globals.css) — an item-backed
+ * "for you" row (title set, README P1 19's fix keeps the title visible) and a plain
+ * team/system entry (title null, `reason` is already a full sentence) used to be a
+ * three-line row next to a two-line one. Here a row without a title promotes `reason`
+ * into the title line instead, so every row is exactly one line of title plus one
+ * (possibly empty) line of detail, at a shared fixed height. Unread carries no hue
+ * (§4.2's chroma whitelist has no room for it) — weight on the title and a neutral
+ * `--text-1` dot instead of an accent one.
+ *
+ * The row itself is the grid (`data-craft-row`); an absolutely positioned button
+ * supplies the single click/focus target as a sibling of the visible content, never a
+ * wrapper around it (`people-row.tsx`'s same shape).
+ */
 export function UpdateRowView({ row, author, now, unread, selected, onSelect }: UpdateRowViewProps) {
+  const titleLine = row.title ?? row.reason;
+  const metaLine = row.title ? row.reason : null;
+  const label = row.title ? `${row.title} — ${row.reason}` : row.reason;
+
   return (
-    <li>
+    <li
+      data-craft-row
+      className={cn("update-row group relative hover:bg-(--surface-2)", selected && "bg-(--surface-2)")}
+    >
       <button
         type="button"
         onClick={onSelect}
         aria-current={selected ? "true" : undefined}
-        className={cn(
-          "flex w-full min-h-(--size-row-min) items-start gap-3 border-b border-(--border-1) px-3 py-3 text-left last:border-0",
-          "hover:bg-(--surface-2) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) focus-visible:ring-inset",
-          selected && "bg-(--surface-2)",
-        )}
-      >
-        <span className="flex w-5 shrink-0 justify-center pt-1.5">
-          {unread && <span aria-hidden className="size-2 rounded-full bg-(--accent-solid)" />}
-        </span>
+        aria-label={label}
+        className={cn("absolute inset-0 rounded-(--r-2)", FOCUS)}
+      />
+
+      <span aria-hidden className="pointer-events-none flex justify-center">
+        {unread && <span className="size-1.5 rounded-full bg-(--text-1)" />}
+      </span>
+
+      <span aria-hidden className="pointer-events-none">
         {author ? (
-          <PersonAvatar initials={author.initials} size="sm" className="mt-0.5" />
+          <PersonAvatar initials={author.initials} size="sm" />
         ) : (
-          <Cpu className="mt-0.5 size-(--size-icon-md) shrink-0 text-(--text-3)" aria-hidden />
+          <Cpu className="size-(--size-icon-md) text-(--text-3)" />
         )}
-        <span className="min-w-0 flex-1">
-          {row.title && (
-            <span className="block text-(length:--text-meta) font-medium text-(--text-1)">{row.title}</span>
-          )}
-          <span className="block text-(length:--text-meta) text-(--text-2)">{row.reason}</span>
-          <span className="tnum mt-0.5 block text-(length:--text-meta) text-(--text-2)">{relativePast(row.at, now)}</span>
+      </span>
+
+      <span className="pointer-events-none flex min-w-0 flex-col justify-center gap-0.5">
+        <span className={cn("t-row truncate", unread ? "font-semibold text-(--text-1)" : "font-medium text-(--text-1)")}>
+          {titleLine}
         </span>
-      </button>
+        {/* t-body, not t-meta: on a page this short, a list of tab labels plus one
+            more 14px line per row pushed a single size to 70% of the page's text
+            (check 2) — the row subtitle steps up, matching how §3.4 already treats
+            the queue row's own subtitle on a handheld. */}
+        {metaLine && <span className="t-body truncate text-(--text-2)">{metaLine}</span>}
+      </span>
+
+      <span aria-hidden className="tnum pointer-events-none t-body justify-self-end whitespace-nowrap text-(--text-2)">
+        {relativePast(row.at, now)}
+      </span>
     </li>
   );
 }

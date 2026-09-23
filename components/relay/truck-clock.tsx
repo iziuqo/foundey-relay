@@ -1,6 +1,7 @@
 import { copy, t } from "@/lib/copy";
 import { dueKind, relativeDuration } from "@/lib/time";
 import { cn } from "@/lib/cn";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Cutoff } from "@/lib/types";
 
 const WINDOW_MIN = 120;
@@ -67,7 +68,9 @@ export function TruckClock({ cutoffs, now, stacked }: TruckClockProps) {
     (a, b) => new Date(a.departsAt).getTime() - new Date(b.departsAt).getTime(),
   );
   if (sorted.length === 0) {
-    return <p className="text-(length:--text-meta) text-(--text-2)">{copy.truckClock.none}</p>;
+    // §5.1 bans interactive elements in the rail, so this — like every rail state — gets
+    // no action, only the title EmptyState already offers without one.
+    return <EmptyState title={copy.truckClock.none} className="py-6" />;
   }
   return (
     <div

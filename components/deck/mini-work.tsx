@@ -24,6 +24,7 @@ export function MiniWork({ wire, className }: { wire?: boolean; className?: stri
   const now = new Date("2026-09-22T10:40:00-07:00");
   const queue = queueFor(seedItems, "u1", now);
   const { done, total } = totalTodayFor(seedItems, seedDoneToday, "u1");
+  const myDone = seedDoneToday.filter((d) => d.assigneeId === "u1");
   const cutoff = nextCutoff(now);
   const nextRanked = queue.now[0] ?? queue.next[0] ?? queue.later[0] ?? null;
 
@@ -68,7 +69,7 @@ export function MiniWork({ wire, className }: { wire?: boolean; className?: stri
                   onNotMine={noop}
                 />
               ) : (
-                <AllClear key="all-clear" doneToday={done} />
+                <AllClear key="all-clear" done={myDone} />
               )}
             </AnimatePresence>
             <Queue

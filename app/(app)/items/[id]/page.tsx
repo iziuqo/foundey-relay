@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { copy } from "@/lib/copy";
 import { ItemDetail } from "@/components/relay/item-detail";
 import { useItemDetail } from "@/components/relay/use-item-detail";
+import { ErrorState } from "@/components/ui/error-state";
+import { FOCUS } from "@/components/ui/sizing";
 
 /** §8.2 `app/(app)/items/[id]/page.tsx`: the direct-navigation full page. Reached by
  * URL, refresh, or "Open" from the palette on handheld — the intercepting route
@@ -16,8 +19,16 @@ export default function ItemPage() {
 
   if (!data.item || !data.ranked) {
     return (
-      <div className="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-col items-start gap-3 p-4 xl:p-8">
-        <p className="text-(length:--text-body) text-(--text-2)">{copy.itemDetail.notFound}</p>
+      <div className="mx-auto flex w-full max-w-(--breakpoint-2xl) p-4 xl:p-8">
+        <ErrorState
+          title={copy.itemDetail.notFound}
+          description={copy.itemDetail.notFoundHint}
+          action={
+            <Link href="/work" className={`t-meta font-medium text-(--accent) hover:underline rounded-(--r-2) ${FOCUS}`}>
+              {copy.itemDetail.backToWork}
+            </Link>
+          }
+        />
       </div>
     );
   }

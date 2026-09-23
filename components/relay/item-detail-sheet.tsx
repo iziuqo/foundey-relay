@@ -4,6 +4,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Drawer } from "vaul";
 import { useRouter } from "next/navigation";
 import { copy } from "@/lib/copy";
+import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/ui/error-state";
 import { ItemDetail } from "./item-detail";
 import { useItemDetail } from "./use-item-detail";
 import { useIsDesktopShell } from "./use-media-query";
@@ -58,9 +60,16 @@ export function ItemDetailSheet({ id }: { id: string }) {
         onReassign={data.reassign}
       />
     ) : (
-      <div className="p-4">
-        <p className="text-(length:--text-body) text-(--text-2)">{copy.itemDetail.notFound}</p>
-      </div>
+      <ErrorState
+        className="p-4"
+        title={copy.itemDetail.notFound}
+        description={copy.itemDetail.notFoundHint}
+        action={
+          <Button variant="secondary" size="sm" onClick={close}>
+            {copy.itemDetail.close}
+          </Button>
+        }
+      />
     );
 
   if (isDesktop) {

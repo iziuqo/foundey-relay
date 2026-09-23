@@ -6,12 +6,14 @@ import { cn } from "@/lib/cn";
  * here, not "no data".
  */
 export function EmptyState({
+  icon,
   title,
   description,
   action,
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
+  icon?: React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
@@ -21,6 +23,11 @@ export function EmptyState({
       className={cn("flex flex-col items-center gap-2 px-6 py-10 text-center", className)}
       {...props}
     >
+      {icon && (
+        <span aria-hidden className="mb-1 text-(--text-3)">
+          {icon}
+        </span>
+      )}
       <p className="t-row text-(--text-1)">{title}</p>
       {description && <p className="t-body max-w-[46ch] text-(--text-2)">{description}</p>}
       {action && <div className="mt-2">{action}</div>}

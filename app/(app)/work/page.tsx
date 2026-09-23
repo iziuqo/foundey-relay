@@ -64,6 +64,7 @@ export default function WorkPage() {
   const pending = pendingPromotion && !pendingPromotion.dismissed ? pendingPromotion : null;
   const queue = queueFor(items, person.id, now, pending?.frozenHeroId ?? undefined);
   const { done, total } = totalTodayFor(items, doneLog, person.id);
+  const myDone = doneLog.filter((d) => d.assigneeId === person.id);
   const cutoff = nextCutoff(now);
   const pendingItem = pending ? items.find((i) => i.id === pending.itemId) : undefined;
   const nowTierCount = queue.now.length + (queue.hero?.result.tier === "now" ? 1 : 0);
@@ -180,7 +181,7 @@ export default function WorkPage() {
                 onNotMine={() => notMine(queue.hero!.item.id)}
               />
             ) : (
-              <AllClear key="all-clear" doneToday={done} />
+              <AllClear key="all-clear" done={myDone} />
             )}
           </AnimatePresence>
 
@@ -197,7 +198,10 @@ export default function WorkPage() {
               laterGroup={queue.later}
               waiting={queue.waiting}
               snoozed={queue.snoozed}
-              done={doneLog.filter((d) => d.assigneeId === person.id)}
+              // All clear (queue.hero null) already lists these same entries above —
+              // showing them again in the queue's own "Done today" section would list
+              // every completion twice.
+              done={queue.hero ? myDone : []}
               nextCutoffAt={cutoff?.departsAt ?? null}
               nextHeroId={nextRanked?.item.id ?? null}
               justPromotedId={justPromotedId}

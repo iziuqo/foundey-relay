@@ -20,14 +20,14 @@ export interface UpdateSheetProps {
 export function UpdateSheet({ row, author, now, unread, onMarkRead, onClose }: UpdateSheetProps) {
   const { open, requestClose, onAnimationEnd } = useDeferredClose(onClose);
   return (
-    <Drawer.Root open={open} onOpenChange={(next) => !next && requestClose()} onAnimationEnd={onAnimationEnd} snapPoints={[0.5, 0.92]}>
+    <Drawer.Root open={open} onOpenChange={(next) => !next && requestClose()} onAnimationEnd={onAnimationEnd} snapPoints={[0.55, 0.94]}>
       <Drawer.Portal>
         <Drawer.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
         <Drawer.Content
           aria-describedby={undefined}
-          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--radius-hero) border-t border-(--border-1) bg-(--surface-1) outline-none"
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--r-5) border-t border-(--line-1) bg-(--surface-1) outline-none"
         >
-          <div aria-hidden className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-(--border-2)" />
+          <div aria-hidden className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-(--line-2)" />
           <Drawer.Title asChild>
             <span className="sr-only">{row.title ?? row.reason}</span>
           </Drawer.Title>

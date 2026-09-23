@@ -27,21 +27,17 @@ export function UpdateDetail({ row, author, now, unread, onMarkRead }: UpdateDet
           </span>
         )}
         <div className="min-w-0">
-          <p className="text-(length:--text-meta) font-medium text-(--text-1)">
+          <p className="t-meta font-semibold text-(--text-1)">
             {author ? t(copy.updates.from, { name: author.name }) : copy.updates.fromSystem}
           </p>
-          <p className="tnum text-(length:--text-meta) text-(--text-2)">
+          <p className="tnum t-meta text-(--text-2)">
             {formatClock(new Date(row.at))} · {relativePast(row.at, now)}
           </p>
         </div>
       </div>
 
-      {row.title && (
-        <p className="text-(length:--text-title) leading-(length:--leading-title) font-semibold text-(--text-1)">
-          {row.title}
-        </p>
-      )}
-      <p className="text-(length:--text-body) leading-(length:--leading-body) text-(--text-1)">{row.reason}</p>
+      {row.title && <p className="t-section text-(--text-1)">{row.title}</p>}
+      <p className="t-body text-(--text-1)">{row.reason}</p>
 
       {unread && (
         <Button variant="secondary" size="sm" className="self-start" onClick={onMarkRead}>

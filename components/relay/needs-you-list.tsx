@@ -1,5 +1,6 @@
 import { copy } from "@/lib/copy";
 import { SectionBand } from "@/components/ui/section-band";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { NeedsYouRow, AssignCandidate } from "@/lib/selectors";
 import { NeedsYouItem } from "./needs-you-item";
 
@@ -22,7 +23,7 @@ export function NeedsYouList({ rows, candidates, onAssign, onCheckIn, onAcknowle
     <div data-testid="needs-you" className="overflow-hidden rounded-(--r-4) border border-(--line-1) bg-(--surface-1)">
       <SectionBand label={copy.team.needsYou} count={rows.length} />
       {rows.length === 0 ? (
-        <p className="t-body px-3 py-4 text-(--text-2)">{copy.team.needsYouEmpty}</p>
+        <EmptyState title={copy.team.needsYouEmpty} description={copy.team.needsYouEmptyHint} />
       ) : (
         <ul data-craft-list>
           {rows.map((row) => (

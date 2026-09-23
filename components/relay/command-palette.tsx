@@ -15,6 +15,7 @@ import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
 import type { PersonaId } from "@/state/store";
 import { switchTheme } from "@/lib/theme-transition";
+import { EmptyState } from "@/components/ui/empty-state";
 import { TierIcon } from "./tier-icon";
 import { tierFgClass } from "./tier-tokens";
 
@@ -181,14 +182,20 @@ function useCommandGroups(onNavigate: (href: string) => void, onDone: () => void
   }, [queue, heroId, items, team, wireframe, theme, alreadyInjected, injection, otherPersonaId, otherPersonaName, now]);
 }
 
+// t-meta with a manual uppercase/tracking, not the 12px t-eyebrow step: /lookup renders
+// this inside <main>, where the app holds a 14px floor for anything carrying content
+// (found by M6 on the roster's own caps heads).
 const groupHeadingClass =
-  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-(length:--t-eyebrow-size) [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-(--text-2) [&_[cmdk-group-heading]]:uppercase";
+  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:t-meta [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-[0.06em] [&_[cmdk-group-heading]]:text-(--text-2) [&_[cmdk-group-heading]]:uppercase";
 
 /** M9: the selected row's highlight glides between rows (a shared `layoutId`) instead
  * of jumping — cmdk exposes the current selection via `useCommandState` so each row can
  * tell whether it's the one carrying the highlight right now. */
 function Row({ row }: { row: CommandRow }) {
-  const active = useCommandState((state) => state.value.toLowerCase() === row.searchValue.toLowerCase());
+  // §7's People/Items groups mount and unmount with the query (PaletteEmpty's doc
+  // comment) — cmdk's own selected `value` can go briefly undefined while that
+  // happens, between the old selection's group disappearing and a new one settling.
+  const active = useCommandState((state) => state.value?.toLowerCase() === row.searchValue.toLowerCase());
   return (
     <CommandItem
       value={row.searchValue}
@@ -217,6 +224,22 @@ function Row({ row }: { row: CommandRow }) {
   );
 }
 
+/** No query typed: the input plus recent and actions only (`p01`'s "one object, a
+ * short quiet row of suggestions" — the full four-group listing used to be a wall of
+ * ~24 rows on first paint). People and items, the two groups with the most rows and
+ * the least to say without a query, only render once there is one to filter them. */
+function PaletteEmpty() {
+  const search = useCommandState((s) => s.search);
+  const query = search.trim();
+  return (
+    <EmptyState
+      className="py-8"
+      title={copy.palette.empty}
+      description={query ? t(copy.palette.emptyFor, { query }) : undefined}
+    />
+  );
+}
+
 export function CommandMenuBody({
   onNavigate,
   onDone,
@@ -225,15 +248,23 @@ export function CommandMenuBody({
   onDone: () => void;
 }) {
   const groups = useCommandGroups(onNavigate, onDone);
+  // People and Items are the two groups with the most rows and the least to say
+  // without a query — they only render once there is one to filter them (see
+  // PaletteEmpty's doc comment).
+  const search = useCommandState((s) => s.search);
+  const isSearching = search.trim().length > 0;
+
   return (
     <>
       <CommandInput
         autoFocus
         placeholder={copy.search}
-        className="h-(--size-control-lg) w-full border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
+        className="h-(--size-control-lg) w-full rounded-t-(--r-4) border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
       />
       <CommandList className="max-h-[60vh] overflow-y-auto p-2">
-        <CommandEmpty className="p-6 text-center t-meta text-(--text-2)">{copy.palette.empty}</CommandEmpty>
+        <CommandEmpty>
+          <PaletteEmpty />
+        </CommandEmpty>
         {groups.recent.length > 0 && (
           <CommandGroup
             heading={copy.palette.recent}
@@ -252,22 +283,20 @@ export function CommandMenuBody({
             <Row key={row.id} row={row} />
           ))}
         </CommandGroup>
-        <CommandGroup
-          heading={copy.palette.people}
-          className={groupHeadingClass}
-        >
-          {groups.people.map((row) => (
-            <Row key={row.id} row={row} />
-          ))}
-        </CommandGroup>
-        <CommandGroup
-          heading={copy.palette.items}
-          className={groupHeadingClass}
-        >
-          {groups.items.map((row) => (
-            <Row key={row.id} row={row} />
-          ))}
-        </CommandGroup>
+        {isSearching && (
+          <>
+            <CommandGroup heading={copy.palette.people} className={groupHeadingClass}>
+              {groups.people.map((row) => (
+                <Row key={row.id} row={row} />
+              ))}
+            </CommandGroup>
+            <CommandGroup heading={copy.palette.items} className={groupHeadingClass}>
+              {groups.items.map((row) => (
+                <Row key={row.id} row={row} />
+              ))}
+            </CommandGroup>
+          </>
+        )}
       </CommandList>
       <div
         className="border-t border-(--line-1) px-4 py-2 text-(length:--t-mono-size) leading-(--t-mono-line) text-(--text-2)"

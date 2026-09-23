@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/cn";
 import { spring } from "@/lib/motion";
+import { FOCUS } from "@/components/ui/sizing";
 import type { UpdateTab } from "@/lib/selectors";
 
 export interface UpdateTabsProps {
@@ -26,7 +27,7 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
   }
 
   return (
-    <div role="tablist" aria-label="Updates" className="flex w-fit gap-1 rounded-(--radius-control) bg-(--surface-2) p-1">
+    <div role="tablist" aria-label="Updates" className="flex w-fit gap-1 rounded-(--r-4) bg-(--surface-2) p-1">
       {tabs.map((tab, index) => (
         <button
           key={tab.id}
@@ -42,8 +43,8 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
           onClick={() => onChange(tab.id)}
           onKeyDown={(e) => onKeyDown(e, index)}
           className={cn(
-            "tnum relative flex items-center gap-1.5 rounded-(--radius-chip) px-3 py-1.5 text-(length:--text-meta) font-medium",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)",
+            "tap-48 relative flex items-center gap-1.5 rounded-(--r-2) px-3 py-1.5 t-meta",
+            FOCUS,
             active === tab.id ? "text-(--text-1)" : "text-(--text-2) hover:text-(--text-1)",
           )}
         >
@@ -54,7 +55,7 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
             <motion.div
               layoutId="update-tab-pill"
               transition={spring.layout}
-              className="absolute inset-0 -z-10 rounded-(--radius-chip) bg-(--surface-1) shadow-(--shadow-e1)"
+              className="absolute inset-0 -z-10 rounded-(--r-2) bg-(--surface-1) shadow-(--e1)"
             />
           )}
           {tab.label}
