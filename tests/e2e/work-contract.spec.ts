@@ -138,6 +138,16 @@ test.describe("G4 accessibility (/work)", () => {
       await page.goto("/work");
       await expect(page.getByTestId("hero")).toBeVisible();
       await setMode(page, mode);
+      // setMode only confirms the data-theme/data-fidelity attribute landed — the visible
+      // crossfade is a separate document.startViewTransition() animation on top of that
+      // (lib/theme-transition.ts, a 500ms clip-path reveal plus .ready overhead) that
+      // keeps compositing the old and new snapshots for a while after the attribute
+      // flips. Sampled mid-crossfade, axe read blended greys off the nav ("My work":
+      // #6e6f71 on #848688, 1.37:1 — measured with node/@axe-core/playwright directly,
+      // not a real dark-mode pairing anywhere in the token set) rather than the settled
+      // page. 600ms — confirmed empirically to bring axe back to zero violations here —
+      // covers the reveal's own 500ms plus margin for .ready to resolve.
+      await page.waitForTimeout(600);
       expect(await axeViolations(page)).toEqual([]);
     });
   }
