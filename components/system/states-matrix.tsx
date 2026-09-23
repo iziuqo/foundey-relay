@@ -19,8 +19,11 @@ export function StatesMatrix({
   columns: MatrixColumn[];
   render: (rowKey: string, colKey: string) => React.ReactNode;
 }) {
+  // `relative` so the wrapper's overflow clips absolutely-positioned descendants too. The
+  // loading button's `sr-only` label is one: without a positioned ancestor it escaped this
+  // box and sat past the last column, giving the whole page a horizontal scrollbar.
   return (
-    <div className="overflow-x-auto rounded-(--r-4) border border-(--line-1)">
+    <div className="relative overflow-x-auto rounded-(--r-4) border border-(--line-1)">
       {/* A six-column matrix does not fit a phone, and squeezing it crushes the very
           controls it is documenting — at 390 the inputs came out 44px wide. Give the
           table a floor and let the wrapper scroll instead. */}

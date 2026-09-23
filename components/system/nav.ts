@@ -9,4 +9,5 @@ export const systemNav: SystemNavItem[] = [
   { slug: "components", label: "Components", href: "/system/components" },
   { slug: "patterns", label: "Patterns", href: "/system/patterns" },
   { slug: "rules", label: "Rules", href: "/system/rules" },
+  { slug: "motion", label: "Motion", href: "/system/motion" },
 ];

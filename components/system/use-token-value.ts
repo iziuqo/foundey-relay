@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/state/store";
+import { cssColorToOklch } from "@/lib/color";
 
 /**
  * Reads a token's value from the DOM, from the probe node's own position in the tree —
@@ -48,11 +49,15 @@ export function useTokenValue<T extends HTMLElement = HTMLSpanElement>(
   return { ref, value };
 }
 
-/** `oklch(0.945 0.03 27)` → `L .945 · C .030 · H 27`, which a person can compare at a glance. */
+/**
+ * Any colour the engine hands back → `L .945 · C .030 · H 27`, which a person can compare
+ * at a glance. Chrome serializes the same custom property as `oklch()` in one mode and
+ * `lab()` in another, so this goes through the colour library instead of matching one
+ * notation — a swatch captioned `lab(96.52 -0.0000298023 0.…` tells nobody anything.
+ */
 export function formatOklch(value: string): string {
-  const match = value.match(/oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)/);
-  if (!match) return value;
-  const [, l, c, h] = match;
-  const lightness = l.endsWith("%") ? (Number(l.slice(0, -1)) / 100).toFixed(3) : Number(l).toFixed(3);
-  return `L ${lightness} · C ${Number(c).toFixed(3)} · H ${Math.round(Number(h))}`;
+  const color = cssColorToOklch(value);
+  if (!color) return value;
+  const alpha = color.alpha < 1 ? ` · α ${color.alpha.toFixed(2)}` : "";
+  return `L ${color.l.toFixed(3)} · C ${color.c.toFixed(3)} · H ${Math.round(color.h)}${alpha}`;
 }

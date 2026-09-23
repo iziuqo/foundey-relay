@@ -27,7 +27,7 @@ export function ContrastPair({
   const rating = ratingFor(ratio);
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-(--radius-control) border border-(--border-1) p-3">
+    <div className="flex min-w-0 items-center justify-between gap-3 rounded-(--r-3) border border-(--line-1) p-3">
       <span ref={fgRef} aria-hidden className="hidden" />
       <span ref={bgRef} aria-hidden className="hidden" />
       <div className="flex min-w-0 items-center gap-2.5">
@@ -40,7 +40,7 @@ export function ContrastPair({
           aria-hidden
           // eslint-disable-next-line react/forbid-dom-props
           style={{ backgroundColor: `var(${bgVar})` }}
-          className="flex size-9 shrink-0 items-center justify-center rounded-(--radius-chip) border border-(--border-1)"
+          className="flex size-9 shrink-0 items-center justify-center rounded-(--r-2) border border-(--line-1)"
         >
           <span
             // eslint-disable-next-line react/forbid-dom-props
@@ -48,10 +48,10 @@ export function ContrastPair({
             className="size-4 rounded-full"
           />
         </span>
-        <p className="truncate text-(length:--text-meta) font-medium text-(--text-1)">{label}</p>
+        <p className="min-w-0 t-meta font-medium text-(--text-1)">{label}</p>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="tnum text-(length:--text-meta) text-(--text-2)">{ratio ? `${ratio.toFixed(2)}:1` : "…"}</span>
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="tnum t-meta text-(--text-2)">{ratio ? `${ratio.toFixed(2)}:1` : "…"}</span>
         <Chip tier={rating.tier} size="sm">
           {rating.label}
         </Chip>

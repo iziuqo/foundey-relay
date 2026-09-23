@@ -11,11 +11,14 @@ export interface UpdateTabsProps {
   tabs: { id: UpdateTab; label: string; count: number }[];
   active: UpdateTab;
   onChange: (tab: UpdateTab) => void;
+  /** Ids are `${idPrefix}-tab-…` and `${idPrefix}-panel-…`. Only needs setting when the
+   * same tabs render twice on one page (/system/motion plays each moment twice). */
+  idPrefix?: string;
 }
 
 /** Hand rolled instead of a library: three tabs, arrow-key nav, real `tablist`/`tab`
  * semantics (README P1 13 — v1's Segmented had none). */
-export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
+export function UpdateTabs({ tabs, active, onChange, idPrefix = "update" }: UpdateTabsProps) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
 
   function onKeyDown(e: React.KeyboardEvent, index: number) {
@@ -27,7 +30,11 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
   }
 
   return (
-    <div role="tablist" aria-label="Updates" className="flex w-fit gap-1 rounded-(--r-4) bg-(--surface-2) p-1">
+    <div role="tablist" aria-label="Updates" // `isolate`: the pill sits at -z-10 so the labels paint over it, and without a stacking
+    // context of its own it paints *under* this track's background instead — the active tab
+    // reads as a faint smudge (found by /system/motion, where the track and stage share a
+    // surface).
+    className="isolate flex w-fit gap-1 rounded-(--r-4) bg-(--surface-2) p-1">
       {tabs.map((tab, index) => (
         <button
           key={tab.id}
@@ -36,9 +43,9 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
           }}
           role="tab"
           type="button"
-          id={`update-tab-${tab.id}`}
+          id={`${idPrefix}-tab-${tab.id}`}
           aria-selected={active === tab.id}
-          aria-controls={`update-panel-${tab.id}`}
+          aria-controls={`${idPrefix}-panel-${tab.id}`}
           tabIndex={active === tab.id ? 0 : -1}
           onClick={() => onChange(tab.id)}
           onKeyDown={(e) => onKeyDown(e, index)}

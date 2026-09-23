@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MoreHorizontal, X } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotionConfig } from "motion/react";
 import { copy, t } from "@/lib/copy";
 import { stagger, stepDelay, transition } from "@/lib/motion";
 import { formatClock } from "@/lib/time";
@@ -119,6 +119,9 @@ export function ItemDetail({
   onReassign,
   reserveDock = false,
 }: ItemDetailProps) {
+  // The done-check's path draws with `pathLength`, which MotionConfig's reduced setting
+  // does not reach (see check-draw.tsx).
+  const reducedMotion = useReducedMotionConfig();
   const tier = ranked.result.tier as "now" | "next" | "later" | "fyi";
   const inProgress = item.status === "in_progress";
   const done = item.status === "done";
@@ -203,7 +206,7 @@ export function ItemDetail({
               >
                 <motion.path
                   d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
-                  initial={{ pathLength: 0 }}
+                  initial={{ pathLength: reducedMotion ? 1 : 0 }}
                   animate={{ pathLength: 1 }}
                   transition={transition.base}
                 />

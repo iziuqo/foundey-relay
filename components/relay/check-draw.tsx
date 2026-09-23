@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotionConfig } from "motion/react";
 import { transition } from "@/lib/motion";
 
 /**
@@ -19,6 +19,11 @@ import { transition } from "@/lib/motion";
  * only the decoration goes.
  */
 export function CheckDraw() {
+  // `MotionConfig reducedMotion` switches off transform and layout animation and nothing
+  // else, so a path drawing itself (`pathLength`) kept drawing under it — /system/motion's
+  // Reduced stage showed the same curve as the Full one. The hook reads the same setting
+  // the config does (`useReducedMotion()` would ignore an `"always"` on a stage).
+  const reduced = useReducedMotionConfig();
   return (
     <motion.svg
       aria-hidden
@@ -45,7 +50,7 @@ export function CheckDraw() {
         strokeWidth={5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        initial={{ pathLength: 0 }}
+        initial={{ pathLength: reduced ? 1 : 0 }}
         animate={{ pathLength: 1 }}
         transition={transition.base}
       />

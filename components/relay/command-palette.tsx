@@ -243,9 +243,13 @@ function PaletteEmpty() {
 export function CommandMenuBody({
   onNavigate,
   onDone,
+  autoFocus = true,
 }: {
   onNavigate: (href: string) => void;
   onDone: () => void;
+  /** The palette focuses its field on open. /system/patterns renders the same body inline
+   * on a page that is not the palette, and must not grab focus (and scroll) on load. */
+  autoFocus?: boolean;
 }) {
   const groups = useCommandGroups(onNavigate, onDone);
   // People and Items are the two groups with the most rows and the least to say
@@ -257,7 +261,7 @@ export function CommandMenuBody({
   return (
     <>
       <CommandInput
-        autoFocus
+        autoFocus={autoFocus}
         placeholder={copy.search}
         className="h-(--size-control-lg) w-full rounded-t-(--r-4) border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
       />

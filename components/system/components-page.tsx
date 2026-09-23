@@ -14,6 +14,8 @@ import { SectionBand } from "@/components/ui/section-band";
 import { TierIcon } from "@/components/relay/tier-icon";
 import { StatesMatrix } from "./states-matrix";
 import { MeasuredRow } from "./measured-row";
+import { AnatomySection, ComponentIndex, GlyphMatrix } from "./components-extra";
+import { ModePanel } from "./kit";
 
 const buttonStates = [
   { key: "default", label: "Default" },
@@ -60,6 +62,8 @@ export function ComponentsPage() {
           exists only for this page — app code never sets it.
         </p>
       </header>
+
+      <ComponentIndex />
 
       <section aria-labelledby="contract-heading" className="flex flex-col gap-4">
         <h2 id="contract-heading" className="t-section text-(--text-1)">
@@ -315,7 +319,7 @@ export function ComponentsPage() {
         <h2 id="feedback-heading" className="t-section text-(--text-1)">
           Feedback and absence
         </h2>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           <Toast
             message="Done: Label printer offline at Pack 7"
             detail="Next: Lithium battery orders missing hazmat labels"
@@ -331,7 +335,7 @@ export function ComponentsPage() {
             <Kbd>K</Kbd>
           </div>
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           <Panel>
             <EmptyState
               title="Nothing waiting on you"
@@ -365,6 +369,10 @@ export function ComponentsPage() {
         </div>
       </section>
 
+      <GlyphMatrix />
+
+      <AnatomySection />
+
       <section aria-labelledby="wire-heading" className="flex flex-col gap-4">
         <h2 id="wire-heading" className="t-section text-(--text-1)">
           The same components in wire
@@ -374,10 +382,7 @@ export function ComponentsPage() {
           radii collapse, depth turns off, and the sans becomes the mono. Everything below is the
           same code as above.
         </p>
-        <div
-          data-fidelity="wire"
-          className="flex flex-wrap items-center gap-3 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-4"
-        >
+        <ModePanel mode="wire" label={false} className="flex-row flex-wrap items-center gap-3 bg-(--surface-1)">
           <Button>Reroute orders</Button>
           <Button variant="secondary">Ask for help</Button>
           <Chip tier="now">
@@ -393,7 +398,7 @@ export function ComponentsPage() {
             When you can
           </Chip>
           <Input placeholder="Order number" className="w-40" aria-label="Order number in wire mode" />
-        </div>
+        </ModePanel>
       </section>
     </div>
   );

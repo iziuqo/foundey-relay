@@ -1,11 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { axeViolations } from "./axe";
 
-// Gate G4 (plan §9.1). Phase 2 covered Foundations and Components; Phase 7 adds
-// Patterns and Rules, the last two /system sections (§6.7).
+// Gate G4 (plan §9.1), over all five /system sections in all four mode combinations. M9
+// added Motion, whose stages hold real components twice over (duplicate ids are the
+// thing to watch there).
 
 test.describe("G4 accessibility", () => {
-  for (const path of ["/system", "/system/components", "/system/patterns", "/system/rules"]) {
+  for (const path of ["/system", "/system/components", "/system/patterns", "/system/rules", "/system/motion"]) {
     test(`${path} has zero axe violations`, async ({ page }) => {
       await page.goto(path);
       expect(await axeViolations(page)).toEqual([]);

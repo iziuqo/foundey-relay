@@ -3,6 +3,7 @@ import { FoundationsPage } from "@/components/system/foundations-page";
 import { ComponentsPage } from "@/components/system/components-page";
 import { PatternsPage } from "@/components/system/patterns-page";
 import { RulesPage } from "@/components/system/rules-page";
+import { MotionPage } from "@/components/system/motion/motion-page";
 import { systemNav } from "@/components/system/nav";
 
 export function generateStaticParams() {
@@ -21,5 +22,6 @@ export default async function SystemSectionPage({
   if (slug === "components" && !section?.[1]) return <ComponentsPage />;
   if (slug === "patterns" && !section?.[1]) return <PatternsPage />;
   if (slug === "rules" && !section?.[1]) return <RulesPage />;
+  if (slug === "motion" && !section?.[1]) return <MotionPage />;
   notFound();
 }

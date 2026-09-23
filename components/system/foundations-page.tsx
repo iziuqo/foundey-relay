@@ -1,6 +1,8 @@
 import { TokenSwatch } from "./token-swatch";
 import { ContrastPair } from "./contrast-pair";
-import { ThemePanel } from "./theme-panel";
+import { FocusSection, IconographySection, ModeLadder } from "./foundations-extra";
+import { ModePanel } from "./kit";
+import Link from "next/link";
 import { TypeSample } from "./type-sample";
 import { TokenMeasure } from "./token-measure";
 import {
@@ -78,9 +80,11 @@ export function FoundationsPage() {
           ))}
         </div>
 
+        <ModeLadder />
+
         <div>
           <h3 className="t-eyebrow mb-3 text-(--text-2)">Contrast, measured live</h3>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
             {semanticContrastPairs.map((pair) => (
               <ContrastPair key={pair.label} fgVar={pair.fg} bgVar={pair.bg} label={pair.label} />
             ))}
@@ -133,7 +137,7 @@ export function FoundationsPage() {
               </tbody>
             </table>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
             {tierContrastPairs.map((pair) => (
               <ContrastPair key={pair.label} fgVar={pair.fg} bgVar={pair.bg} label={pair.label} />
             ))}
@@ -174,7 +178,7 @@ export function FoundationsPage() {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
           <div className="rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-5">
             <h3 className="t-eyebrow mb-4 text-(--text-2)">Radius</h3>
             <ul className="flex flex-col gap-3">
@@ -217,15 +221,18 @@ export function FoundationsPage() {
           card never casts a shadow, and a bordered card never contains a bordered card, because
           alpha-white borders compound.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <ThemePanel theme="light">
-            <DepthRow />
-          </ThemePanel>
-          <ThemePanel theme="dark">
-            <DepthRow />
-          </ThemePanel>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {(["light", "dark", "wire"] as const).map((mode) => (
+            <ModePanel key={mode} mode={mode}>
+              <DepthRow />
+            </ModePanel>
+          ))}
         </div>
       </section>
+
+      <FocusSection />
+
+      <IconographySection />
 
       <section aria-labelledby="motion-heading" className="flex flex-col gap-4">
         <h2 id="motion-heading" className="t-section text-(--text-1)">
@@ -234,9 +241,10 @@ export function FoundationsPage() {
         <p data-prose-num className="t-body max-w-[68ch] text-(--text-2)">
           Three curves and two springs, and no component may inline a curve. Nothing exceeds 700ms,
           nothing loops except the all-clear aurora, and nothing moves while the hero is being read
-          unless the reader caused it. The eighteen named moments become playable here in M8.
+          unless the reader caused it. The eighteen named moments are playable, each beside its
+          reduced variant, on <Link href="/system/motion" className="font-medium text-(--accent) underline underline-offset-2">Motion</Link>.
         </p>
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2">
           <div className="rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-5">
             <h3 className="t-eyebrow mb-3 text-(--text-2)">Duration</h3>
             <ul className="flex flex-col gap-2">

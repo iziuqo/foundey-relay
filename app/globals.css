@@ -32,6 +32,22 @@
  * arbitrary-var syntax: bg-(--surface-1), text-(--text-2), h-(--h-md).
  */
 
+/* A nested mode override re-declares this whole block, and it must carry BOTH attributes:
+ * `data-theme` and `data-fidelity`.
+ *
+ * Every colour below is `calc(… * var(--chroma))`, and an unregistered custom property
+ * substitutes `var()` where it is *declared* — so a wire panel nested inside a hi-fi page
+ * (the rules page's grayscale test, /system's three-mode ladder) inherited the page's
+ * already-resolved colours and stayed coloured however hard its own `--chroma: 0` tried,
+ * and a hi-fi panel nested inside a wire page stayed grey. Re-declaring the chain on the
+ * panel makes the multiplier apply there.
+ *
+ * `:where()` keeps that re-declaration at zero specificity, so the theme, wire and hi
+ * blocks further down still win on the same element; requiring both attributes means a
+ * bare `data-fidelity="wire"` never silently resets a dark page to light. <html> carries
+ * both, and matches `:root` as well, so on it the two selectors are one. The root selector
+ * stays last because the token unit test finds this block by it. */
+:where([data-theme][data-fidelity]),
 :root {
   /* Wire fidelity flips this to 0. Nothing else in the file knows wire exists. */
   --chroma: 1;
@@ -1039,6 +1055,38 @@ samp {
     --y: translateY(0) !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* The same promise as the media block above, reachable by an attribute. /system/motion
+ * plays every moment twice, full and reduced, side by side — and a page cannot make
+ * `prefers-reduced-motion` true for one half of itself. This is the smallest CSS that
+ * makes `data-motion="reduced"` a faithful stand-in for the plain-CSS half of it (Motion's
+ * own components are covered by the `MotionConfig reducedMotion="always"` the stage puts
+ * around its children). Only the pieces a /system demo can reach are restated; if you add
+ * a moment whose reduced variant lives in the media block, add its line here too. */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* A frozen frame (FitFrame, on /system/patterns) is a picture: inert, and held at the
+ * first frame of any CSS animation it contains — the undo toast's ring would otherwise
+ * spend eight seconds counting down inside a filmstrip frame that is meant to be still. */
+.frozen-frame *,
+.frozen-frame *::before,
+.frozen-frame *::after {
+  animation-play-state: paused !important;
+}
+
+[data-motion="reduced"] .tint-wash {
+  animation-duration: var(--dur-slow) !important;
+}
+
+[data-motion="reduced"] .glow-sweep::after {
+  display: none;
 }
 
 @keyframes reduced-fade-in {

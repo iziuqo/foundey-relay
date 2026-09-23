@@ -1,30 +1,16 @@
-import Link from "next/link";
-import { systemNav } from "@/components/system/nav";
+import { SystemNav } from "@/components/system/system-nav";
 import { ThemeToggle } from "@/components/system/theme-toggle";
 
 export default function SystemLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-screen max-w-(--breakpoint-2xl) flex-col">
-      <header className="flex h-(--size-control-lg) shrink-0 items-center justify-between border-b border-(--border-1) px-6">
-        <p className="text-(length:--text-body) font-medium text-(--text-1)">Relay /system</p>
+    <div className="mx-auto flex min-h-dvh max-w-(--breakpoint-2xl) flex-col">
+      <header className="sticky top-0 z-10 flex h-(--h-topbar) shrink-0 items-center justify-between border-b border-(--line-1) bg-(--bg) px-4 md:px-6">
+        <p className="t-row text-(--text-1)">Relay design system</p>
         <ThemeToggle />
       </header>
-      <div className="flex flex-1">
-        <nav aria-label="System sections" className="w-48 shrink-0 border-r border-(--border-1) p-4">
-          <ul className="flex flex-col gap-1">
-            {systemNav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="block rounded-(--radius-control) px-3 py-2 text-(length:--text-meta) font-medium text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <main className="min-w-0 flex-1 p-8">{children}</main>
+      <div className="flex flex-1 flex-col md:flex-row">
+        <SystemNav />
+        <main className="min-w-0 flex-1 px-4 py-8 md:px-8 md:py-10">{children}</main>
       </div>
     </div>
   );

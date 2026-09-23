@@ -35,12 +35,17 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  /** An icon before the label. A prop rather than a child: Tailwind's preflight makes an
+   * svg `display: block`, so an icon handed in beside the label as children stacked above
+   * it, and wrapping the children in a flex box instead broke buttons that hold several
+   * inline parts (found drawing the anatomy on /system/components). */
+  icon?: React.ReactNode;
   /** Forces a pseudo-class-like visual state for /system's state matrix. Not for app code. */
   forceState?: "hover" | "active" | "focus";
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = "primary", size = "md", loading = false, forceState, disabled, className, children, ...props },
+  { variant = "primary", size = "md", loading = false, icon, forceState, disabled, className, children, ...props },
   ref,
 ) {
   const control = CONTROL[size];
@@ -69,7 +74,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...props}
     >
-      {loading && <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden />}
+      {loading ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden /> : icon}
       {/* Loading keeps its accessible name (aria-busy carries the state to AT) — it
           never becomes a button with no name for screen reader users. */}
       <span className={loading ? "sr-only" : undefined}>{children}</span>
