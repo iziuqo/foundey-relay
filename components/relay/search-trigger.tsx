@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { copy } from "@/lib/copy";
-import { useOpenSearch } from "./command-palette";
+import { useOpenSearch } from "./use-open-search";
 
 /** §6.5: the top bar's own way into the palette, next to the global ⌘K. Below the
  * desktop shell's breakpoint `useOpenSearch` goes to /lookup instead of opening a

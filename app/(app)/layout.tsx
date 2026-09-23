@@ -1,11 +1,23 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
 import { Sidebar } from "@/components/relay/sidebar";
 import { TopBar } from "@/components/relay/top-bar";
 import { BottomDock } from "@/components/relay/bottom-dock";
 import { ToastBridge } from "@/components/relay/toast-bridge";
-import { CommandPalette } from "@/components/relay/command-palette";
 import { ShortcutsSheet } from "@/components/relay/shortcuts-sheet";
 import { GlobalHotkeys } from "@/components/relay/global-hotkeys";
+
+// G8: `cmdk` only pays for itself once someone opens the palette, so it isn't in
+// the bundle every /work paint waits on (ssr: false — Server Components can't pass
+// that option, so this file opts into "use client", which every child here already
+// was). useOpenSearch (used by the always visible SearchTrigger) lives in its own
+// module for the same reason (use-open-search.ts).
+const CommandPalette = dynamic(
+  () => import("@/components/relay/command-palette").then((m) => m.CommandPalette),
+  { ssr: false },
+);
 
 /** §8.2 shell: sidebar, top bar, bottom dock, toaster, and the @modal slot for the
  * item detail intercepting route (phase 4). */

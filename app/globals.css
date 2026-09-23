@@ -171,6 +171,18 @@
   --text-kbd: 0.75rem;
   --leading-kbd: 1rem;
 
+  /* ---- Deck type scale, §6.8: 64/40/30/22, fixed (not fluid) — every slide renders
+     into a fixed 1280×720 canvas that's scaled as a whole via CSS transform (deck
+     shell), so the type never needs to respond to the viewport itself. ---- */
+  --text-deck-1: 4rem;       /* 64px */
+  --leading-deck-1: 4.5rem;
+  --text-deck-2: 2.5rem;     /* 40px */
+  --leading-deck-2: 2.75rem;
+  --text-deck-3: 1.875rem;   /* 30px */
+  --leading-deck-3: 2.25rem;
+  --text-deck-4: 1.375rem;   /* 22px */
+  --leading-deck-4: 1.875rem;
+
   /* ---- Motion, §7.1. Same values as lib/motion.ts (seconds there, ms here) — kept in
      sync by hand since Tailwind utilities and Motion's `transition` prop read from
      different places. Used through `duration-(--dur-quick)` etc. ---- */
@@ -682,5 +694,24 @@ body {
   to {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+/* §6.8 /deck/print: one 1280×720 slide per page when a browser prints the route.
+ * scripts/export-deck.mjs deliberately does not rely on these rules — Chromium didn't
+ * honor break-after reliably at this page size (see that script's header), so it
+ * composes the PDF from one screenshot per slide instead. */
+@media print {
+  @page {
+    size: 1280px 720px;
+    margin: 0;
+  }
+
+  [data-deck-print-slide] {
+    break-after: page;
+  }
+
+  [data-deck-print-slide]:last-child {
+    break-after: auto;
   }
 }

@@ -19,7 +19,6 @@ export default function SystemLayout({ children }: { children: React.ReactNode }
                   className="block rounded-(--radius-control) px-3 py-2 text-(length:--text-meta) font-medium text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
                 >
                   {item.label}
-                  {item.stub ? <span className="ml-1.5 text-(--text-2)">(Phase 7)</span> : null}
                 </Link>
               </li>
             ))}

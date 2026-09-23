@@ -17,19 +17,6 @@ import type { PersonaId } from "@/state/store";
 import { switchTheme } from "@/lib/theme-transition";
 import { TierIcon } from "./tier-icon";
 import { tierFgClass } from "./tier-tokens";
-import { useIsDesktopShell } from "./use-media-query";
-
-/** Decides whether ⌘K (or the top bar search field) opens the palette in place, or —
- * below the desktop shell's breakpoint — goes to the /lookup full page instead (§6.5). */
-export function useOpenSearch(): () => void {
-  const isDesktopShell = useIsDesktopShell();
-  const openPalette = useStore((s) => s.openPalette);
-  const router = useRouter();
-  return () => {
-    if (isDesktopShell) openPalette();
-    else router.push("/lookup");
-  };
-}
 
 interface CommandRow {
   id: string;

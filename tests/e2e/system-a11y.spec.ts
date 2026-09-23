@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-// Gate G4 (plan §9.1), scoped to /system for Phase 2's exit (full G2-state coverage
-// comes with the screens that produce those states in later phases).
+// Gate G4 (plan §9.1). Phase 2 covered Foundations and Components; Phase 7 adds
+// Patterns and Rules, the last two /system sections (§6.7).
 
 test.describe("G4 accessibility", () => {
-  for (const path of ["/system", "/system/components"]) {
+  for (const path of ["/system", "/system/components", "/system/patterns", "/system/rules"]) {
     test(`${path} has zero axe violations`, async ({ page }) => {
       await page.goto(path);
       const results = await new AxeBuilder({ page }).analyze();

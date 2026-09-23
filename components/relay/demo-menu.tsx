@@ -47,7 +47,11 @@ export function DemoMenu() {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <Button variant="secondary" size="sm" aria-label={copy.demo.label}>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-label={`${copy.demo.label}: ${(persona === "u1" ? copy.demo.priya : copy.demo.danielle).split(" (")[0]}`}
+        >
           <Settings2 aria-hidden />
           {(persona === "u1" ? copy.demo.priya : copy.demo.danielle).split(" (")[0]}
         </Button>

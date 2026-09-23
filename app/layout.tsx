@@ -10,6 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Vercel sets VERCEL_URL on every deploy (preview and production) with no config
+  // needed; falls back to localhost for `next dev`/`next start`.
+  metadataBase: new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
   title: "Relay",
   description: "Relay: ranked queue for outbound exceptions.",
 };

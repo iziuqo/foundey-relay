@@ -63,6 +63,11 @@ export function TruckClock({ cutoffs, now, stacked }: TruckClockProps) {
     <div
       role="list"
       aria-label={copy.trucks.title}
+      // Not stacked (the below-1280 "strip", §5): a horizontally scrolling region needs
+      // its own tab stop, or a keyboard user has no way to reach capsules past the fold
+      // (axe "scrollable-region-focusable"). Stacked never scrolls, so it stays out of
+      // the tab order.
+      tabIndex={stacked ? undefined : 0}
       className={cn("flex gap-3 overflow-x-auto pb-1", stacked && "flex-col overflow-visible pb-0")}
     >
       {sorted.map((cutoff) => (

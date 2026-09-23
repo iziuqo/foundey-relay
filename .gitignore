@@ -3,6 +3,7 @@ dist
 .next
 next-env.d.ts
 exports/slides
+exports/lighthouse
 .vercel
 .DS_Store
 tsconfig.tsbuildinfo
