@@ -232,6 +232,9 @@
   --h-row: 4rem;          /* 64 — queue row */
   --h-row-handheld: 4.5rem; /* 72 */
   --h-row-dense: 2.75rem; /* 44 — the manager roster */
+  --h-row-roster-handheld: 6rem; /* 96 — roster row below the table breakpoint: a name
+    line plus two reserved lines of "working on", fixed, so the row never grows to fit
+    content (§9 check 3) and "working on" is never truncated to fit it either. */
   --h-band: 2.25rem;      /* 36 — tier group band */
   --h-topbar: 3.5rem;     /* 56 */
   --h-dock: 4rem;         /* 64 — handheld, sticky not floating */
@@ -760,6 +763,74 @@ samp {
    * survives the truncation the title cannot avoid. */
   .queue-row {
     grid-template-columns: 1.5rem minmax(0, 1fr);
+  }
+
+  /* M6's Needs You row: the action is the row's only way to act on it (there is no
+   * link target the way a queue row has one), so it keeps a third track here instead
+   * of disappearing into the two-track collapse above. */
+  .queue-row.needs-row {
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  }
+}
+
+/* ================= The roster row — v3 M6 =================
+ * advisor §7.4: a dense record table, no per-row action button. v2 rendered seven
+ * identical 84.5×32 "Check in" buttons at row heights 88/88/67/88/67/88/87, driven by
+ * whether the role string wrapped onto its own line — the fix is that it cannot: role
+ * clamps onto the name's line, inside a fixed-width column, instead of taking a second
+ * line of its own.
+ *
+ * Below the table breakpoint the five-column shape has nowhere to go — 22ch of person
+ * plus 40ch of "working on" is already wider than a 390 viewport — so the row switches
+ * to two stacked lines via named grid areas rather than becoming a different component:
+ * same list, same `data-craft-row`, one reserved height either way. "Working on" is
+ * never truncated there either (advisor §7.4): the height is sized for two wrapped lines
+ * of it and holds even when a row's own text only needs one, so content length can never
+ * reintroduce the 88/67 spread from the other direction. */
+.roster-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "person" "working";
+  row-gap: 0.125rem;
+  align-content: center;
+  height: var(--h-row-roster-handheld);
+  padding-block: 0.625rem;
+  padding-inline: 0.75rem;
+  box-shadow: inset 0 -1px 0 var(--line-1);
+}
+
+.roster-row:last-child {
+  box-shadow: none;
+}
+
+@media (width >= 48rem) {
+  .roster-row {
+    grid-template-columns: minmax(0, 22ch) minmax(0, 1fr) repeat(3, 2.75rem) 2rem;
+    grid-template-areas: "person working now next later menu";
+    column-gap: 0.75rem;
+    row-gap: 0;
+    align-items: center;
+    height: var(--h-row-dense);
+    padding-block: 0;
+  }
+}
+
+/* The roster's own NOW/NEXT/LATER caps heads. Plain CSS rather than a Tailwind
+ * `hidden md:grid` pair: a class this file defines after Tailwind's own import always
+ * wins ties on specificity by source order, so a utility toggling the same `display`
+ * property on top of `.roster-row` can't out-cascade it — this one carries its
+ * mobile/desktop switch itself instead of fighting `.roster-row` for it. */
+.roster-head {
+  display: none;
+}
+
+@media (width >= 48rem) {
+  .roster-head {
+    display: grid;
+    grid-template-columns: minmax(0, 22ch) minmax(0, 1fr) repeat(3, 2.75rem) 2rem;
+    column-gap: 0.75rem;
+    align-items: center;
+    padding-inline: 0.75rem;
   }
 }
 

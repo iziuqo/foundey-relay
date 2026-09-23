@@ -17,7 +17,7 @@ import {
 import { copy, t } from "@/lib/copy";
 import { RiskTile } from "@/components/relay/risk-tile";
 import { NeedsYouList } from "@/components/relay/needs-you-list";
-import { PeopleRow } from "@/components/relay/people-row";
+import { Roster } from "@/components/relay/roster";
 import { CheckInSheet } from "@/components/relay/check-in-sheet";
 
 type RiskFilter = "now" | "help" | "noOwner" | "truck" | null;
@@ -88,19 +88,21 @@ export default function TeamPage() {
     : t(copy.team.status, { on: working, brk: onBreak, out });
 
   return (
-    <div className="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-col gap-6 p-4 xl:flex-row xl:items-start xl:gap-8 xl:p-8">
-      <div data-testid="team-main" className="flex min-w-0 flex-1 flex-col gap-6 xl:min-w-[36rem]">
-        <div>
-          <h1 data-testid="team-status" className="text-(length:--text-display) leading-(length:--leading-display) font-semibold text-(--text-1)">
-            {status}
-          </h1>
-          <p className="tnum mt-1 text-(length:--text-meta) text-(--text-2)">
-            {t(copy.team.live, { hhmm: formatClock(now) })}
-          </p>
-          {!isManager && <p className="mt-1 text-(length:--text-meta) text-(--text-2)">{copy.team.mirror}</p>}
-        </div>
+    <div className="mx-auto flex w-full max-w-(--content-max) flex-col gap-6 px-(--gutter) py-8 lg:py-12">
+      <div data-testid="team-main">
+        {/* §7.1's status-sentence treatment, carried over from /work: the manager's
+            headline is one computed sentence, not a display-sized greeting, and it
+            doubles as the page's own h1 (the nav's active state is the only other
+            location cue the shell needs). */}
+        <h1 data-testid="team-status" className="t-section max-w-[44ch] font-semibold text-(--text-1)">
+          {status}
+        </h1>
+        <p className="tnum t-meta mt-1 text-(--text-2)">{t(copy.team.live, { hhmm: formatClock(now) })}</p>
+        {!isManager && <p className="t-meta mt-1 text-(--text-2)">{copy.team.mirror}</p>}
+      </div>
 
-        {isManager && (
+      {isManager && (
+        <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <div data-testid="risk-tiles" className="flex flex-wrap gap-3">
               <RiskTile
@@ -162,45 +164,16 @@ export default function TeamPage() {
               <button
                 type="button"
                 onClick={() => setFilter(null)}
-                className="self-start text-(length:--text-meta) font-medium text-(--accent) hover:underline"
+                className="t-meta self-start font-medium text-(--accent) hover:underline"
               >
                 {copy.team.clearFilter}
               </button>
             )}
           </div>
-        )}
 
-        {isManager && (
-          <section className="flex flex-col gap-1 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 xl:hidden">
-            <NeedsYouList
-              rows={needsRows}
-              candidates={candidates}
-              onAssign={(itemId, personId) => reassign(itemId, personId, person.id)}
-              onCheckIn={openCheckIn}
-              onAcknowledge={acknowledge}
-            />
-          </section>
-        )}
-
-        <section className="rounded-(--radius-control) border border-(--border-1) bg-(--surface-1)">
-          <h2 className="p-4 pb-2 text-(length:--text-meta) font-semibold text-(--text-1)">{copy.team.board}</h2>
-          <ul className="flex flex-col gap-2 p-2 lg:gap-0 lg:p-0">
-            {visibleWorkers.map((p) => (
-              <PeopleRow
-                key={p.id}
-                person={p}
-                currentItem={items.find((i) => i.id === p.currentTaskId)}
-                counts={tierCountsFor(items, p.id, now)}
-                now={now}
-                onCheckIn={() => openCheckIn(p.id)}
-              />
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      {isManager && (
-        <aside data-testid="team-rail" className="hidden w-full shrink-0 flex-col gap-3 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 xl:flex xl:w-[clamp(18rem,26vw,22rem)]">
+          {/* §5.1: Needs you holds Assign/Acknowledge controls, so it can never live in
+              a rail (zero interactive elements there) — it stacks above the roster at
+              every width instead, which is what "two stacked objects" (§7.4) means. */}
           <NeedsYouList
             rows={needsRows}
             candidates={candidates}
@@ -208,8 +181,19 @@ export default function TeamPage() {
             onCheckIn={openCheckIn}
             onAcknowledge={acknowledge}
           />
-        </aside>
+        </div>
       )}
+
+      <Roster
+        workers={visibleWorkers}
+        items={items}
+        countsFor={(personId) => tierCountsFor(items, personId, now)}
+        candidates={candidates}
+        now={now}
+        onOpen={(personId) => openCheckIn(personId)}
+        onReassign={(itemId, personId) => reassign(itemId, personId, person.id)}
+        canReassign={isManager}
+      />
 
       {checkInPerson && (
         <CheckInSheet

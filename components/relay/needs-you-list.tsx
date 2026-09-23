@@ -1,4 +1,5 @@
 import { copy } from "@/lib/copy";
+import { SectionBand } from "@/components/ui/section-band";
 import type { NeedsYouRow, AssignCandidate } from "@/lib/selectors";
 import { NeedsYouItem } from "./needs-you-item";
 
@@ -10,17 +11,20 @@ export interface NeedsYouListProps {
   onAcknowledge: (itemId: string) => void;
 }
 
-/** The manager's hero list content (§6.3) — rendered inline above the board at 1024,
- * and in the rail at 1280+ (§5); the two call sites supply their own section/aside
- * chrome, so the same list markup isn't duplicated. */
+/**
+ * §7.4 "Needs you (n)": the triage list, stacked above the roster at every width — it
+ * holds Assign and Acknowledge controls, so it can never live in `PageRail` (§5.1
+ * requires zero interactive elements there). Same band-plus-rows shape as the worker
+ * queue's tier groups (`queue.tsx`), for one shared vocabulary between the two screens.
+ */
 export function NeedsYouList({ rows, candidates, onAssign, onCheckIn, onAcknowledge }: NeedsYouListProps) {
   return (
-    <>
-      <h2 className="text-(length:--text-meta) font-semibold text-(--text-1)">{copy.team.needsYou}</h2>
+    <div data-testid="needs-you" className="overflow-hidden rounded-(--r-4) border border-(--line-1) bg-(--surface-1)">
+      <SectionBand label={copy.team.needsYou} count={rows.length} />
       {rows.length === 0 ? (
-        <p className="text-(length:--text-meta) text-(--text-2)">{copy.team.needsYouEmpty}</p>
+        <p className="t-body px-3 py-4 text-(--text-2)">{copy.team.needsYouEmpty}</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-(--border-1)">
+        <ul data-craft-list>
           {rows.map((row) => (
             <NeedsYouItem
               key={row.item.id}
@@ -33,6 +37,6 @@ export function NeedsYouList({ rows, candidates, onAssign, onCheckIn, onAcknowle
           ))}
         </ul>
       )}
-    </>
+    </div>
   );
 }

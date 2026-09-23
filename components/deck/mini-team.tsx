@@ -7,7 +7,7 @@ import { teamRisk, needsYouRows, assignCandidates, tierCountsFor, nextCutoff } f
 import { copy, t } from "@/lib/copy";
 import { RiskTile } from "@/components/relay/risk-tile";
 import { NeedsYouList } from "@/components/relay/needs-you-list";
-import { PeopleRow } from "@/components/relay/people-row";
+import { Roster } from "@/components/relay/roster";
 import { cn } from "@/lib/cn";
 
 const noop = () => {};
@@ -66,25 +66,20 @@ export function MiniTeam({ wire, className }: { wire?: boolean; className?: stri
           onClick={noop}
         />
       </div>
-      <div className="flex min-h-0 flex-1 gap-4">
-        <section className="min-w-0 flex-1 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1)">
-          <h2 className="p-4 pb-2 text-(length:--text-meta) font-semibold text-(--text-1)">{copy.team.board}</h2>
-          <ul className="flex flex-col p-2">
-            {workers.map((p) => (
-              <PeopleRow
-                key={p.id}
-                person={p}
-                currentItem={seedItems.find((i) => i.id === p.currentTaskId)}
-                counts={tierCountsFor(seedItems, p.id, now)}
-                now={now}
-                onCheckIn={noop}
-              />
-            ))}
-          </ul>
-        </section>
-        <aside className="hidden w-64 shrink-0 flex-col gap-3 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 lg:flex">
-          <NeedsYouList rows={needsRows} candidates={candidates} onAssign={noop} onCheckIn={noop} onAcknowledge={noop} />
-        </aside>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+        <NeedsYouList rows={needsRows} candidates={candidates} onAssign={noop} onCheckIn={noop} onAcknowledge={noop} />
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <Roster
+            workers={workers}
+            items={seedItems}
+            countsFor={(personId) => tierCountsFor(seedItems, personId, now)}
+            candidates={candidates}
+            now={now}
+            onOpen={noop}
+            onReassign={noop}
+            canReassign
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,74 +1,130 @@
+import { MoreHorizontal } from "lucide-react";
 import { copy, t } from "@/lib/copy";
 import { scoreItem } from "@/lib/priority";
+import { cn } from "@/lib/cn";
 import type { Item, Person } from "@/lib/types";
-import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { IconButton } from "@/components/ui/icon-button";
+import { FOCUS } from "@/components/ui/sizing";
 import { PersonAvatar } from "./person-avatar";
 import { TierIcon } from "./tier-icon";
 import { tierFgClass } from "./tier-tokens";
-import type { PersonTierCounts } from "@/lib/selectors";
+import { AssignPopover } from "./assign-popover";
+import type { PersonTierCounts, AssignCandidate } from "@/lib/selectors";
 
 export interface PeopleRowProps {
   person: Person;
   currentItem: Item | undefined;
   counts: PersonTierCounts;
+  candidates: AssignCandidate[];
   now: Date;
-  onCheckIn: () => void;
+  /** Selecting the row opens the read-only sheet — this is the row's main target. */
+  onOpen: () => void;
+  /** The ghost menu's one quick action: hand the person's current item to someone else
+   * without leaving the board. */
+  onReassign: (personId: string) => void;
+  /** Reassigning is a manager capability — a worker viewing the mirrored board gets
+   * every column but this one control (§6's "everyone sees this same board"). */
+  canReassign: boolean;
 }
 
 /**
- * §6.3: rows at 1024+, cards below — one DOM, `lg:flex-row` reflows it, so there is no
- * JS breakpoint switch to cause a hydration mismatch (§8.3). Role and the "On:" line
- * never truncate (G3). The "On:" icon takes the *item's* own tier (fixes README P0 8,
- * which hardcoded the Act now octagon for everyone). No elapsed time on the person —
- * only the item's own time pill would ever show it, and this row doesn't render one.
+ * §7.4: a dense record row, no per-row action button. v2 rendered seven identical
+ * 84.5×32 "Check in" buttons at row heights 88/88/67/88/67/88/87 (measured), driven by
+ * whether the role string wrapped onto a second line — so here it can't: role clamps
+ * onto the name's line inside a fixed-width column instead (`.roster-row`, globals.css).
+ *
+ * Exactly two controls, siblings rather than nested (an absolutely positioned hit-target
+ * covering the row, and the ghost menu on top of it via z-order — never a button wrapping
+ * a button): selecting the row opens the person's queue read only; the ghost menu is the
+ * table's one quick action. "On:" keeps the item's own tier icon (README P0 8's fix) —
+ * the only per-row colour on this screen, because nothing else here needs to compete with
+ * a ranking. No elapsed time on the person: only the item's own signal would show one,
+ * and this row doesn't render it.
  */
-export function PeopleRow({ person, currentItem, counts, now, onCheckIn }: PeopleRowProps) {
+export function PeopleRow({ person, currentItem, counts, candidates, now, onOpen, onReassign, canReassign }: PeopleRowProps) {
   const isOut = person.status === "out";
   const tier = currentItem ? scoreItem(currentItem, now).tier : null;
+  const firstName = person.name.split(" ")[0];
 
   return (
-    <li className="flex flex-col gap-3 rounded-(--radius-control) border border-(--border-1) p-3 lg:flex-row lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:p-3 lg:last:border-0">
-      <div className="flex min-w-0 items-center gap-3 lg:w-56 lg:shrink-0">
+    <li data-craft-row className="roster-row group relative">
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={t(copy.team.openQueue, { name: firstName })}
+        className={cn("absolute inset-0 rounded-(--r-2)", FOCUS)}
+      />
+
+      <div className="pointer-events-none flex min-w-0 items-center gap-1.5 [grid-area:person]">
         <PersonAvatar initials={person.initials} />
-        <div className="min-w-0">
-          <p className="text-(length:--text-meta) font-medium text-(--text-1)">{person.name}</p>
-          <p data-testid="person-role" className="text-(length:--text-meta) text-(--text-2)">
-            {person.role}
-          </p>
+        {person.status === "working" ? (
+          <span className="min-w-0 truncate">
+            <span className="t-row text-(--text-1)">{person.name}</span>
+            <span className="t-meta text-(--text-2)"> · {person.role}</span>
+          </span>
+        ) : (
+          <>
+            {/* The presence chip is the point of this row in this state — it never
+                gives up its space to the name, which truncates first instead
+                (found in wire mode: a wider monospace name was clipping the chip
+                itself down to nothing). */}
+            <span className="t-row min-w-0 truncate text-(--text-1)">{person.name}</span>
+            <Chip size="md" className="shrink-0">
+              {person.status === "on_break" ? copy.team.rightNow.onBreak : copy.team.rightNow.out}
+            </Chip>
+          </>
+        )}
+      </div>
+
+      {currentItem && tier && tier !== "fyi" && tier !== "done" ? (
+        <span
+          data-testid="person-on"
+          data-tier={tier}
+          className="pointer-events-none flex min-w-0 items-center gap-1.5 [grid-area:working]"
+        >
+          <TierIcon tier={tier} safety={currentItem.safety} className={cn("shrink-0", tierFgClass[tier])} />
+          <span className="t-body min-w-0 text-(--text-1) md:truncate">
+            {t(copy.team.rightNow.on, { title: currentItem.title })}
+          </span>
+        </span>
+      ) : person.status === "working" ? (
+        <span data-testid="person-on" className="pointer-events-none t-body min-w-0 text-(--text-2) [grid-area:working]">
+          {copy.team.rightNow.available}
+        </span>
+      ) : (
+        <span data-testid="person-on" className="pointer-events-none [grid-area:working]" />
+      )}
+
+      {/* Tiny label, larger number (`o01`/`s01`'s pattern, already used for the detail
+          panel's stat pairs): the caps head above carries the label, so the value
+          itself can read at `t-body` rather than repeating `t-meta` a third time in
+          the row. Also keeps this list off the one size v2 spent 83% of `/work` on —
+          a 7-row roster with three tabular columns each hits that same dominant-size
+          failure at `t-meta` alone (craft check 2), measured at 57.6% here. */}
+      <span className="pointer-events-none tnum t-body hidden justify-self-end text-(--text-1) md:block [grid-area:now]">
+        {counts.now}
+      </span>
+      <span className="pointer-events-none tnum t-body hidden justify-self-end text-(--text-1) md:block [grid-area:next]">
+        {counts.next}
+      </span>
+      <span className="pointer-events-none tnum t-body hidden justify-self-end text-(--text-1) md:block [grid-area:later]">
+        {counts.later}
+      </span>
+
+      {canReassign && (
+        <div className="relative hidden justify-self-end md:block [grid-area:menu]">
+          <AssignPopover
+            candidates={candidates}
+            onAssign={(personId) => onReassign(personId)}
+            trigger={
+              <IconButton size="sm" aria-label={t(copy.team.reassignCurrent, { name: firstName })} disabled={!currentItem || isOut}>
+                <MoreHorizontal aria-hidden />
+              </IconButton>
+            }
+          />
         </div>
-      </div>
-
-      <div className="min-w-0 flex-1">
-        {currentItem && tier && tier !== "fyi" && tier !== "done" ? (
-          <span data-testid="person-on" data-tier={tier} className="flex min-w-0 items-center gap-1.5 text-(length:--text-meta) text-(--text-1)">
-            <TierIcon
-              tier={tier}
-              safety={currentItem.safety}
-              className={`${tierFgClass[tier]} shrink-0`}
-            />
-            <span className="min-w-0">{t(copy.team.rightNow.on, { title: currentItem.title })}</span>
-          </span>
-        ) : person.status === "working" ? (
-          <span className="text-(length:--text-meta) text-(--text-2)">{copy.team.rightNow.available}</span>
-        ) : null}
-      </div>
-
-      <div className="flex shrink-0 items-center gap-3">
-        {person.status !== "working" && (
-          <Chip size="md" className="shrink-0">
-            {person.status === "on_break" ? copy.team.rightNow.onBreak : copy.team.rightNow.out}
-          </Chip>
-        )}
-        {!isOut && (
-          <span className="tnum shrink-0 whitespace-nowrap text-(length:--text-meta) text-(--text-2)">
-            {t(copy.team.loadCounts, { now: counts.now, next: counts.next, later: counts.later })}
-          </span>
-        )}
-        <Button variant="secondary" size="sm" className="shrink-0" onClick={onCheckIn} disabled={isOut}>
-          {copy.actions.checkIn}
-        </Button>
-      </div>
+      )}
     </li>
   );
 }

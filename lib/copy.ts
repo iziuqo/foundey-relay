@@ -47,7 +47,6 @@ export const copy = {
     reassign: "Reassign",
     assign: "Assign",
     seeWork: "See work",
-    checkIn: "Check in",
     showMore: "Show {n} more",
     showLess: "Show less",
     undo: "Undo",
@@ -157,6 +156,9 @@ export const copy = {
       truckOnTrack: "On track",
     },
     board: "Team board",
+    // §7.4: three caps heads over the roster's tabular columns — v2 printed "2 · 3 · 1"
+    // with no key for what any of the three numbers meant.
+    columns: { now: "Now", next: "Next", later: "Later" },
     needsYou: "Needs you",
     needsYouEmpty: "Nothing needs you right now.",
     needsYouNoOwner: "{title}. No owner. Due {hhmm}.",
@@ -164,6 +166,14 @@ export const copy = {
     needsYouHelp: "{title}. No update for {n} min.",
     needsYouAsked: "{name} asked for help on {title}.",
     needsYouSafety: "{title}. Safety always comes first.",
+    // §7.4: the verb is specific, never the generic "Check in" — this opens that
+    // person's queue, read only, scrolled to the item that flagged them (Needs you),
+    // or to the top of it (selecting a roster row).
+    openQueue: "Open {name}'s queue",
+    // The roster's one visible control (the ghost row menu): reassigns the person's
+    // current item, the one real "quick action" a manager needs without opening the
+    // full sheet.
+    reassignCurrent: "Reassign {name}'s current item",
     // §4.2 / README P0 8, P1 9: never a per person elapsed time (the surveillance
     // pattern the deck rejects) — time appears only on the item, only when it signals
     // a problem, via the item's own time pill.

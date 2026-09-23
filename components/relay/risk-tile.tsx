@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import NumberFlow from "@number-flow/react";
 import { cn } from "@/lib/cn";
+import { FOCUS } from "@/components/ui/sizing";
 import type { LucideIcon } from "lucide-react";
 
 export interface RiskTileProps {
@@ -47,22 +48,22 @@ export function RiskTile({ icon: Icon, label, value, sub, pressed, onClick }: Ri
       aria-pressed={interactive ? Boolean(pressed) : undefined}
       onClick={onClick}
       className={cn(
-        "flex min-w-48 flex-1 flex-col gap-1.5 rounded-(--radius-control) border p-4 text-left transition-colors duration-[240ms]",
+        "flex min-w-48 flex-1 flex-col gap-1.5 rounded-(--r-4) border p-4 text-left transition-colors duration-[240ms]",
         pressed
           ? "border-(--accent) bg-(--surface-2)"
-          : "border-(--border-1) bg-(--surface-1)",
+          : "border-(--line-1) bg-(--surface-1)",
         flash && "border-(--act-border)",
-        interactive && "hover:bg-(--surface-2) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg)",
+        interactive && cn("hover:bg-(--surface-2)", FOCUS),
       )}
     >
-      <span className="flex items-center gap-2 text-(length:--text-meta) font-medium text-(--text-2)">
+      <span className="t-meta flex items-center gap-2 text-(--text-2)">
         <Icon className="size-(--size-icon-md) shrink-0" aria-hidden />
         {label}
       </span>
-      <span className="tnum text-(length:--text-title) leading-(length:--leading-title) font-semibold text-(--text-1)">
+      <span className="t-section tnum font-semibold text-(--text-1)">
         {typeof value === "number" ? <NumberFlow value={value} /> : value}
       </span>
-      {sub && <span className="text-(length:--text-meta) text-(--text-2)">{sub}</span>}
+      {sub && <span className="t-meta text-(--text-2)">{sub}</span>}
     </Comp>
   );
 }

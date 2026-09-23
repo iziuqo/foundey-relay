@@ -28,33 +28,46 @@ function reasonFor(row: NeedsYouRow): string {
   return t(copy.team.needsYouHelp, { title: item.title, n: row.minutesStalled ?? 0 });
 }
 
-/** §6.3: one row per item, one primary action — Assign, Check in, or Acknowledge. */
+/**
+ * §7.4: one row per item, queue-style, one primary action — Assign, open that person's
+ * queue, or Acknowledge. Never the generic "Check in": the button that opens a person's
+ * queue says whose it is, because that is the one piece "Check in" never carried.
+ *
+ * Reuses `.queue-row` (advisor §5.1) rather than inventing a second row shape: same
+ * fixed height, same inset-shadow separator, same `--meta-w` escape hatch for a wider
+ * action slot than the queue's own time-pill column needs. Unlike the ranked queue, the
+ * action here is the row's only path to doing anything about it, so it stays visible
+ * below 768 too (`needs-row` keeps a third track there instead of `.queue-row`'s own
+ * two-track collapse, which assumes the row's real target is a link, not a button).
+ */
 export function NeedsYouItem({ row, candidates, onAssign, onCheckIn, onAcknowledge }: NeedsYouItemProps) {
   const { item, assignee, action } = row;
   return (
-    <li className="flex items-center justify-between gap-3 py-2">
-      <p className="min-w-0 flex-1 text-(length:--text-meta) leading-(length:--leading-meta) text-(--text-1)">
-        {reasonFor(row)}
-      </p>
-      {action === "assign" ? (
-        <AssignPopover
-          candidates={candidates}
-          onAssign={(personId) => onAssign(item.id, personId)}
-          trigger={
-            <Button variant="secondary" size="sm">
-              {copy.actions.assign}
-            </Button>
-          }
-        />
-      ) : action === "checkIn" ? (
-        <Button variant="secondary" size="sm" onClick={() => assignee && onCheckIn(assignee.id)} disabled={!assignee}>
-          {copy.actions.checkIn}
-        </Button>
-      ) : (
-        <Button variant="secondary" size="sm" onClick={() => onAcknowledge(item.id)}>
-          {copy.actions.acknowledge}
-        </Button>
-      )}
+    <li data-craft-row className="queue-row needs-row [--meta-w:auto]">
+      <span aria-hidden />
+      <p className="t-body min-w-0 truncate text-(--text-1)">{reasonFor(row)}</p>
+      <span aria-hidden className="max-md:hidden" />
+      <div className="justify-self-end">
+        {action === "assign" ? (
+          <AssignPopover
+            candidates={candidates}
+            onAssign={(personId) => onAssign(item.id, personId)}
+            trigger={
+              <Button variant="secondary" size="sm">
+                {copy.actions.assign}
+              </Button>
+            }
+          />
+        ) : action === "checkIn" ? (
+          <Button variant="secondary" size="sm" onClick={() => assignee && onCheckIn(assignee.id)} disabled={!assignee}>
+            {assignee ? t(copy.team.openQueue, { name: assignee.name.split(" ")[0] }) : copy.actions.acknowledge}
+          </Button>
+        ) : (
+          <Button variant="secondary" size="sm" onClick={() => onAcknowledge(item.id)}>
+            {copy.actions.acknowledge}
+          </Button>
+        )}
+      </div>
     </li>
   );
 }
