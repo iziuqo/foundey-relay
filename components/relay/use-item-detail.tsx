@@ -3,7 +3,8 @@
 import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
 import { useNow } from "@/lib/time";
-import { effectiveItems, flattenedQueue, nextCutoff, queueFor } from "@/lib/selectors";
+import { assignCandidates, effectiveItems, flattenedQueue, nextCutoff, queueFor } from "@/lib/selectors";
+import type { AssignCandidate } from "@/lib/selectors";
 import { scoreItem } from "@/lib/priority";
 import type { Item, Person } from "@/lib/types";
 import type { Ranked } from "@/lib/priority";
@@ -16,6 +17,10 @@ export interface ItemDetailData {
   ranked: Ranked | null;
   nextRanked: Ranked | null;
   canAct: boolean;
+  /** §7.3: reassign lives in the detail panel's People section, and it is a manager
+   * action — a worker looking at their own item hands it off via "Not mine" instead. */
+  canReassign: boolean;
+  reassignCandidates: AssignCandidate[];
   prevId: string | null;
   nextId: string | null;
   start: () => void;
@@ -24,6 +29,7 @@ export interface ItemDetailData {
   waiting: (waitingOn: string, checkBackAt: string) => void;
   moveLater: (snoozeUntil: string) => void;
   notMine: () => void;
+  reassign: (toPersonId: string) => void;
 }
 
 /**
@@ -42,6 +48,7 @@ export function useItemDetail(id: string): ItemDetailData {
   const storeWaiting = useStore((s) => s.waiting);
   const storeMoveLater = useStore((s) => s.moveLater);
   const storeNotMine = useStore((s) => s.notMine);
+  const storeReassign = useStore((s) => s.reassign);
 
   const now = useNow(SEED_NOW_ISO, jumpOffsetMs);
   const person = team.find((p) => p.id === persona) ?? team[0];
@@ -60,6 +67,8 @@ export function useItemDetail(id: string): ItemDetailData {
 
   const ranked: Ranked | null = item ? { item, result: scoreItem(item, now) } : null;
   const canAct = item !== null && item.assigneeId === person.id;
+  const canReassign = item !== null && person.isManager;
+  const reassignCandidates = canReassign ? assignCandidates(team, items, now) : [];
 
   return {
     item,
@@ -69,13 +78,16 @@ export function useItemDetail(id: string): ItemDetailData {
     ranked,
     nextRanked,
     canAct,
+    canReassign,
+    reassignCandidates,
     prevId,
     nextId,
     start: () => item && storeStart(item.id, person.id, now.toISOString()),
     markDone: () => item && storeMarkDone(item.id, now.toISOString()),
-    askHelp: () => item && storeAskHelp(item.id),
+    askHelp: (reason, note) => item && storeAskHelp(item.id, reason, note),
     waiting: (waitingOn, checkBackAt) => item && storeWaiting(item.id, waitingOn, checkBackAt),
     moveLater: (snoozeUntil) => item && storeMoveLater(item.id, snoozeUntil),
     notMine: () => item && storeNotMine(item.id),
+    reassign: (toPersonId) => item && storeReassign(item.id, toPersonId, person.id),
   };
 }

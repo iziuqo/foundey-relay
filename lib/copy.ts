@@ -80,6 +80,10 @@ export const copy = {
     showScore: "Show the score",
     howLink: "How we sort your work",
     scoreLine: "Time {t} + Orders {b} + Impact {i} = {score}",
+    // §5.2: the bar itself is decorative (a 1.62:1 fill is not a real contrast pair);
+    // this is the text alternative a screen reader gets instead, and the number a
+    // sighted reader gets too — "value of max", not just the raw value.
+    factorValue: "{value} of {max}",
     factors: {
       lateBy: "It is late by {rel}.",
       dueIn: "It is due at {hhmm}, in {rel}.",
@@ -255,6 +259,9 @@ export const copy = {
     close: "Close",
     notFound: "This item isn't in the queue anymore.",
     backToWork: "Back to My work",
+    sourceHistory: "Source & history",
+    people: "People",
+    unassigned: "Unassigned",
   },
   howModal: {
     title: "How we sort your work",

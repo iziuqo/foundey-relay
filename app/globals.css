@@ -257,6 +257,11 @@
    * at 1024 the single column is capped so it cannot end up wider than it is at 1440 —
    * v2 measured 913px at 1024 against 737px at 1440. */
   --rail-w: clamp(19rem, 24vw, 23rem);
+  /* §5.7: the item detail sheet steps 26 / 30 / 34rem at 1024 / 1280 / 1440 — a token,
+   * not scattered `min-[…]` utilities. Mixing a named Tailwind breakpoint (`xl:`) with
+   * an arbitrary one (`min-[1440px]:`) does not sort reliably in the cascade; plain
+   * `@media` blocks overriding one variable do. */
+  --sheet-w: 26rem;
   --content-max: 1280px;
   --column-max: 45rem; /* 720 */
   --gutter: 2rem;
@@ -699,6 +704,18 @@ samp {
 
   .page-rail {
     display: flex;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --sheet-w: 30rem;
+  }
+}
+
+@media (min-width: 90rem) {
+  :root {
+    --sheet-w: 34rem;
   }
 }
 

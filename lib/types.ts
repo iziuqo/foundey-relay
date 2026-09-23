@@ -37,6 +37,8 @@ export interface Item {
   checkBackAt?: string;
   snoozeUntil?: string;
   helpAsked?: boolean;
+  helpReason?: string;
+  helpNote?: string;
   notMineCount?: number;
   _expected?: { score: number | null; tier: Tier };
 }

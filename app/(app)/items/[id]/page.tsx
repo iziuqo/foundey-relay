@@ -41,6 +41,10 @@ export default function ItemPage() {
         onPrev={data.prevId ? () => router.push(`/items/${data.prevId}`) : undefined}
         onNext={data.nextId ? () => router.push(`/items/${data.nextId}`) : undefined}
         backHref="/work"
+        canReassign={data.canReassign}
+        reassignCandidates={data.reassignCandidates}
+        onReassign={data.reassign}
+        reserveDock
       />
     </div>
   );

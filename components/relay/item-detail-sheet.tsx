@@ -53,6 +53,9 @@ export function ItemDetailSheet({ id }: { id: string }) {
         onPrev={prevId ? () => goTo(prevId) : undefined}
         onNext={nextId ? () => goTo(nextId) : undefined}
         onClose={close}
+        canReassign={data.canReassign}
+        reassignCandidates={data.reassignCandidates}
+        onReassign={data.reassign}
       />
     ) : (
       <div className="p-4">
@@ -68,7 +71,7 @@ export function ItemDetailSheet({ id }: { id: string }) {
           <Dialog.Content
             aria-describedby={undefined}
             onAnimationEnd={onDialogAnimationEnd}
-            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-[28rem] flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none xl:w-[40rem]"
+            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-(--sheet-w) flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
           >
             <Dialog.Title className="sr-only">{title}</Dialog.Title>
             {content}
@@ -79,7 +82,7 @@ export function ItemDetailSheet({ id }: { id: string }) {
   }
 
   return (
-    <Drawer.Root open={open} onOpenChange={(next) => !next && close()} onAnimationEnd={onAnimationEnd} snapPoints={[0.5, 0.92]}>
+    <Drawer.Root open={open} onOpenChange={(next) => !next && close()} onAnimationEnd={onAnimationEnd} snapPoints={[0.55, 0.94]}>
       <Drawer.Portal>
         <Drawer.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
         <Drawer.Content

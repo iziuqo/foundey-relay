@@ -174,7 +174,7 @@ export default function WorkPage() {
                 onShowMe={showPending}
                 onStart={() => start(queue.hero!.item.id, person.id, now.toISOString())}
                 onMarkDone={() => markDone(queue.hero!.item.id, now.toISOString())}
-                onAskHelp={() => askHelp(queue.hero!.item.id)}
+                onAskHelp={(reason, note) => askHelp(queue.hero!.item.id, reason, note)}
                 onWaiting={(who, checkBackAt) => waiting(queue.hero!.item.id, who, checkBackAt)}
                 onMoveLater={(snoozeUntil) => moveLater(queue.hero!.item.id, snoozeUntil)}
                 onNotMine={() => notMine(queue.hero!.item.id)}

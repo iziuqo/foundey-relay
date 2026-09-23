@@ -20,7 +20,7 @@ import { cssColorToOklch } from "../../lib/color";
  * route to this list is part of that milestone's exit gate, not an afterthought.
  * ---------------------------------------------------------------------------------
  */
-const MIGRATED = ["/system/components", "/work"];
+const MIGRATED = ["/system/components", "/work", "/items/it-01"];
 
 /** Radius is a function of height: r = round(h × 0.28), snapped to the ladder. */
 const RADIUS_FOR_HEIGHT: [number, number][] = [

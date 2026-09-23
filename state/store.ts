@@ -45,7 +45,7 @@ interface DemoActions {
   start: (itemId: string, actorId: string, nowIso: string) => void;
   markDone: (itemId: string, nowIso: string) => void;
   undo: () => void;
-  askHelp: (itemId: string) => void;
+  askHelp: (itemId: string, reason?: string, note?: string) => void;
   waiting: (itemId: string, waitingOn: string, checkBackAt: string) => void;
   notMine: (itemId: string) => void;
   reassign: (itemId: string, toPersonId: string, actorId: string) => void;
@@ -154,9 +154,9 @@ export const useStore = create<DemoStore>()(
           };
         }),
 
-      askHelp: (itemId) =>
+      askHelp: (itemId, reason, note) =>
         set((state) => ({
-          ...withToast({ ...actions.askHelp(state, itemId), undoSnapshot: null }, copy.toast.helpSent, false),
+          ...withToast({ ...actions.askHelp(state, itemId, reason, note), undoSnapshot: null }, copy.toast.helpSent, false),
         })),
 
       waiting: (itemId, waitingOn, checkBackAt) =>

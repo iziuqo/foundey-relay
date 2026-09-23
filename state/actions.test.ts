@@ -54,6 +54,20 @@ describe("askHelp (§8.6)", () => {
     const next = askHelp(snap, "it-01");
     expect(next.items.find((i) => i.id === "it-01")!.helpAsked).toBe(true);
   });
+
+  it("stores the reason and note from the popover, so M6's manager view has something to show", () => {
+    const snap = baseSnapshot();
+    const next = askHelp(snap, "it-01", "I need another person", "Two people, not one");
+    const item = next.items.find((i) => i.id === "it-01")!;
+    expect(item.helpReason).toBe("I need another person");
+    expect(item.helpNote).toBe("Two people, not one");
+  });
+
+  it("leaves helpNote unset for an empty note, not a stored empty string", () => {
+    const snap = baseSnapshot();
+    const next = askHelp(snap, "it-01", "Something is broken", "");
+    expect(next.items.find((i) => i.id === "it-01")!.helpNote).toBeUndefined();
+  });
 });
 
 describe("notMine", () => {

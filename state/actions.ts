@@ -86,10 +86,12 @@ export function markDone(
   return { ...snapshot, items, team, doneLog };
 }
 
-/** §8.6: flags the item for the manager, whatever its age. */
-export function askHelp(snapshot: Snapshot, itemId: string): Snapshot {
+/** §8.6: flags the item for the manager, whatever its age. Reason and note come from
+ * the HelpPopover and are optional — the `e` keyboard shortcut on `/work` flags an
+ * item without either. */
+export function askHelp(snapshot: Snapshot, itemId: string, reason?: string, note?: string): Snapshot {
   const items = snapshot.items.map((i) =>
-    i.id === itemId ? { ...i, helpAsked: true } : i,
+    i.id === itemId ? { ...i, helpAsked: true, helpReason: reason, helpNote: note || undefined } : i,
   );
   return { ...snapshot, items };
 }
