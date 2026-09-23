@@ -182,7 +182,7 @@ function useCommandGroups(onNavigate: (href: string) => void, onDone: () => void
 }
 
 const groupHeadingClass =
-  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-(length:--text-meta) [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-(--text-2) [&_[cmdk-group-heading]]:uppercase";
+  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-(length:--t-eyebrow-size) [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-(--text-2) [&_[cmdk-group-heading]]:uppercase";
 
 /** M9: the selected row's highlight glides between rows (a shared `layoutId`) instead
  * of jumping — cmdk exposes the current selection via `useCommandState` so each row can
@@ -203,12 +203,12 @@ function Row({ row }: { row: CommandRow }) {
         />
       )}
       {row.icon}
-      <span className="min-w-0 flex-1 truncate text-(length:--text-body) text-(--text-1)">{row.label}</span>
-      {row.sub && <span className="truncate text-(length:--text-meta) text-(--text-2)">{row.sub}</span>}
+      <span className="min-w-0 flex-1 truncate t-body text-(--text-1)">{row.label}</span>
+      {row.sub && <span className="truncate t-meta text-(--text-2)">{row.sub}</span>}
       {row.shortcut && (
         <kbd
           data-kbd
-          className="tnum shrink-0 rounded-(--radius-chip) border border-(--border-1) bg-(--surface-2) px-1.5 py-0.5 text-(length:--text-kbd) leading-(length:--leading-kbd) text-(--text-2)"
+          className="tnum shrink-0 rounded-(--radius-chip) border border-(--line-1) bg-(--surface-2) px-1.5 py-0.5 t-mono text-(--text-2)"
         >
           {row.shortcut}
         </kbd>
@@ -230,10 +230,10 @@ export function CommandMenuBody({
       <CommandInput
         autoFocus
         placeholder={copy.search}
-        className="h-(--size-control-lg) w-full border-b border-(--border-1) bg-transparent px-4 text-(length:--text-body) text-(--text-1) outline-none placeholder:text-(--text-3)"
+        className="h-(--size-control-lg) w-full border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
       />
       <CommandList className="max-h-[60vh] overflow-y-auto p-2">
-        <CommandEmpty className="p-6 text-center text-(length:--text-meta) text-(--text-2)">{copy.palette.empty}</CommandEmpty>
+        <CommandEmpty className="p-6 text-center t-meta text-(--text-2)">{copy.palette.empty}</CommandEmpty>
         {groups.recent.length > 0 && (
           <CommandGroup
             heading={copy.palette.recent}
@@ -269,7 +269,10 @@ export function CommandMenuBody({
           ))}
         </CommandGroup>
       </CommandList>
-      <div className="border-t border-(--border-1) px-4 py-2 text-(length:--text-kbd) leading-(length:--leading-kbd) text-(--text-2)" data-kbd>
+      <div
+        className="border-t border-(--line-1) px-4 py-2 text-(length:--t-mono-size) leading-(--t-mono-line) text-(--text-2)"
+        data-kbd
+      >
         {copy.palette.footer}
       </div>
     </>
@@ -292,7 +295,7 @@ export function CommandPalette() {
         <Dialog.Overlay className="palette-overlay fixed inset-0 z-50 bg-(--overlay) [backdrop-filter:blur(8px)]" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="palette-content fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
+          className="palette-content fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--radius-hero) border border-(--line-1) bg-(--surface-1) shadow-(--e3) outline-none"
         >
           <Dialog.Title className="sr-only">{copy.palette.title}</Dialog.Title>
           <Command shouldFilter loop label={copy.palette.title}>

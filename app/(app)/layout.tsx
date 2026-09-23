@@ -33,7 +33,7 @@ export default function AppLayout({
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
-        <main className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</main>
+        <main className="min-w-0 flex-1 pb-[120px] lg:pb-0">{children}</main>
       </div>
       <BottomDock />
       <ToastBridge />

@@ -642,6 +642,58 @@ samp {
 [data-fidelity="wire"] .canvas-texture {
   background-image: none;
 }
+
+/* ================= Page grid — v3 M3 =================
+ * The named two-track shell (advisor §5.1): a main column and a rail, never a
+ * 12-column grid re-derived per page. `min-width: 0` on both tracks is mandatory,
+ * not optional — its absence is the direct cause of v2's 1024-is-wider-than-1440
+ * inversion (measured 913px at 1024 vs 737px at 1440).
+ *
+ * The rail rule, in one testable sentence: it renders only at ≥1200px and never
+ * exceeds --rail-w (368px). It does not simply disappear at 1279 and reappear at
+ * 1280 — v2's `xl:` breakpoint (1280) left a 56px band where the rail already had
+ * room but the layout hadn't caught up. Below 1200, at 1024–1199, the single column
+ * caps at --column-max (720px) and centers instead of stretching into the space the
+ * rail would have used — the specific fix for the inversion above. Below 1024 there
+ * is no rail at all; it is reference material, and it is the first thing to go. */
+.page-grid {
+  display: grid;
+  grid-template-columns: [main] minmax(0, 1fr);
+  column-gap: var(--gutter);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.page-main {
+  grid-column: main;
+  min-width: 0;
+}
+
+.page-rail {
+  display: none;
+  grid-column: rail;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 64rem) and (max-width: 74.99rem) {
+  .page-grid {
+    max-width: var(--column-max);
+  }
+}
+
+@media (min-width: 75rem) {
+  .page-grid {
+    grid-template-columns: [main] minmax(0, 1fr) [rail] var(--rail-w);
+  }
+
+  .page-rail {
+    display: flex;
+  }
+}
+
 /* M12: an animated custom property, so the browser can interpolate a value (a hue) that
  * a plain `background-position` drift can't reach — this is what "hue drift via an
  * animated @property angle" (plan §7.2) means in practice. Declared with `inherits:

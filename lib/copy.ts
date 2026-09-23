@@ -3,6 +3,9 @@ export const copy = {
   nav: { work: "My work", team: "Team", updates: "Updates", lookup: "Look up" },
   search: "Search orders, people, tickets",
   greeting: { morning: "Good morning, {name}.", afternoon: "Good afternoon, {name}." },
+  // D2: three modes, all first class — not a settings toggle. "Wire" is the brief's
+  // low-fidelity deliverable, reachable live from the top bar.
+  modeSwitch: { label: "Appearance", light: "Light", dark: "Dark", wire: "Wire" },
   status: {
     needYou: "{n} things need you now.",
     needYouOne: "1 thing needs you now.",
@@ -199,11 +202,9 @@ export const copy = {
     jump: "Jump 15 min",
     reset: "Reset to 10:40",
     inject: "Send a new urgent item",
-    wireframe: "Wireframe mode",
     resetAll: "Reset demo",
     clockLabel: "Clock",
     label: "Demo",
-    theme: "Dark mode",
   },
   drawer: {
     assignedTo: "Assigned to",

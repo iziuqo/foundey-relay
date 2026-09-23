@@ -59,6 +59,7 @@ interface DemoActions {
   setPersona: (persona: PersonaId) => void;
   setTheme: (theme: Theme) => void;
   toggleWireframe: () => void;
+  setWireframe: (wireframe: boolean) => void;
   clearToast: () => void;
   logInteraction: (atMs: number) => void;
   markRead: (itemId: string) => void;
@@ -230,6 +231,8 @@ export const useStore = create<DemoStore>()(
       setTheme: (theme) => set({ theme }),
 
       toggleWireframe: () => set((state) => ({ wireframe: !state.wireframe })),
+
+      setWireframe: (wireframe) => set({ wireframe }),
 
       clearToast: () =>
         set((state) => ({

@@ -44,11 +44,24 @@ test.describe("G7 layout (/work)", () => {
     expect(main!.x + main!.width).toBeLessThanOrEqual(rail!.x + 1);
   });
 
-  test("the rail is hidden below 1280 (no rail, per §5)", async ({ page }) => {
+  test("the rail is hidden below 1200 (v3 M3: it does not disappear at 1279 and reappear at 1280)", async ({ page }) => {
     await resetDemo(page);
     await page.setViewportSize({ width: 1024, height: 900 });
     await page.goto("/work");
     await expect(page.getByTestId("work-rail")).toBeHidden();
+  });
+
+  test("the rail is visible at exactly 1200, and the main column caps at 720px centered just below it", async ({ page }) => {
+    await resetDemo(page);
+    await page.goto("/work");
+
+    await page.setViewportSize({ width: 1199, height: 900 });
+    await expect(page.getByTestId("work-rail")).toBeHidden();
+    const capped = await page.getByTestId("work-main").boundingBox();
+    expect(capped!.width).toBeLessThanOrEqual(720 + 1);
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect(page.getByTestId("work-rail")).toBeVisible();
   });
 });
 

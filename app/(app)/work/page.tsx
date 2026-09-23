@@ -15,6 +15,7 @@ import { AllClear } from "@/components/relay/all-clear";
 import { Queue } from "@/components/relay/queue";
 import { TruckClock } from "@/components/relay/truck-clock";
 import { ShiftTimeline } from "@/components/relay/shift-timeline";
+import { PageGrid, PageMain, PageRail } from "@/components/relay/page-grid";
 import { Button } from "@/components/ui/button";
 
 function FyiPreview() {
@@ -137,8 +138,8 @@ export default function WorkPage() {
   }, [queue.hero, markDone, askHelp, now]);
 
   return (
-    <div className="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-col gap-6 p-4 xl:flex-row xl:items-start xl:gap-8 xl:p-8">
-      <div data-testid="work-main" className="flex min-w-0 flex-1 flex-col gap-6 xl:min-w-[36rem]">
+    <PageGrid className="py-8 lg:py-12">
+      <PageMain data-testid="work-main">
         <StatusSentence
           name={person.name.split(" ")[0]}
           now={now}
@@ -148,7 +149,7 @@ export default function WorkPage() {
           nextCutoff={cutoff}
         />
 
-        <div className="xl:hidden">
+        <div className="min-[75rem]:hidden">
           <TruckClock cutoffs={site.cutoffs} now={now} />
         </div>
 
@@ -203,16 +204,16 @@ export default function WorkPage() {
             />
           )}
         </LayoutGroup>
-      </div>
+      </PageMain>
 
-      <aside data-testid="work-rail" className="hidden w-full shrink-0 flex-col gap-6 xl:flex xl:w-[clamp(18rem,26vw,22rem)]">
+      <PageRail data-testid="work-rail">
         <TruckClock cutoffs={site.cutoffs} now={now} stacked />
         <ShiftTimeline now={now} shift={site.shift} cutoffs={site.cutoffs} />
         <FyiPreview />
-      </aside>
+      </PageRail>
 
       {queue.hero && (
-        <div className="fixed inset-x-3 bottom-20 z-30 lg:hidden">
+        <div data-testid="work-mobile-cta" className="fixed inset-x-3 bottom-[calc(var(--h-dock)+0.5rem)] z-30 lg:hidden">
           <Button
             size="lg"
             className="w-full shadow-(--shadow-e3)"
@@ -226,6 +227,6 @@ export default function WorkPage() {
           </Button>
         </div>
       )}
-    </div>
+    </PageGrid>
   );
 }

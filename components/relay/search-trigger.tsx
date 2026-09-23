@@ -14,16 +14,13 @@ export function SearchTrigger() {
       type="button"
       onClick={openSearch}
       aria-label={copy.search}
-      className="flex h-(--size-control-md) items-center gap-2 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) px-3 text-(--text-2) transition-colors hover:border-(--border-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg) sm:w-56 sm:justify-between md:w-72"
+      className="flex h-(--h-md) items-center gap-2 rounded-(--r-3) border border-(--line-1) bg-(--surface-1) px-3 text-(--text-2) transition-colors hover:border-(--line-2) hover:text-(--text-1) focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--focus) sm:w-56 sm:justify-between md:w-72"
     >
       <span className="flex items-center gap-2">
-        <Search className="size-(--size-icon-sm) shrink-0" aria-hidden />
-        <span className="hidden truncate text-(length:--text-meta) sm:inline">{copy.search}</span>
+        <Search className="size-(--icon-sm) shrink-0" aria-hidden />
+        <span className="t-meta hidden truncate sm:inline">{copy.search}</span>
       </span>
-      <kbd
-        data-kbd
-        className="tnum hidden shrink-0 rounded-(--radius-chip) border border-(--border-1) bg-(--surface-2) px-1.5 py-0.5 text-(length:--text-kbd) leading-(length:--leading-kbd) text-(--text-2) sm:inline-block"
-      >
+      <kbd data-kbd className="tnum t-mono hidden shrink-0 rounded-(--r-2) border border-(--line-1) bg-(--surface-2) px-1.5 py-0.5 sm:inline-block">
         ⌘K
       </kbd>
     </button>
