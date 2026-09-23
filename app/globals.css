@@ -7,381 +7,620 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /*
- * Token layers, plan §4.1-4.2, §4.5, §4.7.
+ * Token layers — v3 M1. The numeric contract is plan/redesign/v3/ADVISOR-craft.md
+ * §3 (type), §4 (color and light), §5 (geometry); this file is that document compiled.
  *
- *   1. Primitive  — raw OKLCH scales. Never used directly by components.
- *   2. Semantic   — --bg, --surface-*, --text-*, --border-*, --accent, --focus.
- *   3. Tier       — --act-*, --next-*, --when-*, --fyi-*, each fg/bg/border/glow.
+ *   1. Primitive  — L/C/H ramps. Never used directly by a component.
+ *   2. Semantic   — --bg, --surface-*, --text-*, --line-*, --primary-*, --accent, --focus.
+ *   3. Tier       — --act-*, --next-*, --when-*, --fyi-*, each fg/bg/line.
  *
- * Themes and fidelity are attribute swaps on <html>: data-theme="light|dark" and
- * data-fidelity="hi|wire" (app/layout.tsx sets both before first paint). No `filter`
- * anywhere — README P0 4, the old grayscale filter was neither a wireframe nor safe
- * for fixed elements.
+ * Two mechanisms carry most of the work:
  *
- * Tailwind utilities never get redefined here (`--spacing` stays 0.25rem, so `h-12`
- * is always 48px). These are plain custom properties, consumed through Tailwind v4's
- * arbitrary-var syntax, e.g. `bg-(--surface-1)`, `text-(--text-2)`, `h-(--size-control-md)`.
+ * `--chroma` is a global multiplier on every chroma channel. `data-fidelity="wire"`
+ * sets it to 0, which *is* wire mode: chroma → 0 with lightness preserved, exactly as
+ * specified, rather than a second hand-written gray palette. v2 wrote that table by
+ * hand and collapsed four tiers into two (--act-bg and --next-bg both landed on the
+ * same gray, and three of four foregrounds on --gray-11), which is why its own
+ * grayscale test could not pass. Here the ladder survives the transform for free.
+ *
+ * Rank descends in three channels at once — lightness, chroma and weight — so hue is
+ * never the only thing carrying it. The tier tints below span 0.040 OKLCH L; v2's
+ * spanned 0.0097 in total, measured.
+ *
+ * Tailwind utilities are never redefined here (--spacing stays 0.25rem, so h-12 is
+ * always 48px). These are plain custom properties, consumed through Tailwind v4's
+ * arbitrary-var syntax: bg-(--surface-1), text-(--text-2), h-(--h-md).
  */
 
 :root {
-  /* ---- Primitives: gray (neutrals, full scale) ---- */
-  --gray-1: oklch(0.99 0 0);
-  --gray-2: oklch(0.977 0.001 264);
-  --gray-3: oklch(0.951 0.002 264);
-  --gray-4: oklch(0.928 0.003 264);
-  --gray-5: oklch(0.899 0.003 264);
-  --gray-6: oklch(0.865 0.004 264);
-  --gray-7: oklch(0.818 0.005 264);
-  --gray-8: oklch(0.74 0.006 264);
-  --gray-9: oklch(0.61 0.006 264);
-  --gray-10: oklch(0.556 0.006 264);
-  --gray-11: oklch(0.44 0.006 264);
-  --gray-12: oklch(0.2 0.004 264);
+  /* Wire fidelity flips this to 0. Nothing else in the file knows wire exists. */
+  --chroma: 1;
 
-  /* ---- Primitives: red-orange (Act now, safety) ---- */
-  --red-1: oklch(0.985 0.005 30);
-  --red-3: oklch(0.936 0.04 30);
-  --red-6: oklch(0.79 0.12 32);
-  --red-9: oklch(0.605 0.22 29);
-  --red-11: oklch(0.48 0.19 27);
+  /* ---- Primitives: neutral ramp (hue 250, near-achromatic) ---- */
+  --n-0: oklch(1 0 0);
+  --n-1: oklch(0.975 calc(0.002 * var(--chroma)) 250);
+  --n-2: oklch(0.968 calc(0.003 * var(--chroma)) 250);
+  --n-3: oklch(0.945 calc(0.004 * var(--chroma)) 250);
+  --n-4: oklch(0.915 calc(0.004 * var(--chroma)) 250);
+  --n-5: oklch(0.855 calc(0.005 * var(--chroma)) 250);
+  --n-6: oklch(0.72 calc(0.006 * var(--chroma)) 250);
+  --n-7: oklch(0.58 calc(0.006 * var(--chroma)) 250);
+  --n-8: oklch(0.44 calc(0.006 * var(--chroma)) 250);
+  --n-9: oklch(0.18 calc(0.005 * var(--chroma)) 250);
 
-  /* ---- Primitives: amber (Up next) ---- */
-  --amber-1: oklch(0.99 0.01 90);
-  --amber-3: oklch(0.94 0.05 85);
-  --amber-6: oklch(0.83 0.11 75);
-  --amber-9: oklch(0.685 0.16 60);
-  --amber-11: oklch(0.46 0.13 55);
+  /* ---- Primitives: dark neutral ramp ---- */
+  --nd-0: oklch(0.145 calc(0.004 * var(--chroma)) 250);
+  --nd-1: oklch(0.178 calc(0.005 * var(--chroma)) 250);
+  --nd-2: oklch(0.205 calc(0.006 * var(--chroma)) 250);
+  --nd-3: oklch(0.232 calc(0.006 * var(--chroma)) 250);
 
-  /* ---- Primitives: slate (When you can) ---- */
-  --slate-1: oklch(0.99 0.002 255);
-  --slate-3: oklch(0.94 0.006 255);
-  --slate-6: oklch(0.82 0.012 255);
-  --slate-9: oklch(0.55 0.02 255);
-  --slate-11: oklch(0.42 0.02 255);
+  /* ---- Primitives: tier hues. Three steps each: fg, tint, line ---- */
+  --red-fg: oklch(0.4 calc(0.155 * var(--chroma)) 27);
+  --red-tint: oklch(0.945 calc(0.03 * var(--chroma)) 27);
+  --red-line: oklch(0.72 calc(0.12 * var(--chroma)) 27);
+  --red-fg-d: oklch(0.82 calc(0.15 * var(--chroma)) 27);
+  --red-tint-d: oklch(0.212 calc(0.045 * var(--chroma)) 27);
+  --red-line-d: oklch(0.42 calc(0.11 * var(--chroma)) 27);
 
-  /* ---- Primitives: blue (For your info) ---- */
-  --blue-1: oklch(0.99 0.005 250);
-  --blue-3: oklch(0.94 0.03 250);
-  --blue-6: oklch(0.82 0.07 250);
-  --blue-9: oklch(0.58 0.16 250);
-  --blue-11: oklch(0.47 0.15 250);
+  --amber-fg: oklch(0.46 calc(0.115 * var(--chroma)) 68);
+  --amber-tint: oklch(0.966 calc(0.02 * var(--chroma)) 68);
+  --amber-line: oklch(0.8 calc(0.09 * var(--chroma)) 68);
+  --amber-fg-d: oklch(0.78 calc(0.115 * var(--chroma)) 68);
+  --amber-tint-d: oklch(0.196 calc(0.03 * var(--chroma)) 68);
+  --amber-line-d: oklch(0.38 calc(0.08 * var(--chroma)) 68);
 
-  /* ---- Primitives: indigo (accent) ---- */
-  --indigo-3: oklch(0.94 0.03 275);
-  --indigo-6: oklch(0.78 0.1 275);
-  --indigo-9: oklch(0.535 0.19 275);
-  --indigo-11: oklch(0.46 0.18 275);
+  --steel-fg: oklch(0.52 calc(0.045 * var(--chroma)) 250);
+  --steel-tint: oklch(0.98 calc(0.008 * var(--chroma)) 250);
+  --steel-line: oklch(0.88 calc(0.02 * var(--chroma)) 250);
+  --steel-fg-d: oklch(0.7 calc(0.04 * var(--chroma)) 250);
+  --steel-tint-d: oklch(0.182 calc(0.01 * var(--chroma)) 250);
+  --steel-line-d: oklch(0.32 calc(0.02 * var(--chroma)) 250);
 
-  /* ---- Primitives: green (done, success only) ---- */
-  --green-3: oklch(0.94 0.04 150);
-  --green-6: oklch(0.81 0.11 150);
-  --green-9: oklch(0.6 0.15 150);
-  --green-11: oklch(0.46 0.13 150);
+  --blue-fg: oklch(0.52 calc(0.075 * var(--chroma)) 250);
+  --blue-tint: oklch(0.985 calc(0.01 * var(--chroma)) 250);
+  --blue-line: oklch(0.9 calc(0.03 * var(--chroma)) 250);
+  --blue-fg-d: oklch(0.7 calc(0.065 * var(--chroma)) 250);
+  --blue-tint-d: oklch(0.182 calc(0.012 * var(--chroma)) 250);
+  --blue-line-d: oklch(0.33 calc(0.03 * var(--chroma)) 250);
 
-  /* ---- Semantic ---- */
-  --bg: var(--gray-1);
-  --surface-1: oklch(1 0 0);
-  --surface-2: var(--gray-2);
-  --surface-3: var(--gray-3);
-  --text-1: var(--gray-12);
-  --text-2: var(--gray-11);
-  --text-3: var(--gray-9);
-  --border-1: var(--gray-5);
-  --border-2: var(--gray-7);
-  --accent: var(--indigo-9);
-  --focus: var(--indigo-9);
-  /* Solid fills (e.g. the primary button) need their own pair: --accent alone isn't
-   * contrast-safe as a fill in every theme/fidelity (dark's --accent is a light indigo
-   * meant for text/rings against a dark bg; wire's is a mid gray) — white text on top
-   * of either fails WCAG AA. --accent-solid is tuned per block so --accent-solid-fg
-   * (always white) stays safe everywhere; verified in lib/color.test.ts. */
-  --accent-solid: var(--indigo-9);
-  --accent-solid-fg: oklch(1 0 0);
-  /* The scrim behind a sheet, dialog, or the command palette (§6.2, §6.5). */
-  --overlay: oklch(0.2 0.004 264 / 40%);
+  /* ---- Primitives: accent (focus, selection, links) and success (done) ---- */
+  --accent-base: oklch(0.5 calc(0.18 * var(--chroma)) 262);
+  --accent-base-d: oklch(0.72 calc(0.15 * var(--chroma)) 262);
+  --success-base: oklch(0.52 calc(0.13 * var(--chroma)) 152);
+  --success-base-d: oklch(0.76 calc(0.13 * var(--chroma)) 152);
+  --success-tint: oklch(0.955 calc(0.025 * var(--chroma)) 152);
+  --success-tint-d: oklch(0.21 calc(0.04 * var(--chroma)) 152);
 
-  /* ---- Tier: Act now (red-orange; only tier with a row tint, §4.6) ---- */
-  --act-fg: var(--red-11);
-  --act-bg: var(--red-3);
-  --act-border: var(--red-6);
-  --act-glow: oklch(0.605 0.22 29 / 12%);
+  /* ================= Semantic ================= */
+  --bg: var(--n-1);
+  --surface-1: var(--n-0);
+  --surface-2: var(--n-2);
+  --surface-3: var(--n-0);
+  --text-1: var(--n-9);
+  --text-2: var(--n-8);
+  --text-3: var(--n-7);
+  --line-1: var(--n-4);
+  --line-2: var(--n-5);
 
-  /* ---- Tier: Up next (amber) ---- */
-  --next-fg: var(--amber-11);
-  --next-bg: var(--amber-3);
-  --next-border: var(--amber-6);
-  --next-glow: oklch(0.685 0.16 60 / 12%);
+  /* The primary button is filled with --text-1, not the accent (advisor §4.5). The
+   * accent fill measured chroma ≈72 inside a card tinted at ≈14 — the loudest object
+   * on a screen whose whole argument is that loudness follows rank. Near-black on
+   * white reads as *the* button at two metres, at 17:1, and costs no hue. */
+  --primary-bg: var(--text-1);
+  --primary-fg: var(--surface-1);
 
-  /* ---- Tier: When you can (slate) ---- */
-  --when-fg: var(--slate-11);
-  --when-bg: var(--slate-3);
-  --when-border: var(--slate-6);
-  --when-glow: oklch(0.55 0.02 255 / 12%);
+  --accent: var(--accent-base);
+  --focus: var(--accent-base);
+  --success-fg: var(--success-base);
+  --success-bg: var(--success-tint);
 
-  /* ---- Tier: For your info (blue) ---- */
-  --fyi-fg: var(--blue-11);
-  --fyi-bg: var(--blue-3);
-  --fyi-border: var(--blue-6);
-  --fyi-glow: oklch(0.58 0.16 250 / 12%);
+  --overlay: oklch(0.18 0 0 / 40%);
 
-  /* ---- Success (the done check and done counts, nothing else, §4.2) ---- */
-  --success-fg: var(--green-11);
-  --success-bg: var(--green-3);
-  --success-border: var(--green-6);
+  /* Back-compat aliases. Components still written against the v2 names keep working
+   * until their milestone migrates them; M14 deletes this block. */
+  --border-1: var(--line-1);
+  --border-2: var(--line-2);
+  --accent-solid: var(--primary-bg);
+  --accent-solid-fg: var(--primary-fg);
+  --success-border: var(--success-fg);
 
-  /* ---- Depth, §4.5. Light: hairline border + a 1px shadow. ---- */
-  --shadow-e1: 0 1px 2px oklch(0 0 0 / 6%);
-  --shadow-e2: 0 2px 8px oklch(0 0 0 / 8%);
-  --shadow-e3: 0 12px 32px oklch(0 0 0 / 14%);
+  /* ================= Tier ================= */
+  --act-fg: var(--red-fg);
+  --act-bg: var(--red-tint);
+  --act-line: var(--red-line);
+  --act-weight: 600;
 
-  /* ---- Radii, §4.4. Concentric: inner = outer minus padding. ---- */
-  --radius-chip: 8px;
-  --radius-control: 12px;
-  --radius-hero: 20px;
+  --next-fg: var(--amber-fg);
+  --next-bg: var(--amber-tint);
+  --next-line: var(--amber-line);
+  --next-weight: 600;
 
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+  --when-fg: var(--steel-fg);
+  --when-bg: var(--steel-tint);
+  --when-line: var(--steel-line);
+  --when-weight: 500;
 
-  /* ---- Size contract, §4.4. Controls in one row share one height and one
-     vertical center (asserted in G2). Handheld uses the lg step or a 48px floor. ---- */
-  --size-control-sm: 2rem;    /* 32px */
-  --size-control-md: 2.5rem;  /* 40px */
-  --size-control-lg: 3rem;    /* 48px */
-  --size-chip-sm: 1.5rem;     /* 24px */
-  --size-chip-md: 1.75rem;    /* 28px */
-  --size-row-min: 3.5rem;     /* 56px, desktop queue row */
-  --size-row-min-handheld: 4rem; /* 64px */
-  --size-icon-sm: 1rem;       /* 16px */
-  --size-icon-md: 1.25rem;    /* 20px */
-  --size-icon-lg: 1.5rem;     /* 24px */
+  --fyi-fg: var(--blue-fg);
+  --fyi-bg: var(--blue-tint);
+  --fyi-line: var(--blue-line);
+  --fyi-weight: 500;
 
-  /* ---- Type, §4.3. Fluid between 390 and 1440 with clamp(). tnum on every
-     time and count is applied with the .tnum class, not baked in here. ---- */
-  --text-display: clamp(2.5rem, 1.9rem + 2.6vw, 3.5rem);
-  --leading-display: clamp(2.75rem, 2.1rem + 2.7vw, 3.75rem);
-  --text-hero: clamp(1.625rem, 1.4rem + 0.9vw, 2rem);
-  --leading-hero: clamp(2rem, 1.75rem + 1vw, 2.375rem);
-  --text-title: 1.25rem;
-  --leading-title: 1.75rem;
-  --text-row: 1.0625rem;
-  --leading-row: 1.5rem;
-  --text-body: 1rem;
-  --leading-body: 1.5rem;
-  --text-meta: 0.875rem;
-  --leading-meta: 1.25rem;
-  --text-kbd: 0.75rem;
-  --leading-kbd: 1rem;
+  --act-border: var(--act-line);
+  --next-border: var(--next-line);
+  --when-border: var(--when-line);
+  --fyi-border: var(--fyi-line);
 
-  /* ---- Deck type scale, §6.8: 64/40/30/22, fixed (not fluid) — every slide renders
-     into a fixed 1280×720 canvas that's scaled as a whole via CSS transform (deck
-     shell), so the type never needs to respond to the viewport itself. ---- */
-  --text-deck-1: 4rem;       /* 64px */
-  --leading-deck-1: 4.5rem;
-  --text-deck-2: 2.5rem;     /* 40px */
-  --leading-deck-2: 2.75rem;
-  --text-deck-3: 1.875rem;   /* 30px */
-  --leading-deck-3: 2.25rem;
-  --text-deck-4: 1.375rem;   /* 22px */
-  --leading-deck-4: 1.875rem;
-
-  /* ---- Motion, §7.1. Same values as lib/motion.ts (seconds there, ms here) — kept in
-     sync by hand since Tailwind utilities and Motion's `transition` prop read from
-     different places. Used through `duration-(--dur-quick)` etc. ---- */
-  --dur-instant: 90ms;
-  --dur-quick: 160ms;
-  --dur-base: 240ms;
-  --dur-slow: 600ms;
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* ================= Dark theme, D2 =================
- * Not `:root`-scoped: /system's Foundations page nests a `data-theme="dark"` preview
- * panel next to a light one so tokens can be compared and contrast-measured side by
- * side without flipping the whole app. Custom properties inherit normally either way. */
-[data-theme="dark"] {
-  --bg: oklch(0.17 0.003 264);
-  --surface-1: oklch(0.21 0.004 264);
-  --surface-2: oklch(0.24 0.004 264);
-  --surface-3: oklch(0.28 0.005 264);
-  --text-1: oklch(0.96 0.002 264);
-  --text-2: oklch(0.82 0.004 264);
-  --text-3: oklch(0.62 0.006 264);
-  --border-1: oklch(1 0 0 / 10%);
-  --border-2: oklch(1 0 0 / 16%);
-  --accent: var(--indigo-6);
-  --focus: var(--indigo-6);
-  /* indigo-9, not indigo-6 — dark's --accent is deliberately light for legibility as
-   * text/a ring against the dark bg, but that same lightness fails white text as a
-   * fill (2.03:1). indigo-9 is dark enough in both themes to stay one value. */
-  --accent-solid: var(--indigo-9);
-  --accent-solid-fg: oklch(1 0 0);
-  --overlay: oklch(0 0 0 / 55%);
-
-  --act-fg: oklch(0.76 0.16 29);
-  --act-bg: oklch(0.3 0.07 29);
-  --act-border: oklch(0.42 0.12 29);
-  --act-glow: oklch(0.605 0.22 29 / 22%);
-
-  --next-fg: oklch(0.82 0.11 60);
-  --next-bg: oklch(0.3 0.05 60);
-  --next-border: oklch(0.44 0.08 60);
-  --next-glow: oklch(0.685 0.16 60 / 22%);
-
-  --when-fg: oklch(0.78 0.02 255);
-  --when-bg: oklch(0.28 0.01 255);
-  --when-border: oklch(0.4 0.015 255);
-  --when-glow: oklch(0.55 0.02 255 / 18%);
-
-  --fyi-fg: oklch(0.78 0.1 250);
-  --fyi-bg: oklch(0.28 0.06 250);
-  --fyi-border: oklch(0.42 0.09 250);
-  --fyi-glow: oklch(0.58 0.16 250 / 22%);
-
-  --success-fg: oklch(0.78 0.11 150);
-  --success-bg: oklch(0.27 0.05 150);
-  --success-border: oklch(0.4 0.08 150);
-
-  /* Dark: elevation is a lighter surface plus a 1px inner top highlight, never a darker shadow. */
-  --shadow-e1: inset 0 1px 0 oklch(1 0 0 / 6%);
-  --shadow-e2: inset 0 1px 0 oklch(1 0 0 / 8%), 0 2px 12px oklch(0 0 0 / 40%);
-  --shadow-e3: inset 0 1px 0 oklch(1 0 0 / 8%), 0 16px 40px oklch(0 0 0 / 55%);
-}
-
-/* Explicit light, mirroring the :root defaults above — needed so a local
- * data-theme="light" preview panel (/system, side by side with a dark one) resets
- * correctly even when nested under a global data-theme="dark" ancestor. */
-[data-theme="light"] {
-  --bg: var(--gray-1);
-  --surface-1: oklch(1 0 0);
-  --surface-2: var(--gray-2);
-  --surface-3: var(--gray-3);
-  --text-1: var(--gray-12);
-  --text-2: var(--gray-11);
-  --text-3: var(--gray-9);
-  --border-1: var(--gray-5);
-  --border-2: var(--gray-7);
-  --accent: var(--indigo-9);
-  --focus: var(--indigo-9);
-  --accent-solid: var(--indigo-9);
-  --accent-solid-fg: oklch(1 0 0);
-  --overlay: oklch(0.2 0.004 264 / 40%);
-
-  --act-fg: var(--red-11);
-  --act-bg: var(--red-3);
-  --act-border: var(--red-6);
-  --act-glow: oklch(0.605 0.22 29 / 12%);
-
-  --next-fg: var(--amber-11);
-  --next-bg: var(--amber-3);
-  --next-border: var(--amber-6);
-  --next-glow: oklch(0.685 0.16 60 / 12%);
-
-  --when-fg: var(--slate-11);
-  --when-bg: var(--slate-3);
-  --when-border: var(--slate-6);
-  --when-glow: oklch(0.55 0.02 255 / 12%);
-
-  --fyi-fg: var(--blue-11);
-  --fyi-bg: var(--blue-3);
-  --fyi-border: var(--blue-6);
-  --fyi-glow: oklch(0.58 0.16 250 / 12%);
-
-  --success-fg: var(--green-11);
-  --success-bg: var(--green-3);
-  --success-border: var(--green-6);
-
-  --shadow-e1: 0 1px 2px oklch(0 0 0 / 6%);
-  --shadow-e2: 0 2px 8px oklch(0 0 0 / 8%);
-  --shadow-e3: 0 12px 32px oklch(0 0 0 / 14%);
-}
-
-/* ================= Wireframe fidelity, §4.7 ================= */
-/* Same components, tokens swapped: all hues become grays, radii become 2px, shadows
-   and glows turn off, and the font becomes a monospace. This *is* deliverable 2 of the
-   brief, live — it replaces v1's grayscale `filter`, which was neither a true
-   wireframe nor safe for fixed elements (README P0 4). */
-[data-fidelity="wire"] {
-  --accent: var(--gray-9);
-  --focus: var(--gray-9);
-  /* gray-11, not gray-9 — gray-9 is only 3.79:1 against white text (fails AA). */
-  --accent-solid: var(--gray-11);
-  --accent-solid-fg: oklch(1 0 0);
-
-  --act-fg: var(--gray-12);
-  --act-bg: var(--gray-3);
-  --act-border: var(--gray-7);
+  /* The hero glow is dark-only (advisor §4.6): a colored glow on a near-white canvas
+   * reads as a rendering fault. Light and wire resolve it to nothing. */
   --act-glow: transparent;
-
-  --next-fg: var(--gray-11);
-  --next-bg: var(--gray-3);
-  --next-border: var(--gray-6);
   --next-glow: transparent;
-
-  --when-fg: var(--gray-11);
-  --when-bg: var(--gray-2);
-  --when-border: var(--gray-5);
   --when-glow: transparent;
-
-  --fyi-fg: var(--gray-11);
-  --fyi-bg: var(--gray-2);
-  --fyi-border: var(--gray-5);
   --fyi-glow: transparent;
 
-  --success-fg: var(--gray-12);
-  --success-bg: var(--gray-3);
-  --success-border: var(--gray-7);
+  /* ================= Type ================= */
+  /* Inter Variable, self-hosted for its opsz axis; IBM Plex Mono for identifiers only.
+   * Every step below ships its own tracking — v2 left 255 of 256 elements at
+   * letter-spacing: normal, which is the single largest reason it read as undesigned. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
 
-  --shadow-e1: none;
-  --shadow-e2: none;
-  --shadow-e3: none;
+  --t-mono-size: 0.75rem;      /* 12 */
+  --t-mono-line: 1rem;
+  --t-eyebrow-size: 0.75rem;   /* 12 */
+  --t-eyebrow-line: 1rem;
+  --t-meta-size: 0.875rem;     /* 14 */
+  --t-meta-line: 1.25rem;
+  --t-body-size: 1rem;         /* 16 */
+  --t-body-line: 1.5rem;
+  --t-row-size: 1.1875rem;     /* 19 */
+  --t-row-line: 1.625rem;
+  --t-section-size: 1.4375rem; /* 23 */
+  --t-section-line: 1.875rem;
+  --t-hero-sm-size: 1.75rem;   /* 28 */
+  --t-hero-sm-line: 2rem;
+  --t-hero-size: 2.0625rem;    /* 33 */
+  --t-hero-line: 2.375rem;
+  --t-finish-size: 2.5rem;     /* 40 */
+  --t-finish-line: 2.75rem;
 
+  /* Back-compat aliases for components not yet migrated to the .t-* utilities. */
+  --text-display: var(--t-hero-size);
+  --leading-display: var(--t-hero-line);
+  --text-hero: var(--t-hero-size);
+  --leading-hero: var(--t-hero-line);
+  --text-title: var(--t-section-size);
+  --leading-title: var(--t-section-line);
+  --text-row: var(--t-row-size);
+  --leading-row: var(--t-row-line);
+  --text-body: var(--t-body-size);
+  --leading-body: var(--t-body-line);
+  --text-meta: var(--t-meta-size);
+  --leading-meta: var(--t-meta-line);
+  --text-kbd: var(--t-mono-size);
+  --leading-kbd: var(--t-mono-line);
+
+  /* ---- Deck type scale. M10 owns this; left at the v2 values until then. ---- */
+  --text-deck-1: 4rem;
+  --leading-deck-1: 4.5rem;
+  --text-deck-2: 2.5rem;
+  --leading-deck-2: 2.75rem;
+  --text-deck-3: 1.875rem;
+  --leading-deck-3: 2.25rem;
+  --text-deck-4: 1.375rem;
+  --leading-deck-4: 1.875rem;
+
+  /* ================= Geometry ================= */
+  /* Radius is a function of height — r = round(h × 0.28), snapped to this ladder —
+   * not a constant. v2 computed r12 on everything from a 28px pill to a 48px button. */
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 10px;
+  --r-4: 12px;
+  --r-5: 16px;
+  --r-full: 9999px;
+
+  --radius-chip: var(--r-2);
+  --radius-control: var(--r-4);
+  --radius-hero: var(--r-5);
+
+  /* Control heights. Anything sharing a row shares one of these. */
+  --h-xs: 1.75rem; /* 28 — chip, time pill */
+  --h-sm: 2rem;    /* 32 */
+  --h-md: 2.5rem;  /* 40 — input, default control */
+  --h-lg: 3rem;    /* 48 — primary action */
+
+  --h-row: 4rem;          /* 64 — queue row */
+  --h-row-handheld: 4.5rem; /* 72 */
+  --h-row-dense: 2.75rem; /* 44 — the manager roster */
+  --h-band: 2.25rem;      /* 36 — tier group band */
+  --h-topbar: 3.5rem;     /* 56 */
+  --h-dock: 4rem;         /* 64 — handheld, sticky not floating */
+
+  --size-control-sm: var(--h-sm);
+  --size-control-md: var(--h-md);
+  --size-control-lg: var(--h-lg);
+  --size-chip-sm: 1.5rem;
+  --size-chip-md: var(--h-xs);
+  --size-row-min: var(--h-row);
+  --size-row-min-handheld: var(--h-row-handheld);
+
+  /* Icon sizes, paired with a stroke so optical weight stays constant across sizes. */
+  --icon-sm: 1rem;     /* 16 @1.5, inside a 32 control */
+  --icon-md: 1.125rem; /* 18 @1.5, inside a 40 control */
+  --icon-lg: 1.25rem;  /* 20 @1.75, inside a 48 control and as the row tier icon */
+  --icon-xl: 1.5rem;   /* 24 @1.75, the hero tier icon */
+  --size-icon-sm: var(--icon-sm);
+  --size-icon-md: var(--icon-lg);
+  --size-icon-lg: var(--icon-xl);
+
+  /* Layout. The rail renders only at ≥1200px and never exceeds 368px (advisor §5.7);
+   * at 1024 the single column is capped so it cannot end up wider than it is at 1440 —
+   * v2 measured 913px at 1024 against 737px at 1440. */
+  --rail-w: clamp(19rem, 24vw, 23rem);
+  --content-max: 1280px;
+  --column-max: 45rem; /* 720 */
+  --gutter: 2rem;
+
+  /* ================= Depth ================= */
+  /* e1 resting card · e2 the hero and the toast, nothing else · e3 overlays only. */
+  --e1: 0 1px 2px oklch(0.2 0.02 250 / 5%);
+  --e2:
+    0 1px 2px oklch(0.2 0.02 250 / 4%), 0 4px 12px oklch(0.2 0.02 250 / 6%);
+  --e3:
+    0 1px 2px oklch(0.2 0.02 250 / 5%), 0 8px 24px oklch(0.2 0.02 250 / 10%),
+    0 24px 48px oklch(0.2 0.02 250 / 8%);
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+
+  /* ================= Texture ================= */
+  /* One texture, canvas only, below the acuity limit at two metres (advisor §4.6). */
+  --dot: oklch(0.2 0 0 / 3.5%);
+  --dot-pitch: 24px;
+
+  /* ================= Motion ================= */
+  /* Three curves and two springs, and no component may inline a curve. v2 shipped
+   * three different curves including Tailwind's default plus a stray 150ms. The spring
+   * values live in lib/motion.ts, which mirrors the durations below. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --dur-instant: 90ms;  /* row tint, press */
+  --dur-quick: 140ms;   /* reveals, crossfades */
+  --dur-base: 200ms;    /* panels, the check draw */
+  --dur-roll: 320ms;    /* number roll */
+  --dur-move: 420ms;    /* undo, theme reveal */
+  --dur-slow: 900ms;    /* the moved-row wash, aurora fade-in */
+}
+
+@media (width < 64rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+
+@media (width < 30rem) {
+  :root {
+    --gutter: 1rem;
+    --h-row: var(--h-row-handheld);
+  }
+}
+
+/* ================= Dark =================
+ * Not :root-scoped: /system nests a data-theme="dark" preview next to a light one so
+ * tokens can be compared and contrast-measured side by side without flipping the app.
+ *
+ * Depth in dark is a lighter surface plus a 1px inner top highlight — a dark card
+ * never casts a shadow. Because borders are alpha-white here they compound, so a
+ * bordered card may not contain a bordered card; use --surface-2 for the inner box. */
+[data-theme="dark"] {
+  --bg: var(--nd-0);
+  --surface-1: var(--nd-1);
+  --surface-2: var(--nd-2);
+  --surface-3: var(--nd-3);
+  --text-1: oklch(0.97 0 0);
+  --text-2: oklch(0.76 calc(0.005 * var(--chroma)) 250);
+  --text-3: oklch(0.58 calc(0.006 * var(--chroma)) 250);
+  --line-1: oklch(1 0 0 / 9%);
+  --line-2: oklch(1 0 0 / 15%);
+
+  --primary-bg: var(--text-1);
+  --primary-fg: var(--nd-0);
+
+  --accent: var(--accent-base-d);
+  --focus: var(--accent-base-d);
+  --success-fg: var(--success-base-d);
+  --success-bg: var(--success-tint-d);
+
+  --overlay: oklch(0 0 0 / 55%);
+
+  --act-fg: var(--red-fg-d);
+  --act-bg: var(--red-tint-d);
+  --act-line: var(--red-line-d);
+
+  --next-fg: var(--amber-fg-d);
+  --next-bg: var(--amber-tint-d);
+  --next-line: var(--amber-line-d);
+
+  --when-fg: var(--steel-fg-d);
+  --when-bg: var(--steel-tint-d);
+  --when-line: var(--steel-line-d);
+
+  --fyi-fg: var(--blue-fg-d);
+  --fyi-bg: var(--blue-tint-d);
+  --fyi-line: var(--blue-line-d);
+
+  /* The one flourish, and only here. Its animation lives in M8; this is its rest. */
+  --act-glow: oklch(0.55 calc(0.19 * var(--chroma)) 27 / 6%);
+  --next-glow: oklch(0.6 calc(0.14 * var(--chroma)) 68 / 5%);
+  --when-glow: transparent;
+  --fyi-glow: transparent;
+
+  --e1: inset 0 1px 0 oklch(1 0 0 / 7%);
+  --e2: inset 0 1px 0 oklch(1 0 0 / 7%), 0 2px 12px oklch(0 0 0 / 40%);
+  --e3: inset 0 1px 0 oklch(1 0 0 / 7%), 0 16px 40px oklch(0 0 0 / 55%);
+
+  --dot: oklch(1 0 0 / 4.5%);
+}
+
+/* Explicit light, mirroring the :root defaults — needed so a local data-theme="light"
+ * preview panel resets correctly when nested under a global data-theme="dark". */
+[data-theme="light"] {
+  --bg: var(--n-1);
+  --surface-1: var(--n-0);
+  --surface-2: var(--n-2);
+  --surface-3: var(--n-0);
+  --text-1: var(--n-9);
+  --text-2: var(--n-8);
+  --text-3: var(--n-7);
+  --line-1: var(--n-4);
+  --line-2: var(--n-5);
+
+  --primary-bg: var(--text-1);
+  --primary-fg: var(--surface-1);
+
+  --accent: var(--accent-base);
+  --focus: var(--accent-base);
+  --success-fg: var(--success-base);
+  --success-bg: var(--success-tint);
+
+  --overlay: oklch(0.18 0 0 / 40%);
+
+  --act-fg: var(--red-fg);
+  --act-bg: var(--red-tint);
+  --act-line: var(--red-line);
+
+  --next-fg: var(--amber-fg);
+  --next-bg: var(--amber-tint);
+  --next-line: var(--amber-line);
+
+  --when-fg: var(--steel-fg);
+  --when-bg: var(--steel-tint);
+  --when-line: var(--steel-line);
+
+  --fyi-fg: var(--blue-fg);
+  --fyi-bg: var(--blue-tint);
+  --fyi-line: var(--blue-line);
+
+  --act-glow: transparent;
+  --next-glow: transparent;
+  --when-glow: transparent;
+  --fyi-glow: transparent;
+
+  --e1: 0 1px 2px oklch(0.2 0.02 250 / 5%);
+  --e2:
+    0 1px 2px oklch(0.2 0.02 250 / 4%), 0 4px 12px oklch(0.2 0.02 250 / 6%);
+  --e3:
+    0 1px 2px oklch(0.2 0.02 250 / 5%), 0 8px 24px oklch(0.2 0.02 250 / 10%),
+    0 24px 48px oklch(0.2 0.02 250 / 8%);
+
+  --dot: oklch(0.2 0 0 / 3.5%);
+}
+
+/* ================= Wire fidelity =================
+ * One line does the colour work: every chroma channel in the file is multiplied by
+ * --chroma, so setting it to 0 gives "chroma → 0, lightness preserved" exactly. The
+ * four tiers stay distinguishable on four independent non-hue channels: tint step
+ * (act only), foreground lightness (0.40 / 0.46 / 0.52 / 0.52), label weight
+ * (600 / 600 / 500 / 500) and icon fill (filled / filled / hollow / hollow).
+ *
+ * This is deliverable 2 of the brief, live — and it replaces v1's grayscale `filter`,
+ * which was neither a wireframe nor safe for fixed elements. */
+[data-fidelity="wire"] {
+  --chroma: 0;
+
+  --r-1: 2px;
+  --r-2: 2px;
+  --r-3: 2px;
+  --r-4: 2px;
+  --r-5: 2px;
   --radius-chip: 2px;
   --radius-control: 2px;
   --radius-hero: 2px;
 
-  /* Self-targeting: /system/components nests a live `data-fidelity="wire"` preview div
-   * (not the whole html/body), and its own descendants inherit font-family straight
-   * from it. --font-mono has no dependency on next/font's generated --font-inter
-   * variable, so this resolves fine even where --font-inter isn't in scope. */
+  --e1: none;
+  --e2: none;
+  --e3: none;
+  --shadow-e1: none;
+  --shadow-e2: none;
+  --shadow-e3: none;
+
+  --act-glow: transparent;
+  --next-glow: transparent;
+  --when-glow: transparent;
+  --fyi-glow: transparent;
+
+  /* Self-targeting: /system nests a live wire preview div rather than flipping <html>,
+   * and its descendants inherit font-family straight from it. */
   font-family: var(--font-mono);
 }
 
-/* Explicit hi-fi reset — deliberately narrow. Radii and font are fidelity-only
- * properties (same at every theme), so a local data-fidelity="hi" preview panel can
- * safely reset just these two. Color and shadow are NOT reset here: those tokens are
- * theme-dependent (light vs. dark redefine them), and since [data-theme="dark"] and
- * [data-fidelity="hi"] carry equal specificity, an unconditional color reset here would
- * win over the dark theme on any element carrying both attributes (the normal case for
- * <html>) and silently break dark mode. A hi-fi-under-a-wire-ancestor panel that needs
- * accurate color would need real theme-aware tokens to reset to; §9's gates don't
- * require that nesting, so it isn't built. */
+/* Explicit hi-fi reset — deliberately narrow. Radius, chroma and font are
+ * fidelity-only (identical in both themes), so a local data-fidelity="hi" preview can
+ * safely reset exactly these. Colour and shadow are NOT reset here: those tokens are
+ * theme-dependent, and [data-theme="dark"] and [data-fidelity="hi"] carry equal
+ * specificity, so an unconditional colour reset would win over the dark theme on any
+ * element carrying both attributes — which <html> always does. */
 [data-fidelity="hi"] {
-  --radius-chip: 8px;
-  --radius-control: 12px;
-  --radius-hero: 20px;
+  --chroma: 1;
 
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 10px;
+  --r-4: 12px;
+  --r-5: 16px;
+  --radius-chip: var(--r-2);
+  --radius-control: var(--r-4);
+  --radius-hero: var(--r-5);
+
+  font-family: var(--font-sans);
 }
 
+/* ================= Base =================
+ * Inter's disambiguation set is not decoration in a building where Il1 and 0O appear
+ * in bin codes read at two metres: ss02 gives `l` a tail, cv05 gives `I` serifs, cv08
+ * flattens `1`'s top, and slashed-zero applies everywhere.
+ *
+ * Tabular figures are the ROOT DEFAULT, with one opt-out ([data-prose-num]) for deck
+ * and /system prose where proportional figures read better in a sentence. v2 inverted
+ * this and applied tabular to 52 of 404 elements, which made every ticking countdown,
+ * tier count and load triplet a coin flip. */
 body {
   background: var(--bg);
   color: var(--text-1);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss02" 1, "cv05" 1, "cv08" 1, "calt" 1;
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-variant-ligatures: no-discretionary-ligatures;
 }
 
-/* The app's fidelity attribute lives on <html>, above body — and body's own
- * font-family above always wins over whatever <html> merely inherited down to it
- * (a rule matching body directly beats one that only cascades onto it). So the swap
- * needs to target body explicitly too; a self-targeting rule alone (above) only
- * reaches /system's nested wire/hi preview divs, not the main app shell. */
+[data-prose-num] {
+  font-variant-numeric: proportional-nums slashed-zero;
+}
+
+/* Bin codes and SKUs must never form `->` or `!=`. */
+[data-mono],
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+/* The `·` separators in an all-caps eyebrow sit at cap height, not x-height. */
+[data-eyebrow] {
+  font-feature-settings: "ss02" 1, "cv05" 1, "cv08" 1, "calt" 1, "case" 1;
+}
+
+/* The app's fidelity attribute lives on <html>, above body — and a rule matching body
+ * directly beats one that only cascades onto it, so the swap needs body explicitly. */
 [data-fidelity="wire"] body {
   font-family: var(--font-mono);
 }
 
-/* Every time and count carries tabular numerals, §4.3. */
-.tnum {
-  font-variant-numeric: tabular-nums;
+/* ================= Type utilities =================
+ * One class per step, carrying size, line height, tracking, weight and optical size
+ * together, so tracking cannot be forgotten and the scale cannot be assembled ad hoc
+ * out of four separate utilities. That is what keeps craft check 1 green by
+ * construction (every node above 16px has real tracking) and check 2 honest (≤8
+ * distinct sizes, none of them over 45% of the nodes).
+ *
+ * opsz is applied per step because it is not cosmetic: at 33px, opsz 32 tightens
+ * apertures and joins enough that the hero title reads as a headline rather than as
+ * large body copy. The vendored InterVariable-latin.woff2 carries opsz 14–32. */
+@utility t-mono {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-size);
+  line-height: var(--t-mono-line);
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  font-variant-ligatures: none;
 }
 
+@utility t-eyebrow {
+  font-size: var(--t-eyebrow-size);
+  line-height: var(--t-eyebrow-line);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-variation-settings: "opsz" 14;
+  font-feature-settings: "ss02" 1, "cv05" 1, "cv08" 1, "calt" 1, "case" 1;
+}
+
+@utility t-meta {
+  font-size: var(--t-meta-size);
+  line-height: var(--t-meta-line);
+  letter-spacing: 0.005em;
+  font-weight: 500;
+  font-variation-settings: "opsz" 14;
+}
+
+@utility t-body {
+  font-size: var(--t-body-size);
+  line-height: var(--t-body-line);
+  letter-spacing: 0;
+  font-weight: 400;
+  font-variation-settings: "opsz" 16;
+}
+
+@utility t-row {
+  font-size: var(--t-row-size);
+  line-height: var(--t-row-line);
+  letter-spacing: -0.006em;
+  font-weight: 500;
+  font-variation-settings: "opsz" 19;
+}
+
+@utility t-section {
+  font-size: var(--t-section-size);
+  line-height: var(--t-section-line);
+  letter-spacing: -0.011em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 23;
+}
+
+@utility t-hero-sm {
+  font-size: var(--t-hero-sm-size);
+  line-height: var(--t-hero-sm-line);
+  letter-spacing: -0.016em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 28;
+}
+
+@utility t-hero {
+  font-size: var(--t-hero-size);
+  line-height: var(--t-hero-line);
+  letter-spacing: -0.019em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 32;
+}
+
+@utility t-finish {
+  font-size: var(--t-finish-size);
+  line-height: var(--t-finish-line);
+  letter-spacing: -0.022em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 32;
+}
+
+/* Anything whose digits change in place also needs a container sized to its widest
+ * state, or tabular figures are undone by the box reflowing around them. */
+@utility tnum {
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* The canvas texture: 1px dots at 24px pitch, painted on --bg only. Below the acuity
+ * limit at two metres, so it costs nothing there and gives the empty right side of
+ * /work at 1920 something to be. */
+@utility canvas-texture {
+  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+  background-size: var(--dot-pitch) var(--dot-pitch);
+}
+
+[data-fidelity="wire"] .canvas-texture {
+  background-image: none;
+}
 /* M12: an animated custom property, so the browser can interpolate a value (a hue) that
  * a plain `background-position` drift can't reach — this is what "hue drift via an
  * animated @property angle" (plan §7.2) means in practice. Declared with `inherits:

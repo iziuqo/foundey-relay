@@ -198,7 +198,7 @@ function Row({ row }: { row: CommandRow }) {
       {active && (
         <motion.div
           layoutId="palette-highlight"
-          transition={spring.snappy}
+          transition={spring.layout}
           className="absolute inset-0 -z-10 rounded-(--radius-control) bg-(--surface-2)"
         />
       )}

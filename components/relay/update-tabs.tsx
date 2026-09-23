@@ -53,7 +53,7 @@ export function UpdateTabs({ tabs, active, onChange }: UpdateTabsProps) {
           {active === tab.id && (
             <motion.div
               layoutId="update-tab-pill"
-              transition={spring.snappy}
+              transition={spring.layout}
               className="absolute inset-0 -z-10 rounded-(--radius-chip) bg-(--surface-1) shadow-(--shadow-e1)"
             />
           )}

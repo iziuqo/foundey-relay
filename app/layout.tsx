@@ -1,11 +1,30 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
+import { IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
+// Inter is vendored rather than pulled from next/font/google because Google's build
+// does not expose the `opsz` axis, and per-step optical sizing is what makes the 33px
+// hero title read as a headline instead of large body copy (v3 plan §4.1). The file is
+// a latin subset carrying opsz 14–32 and wght 100–900 in 72KB — see app/fonts/README.md
+// for the subsetting command and the exact unicode range.
+const inter = localFont({
+  src: "./fonts/InterVariable-latin.woff2",
   variable: "--font-inter",
+  display: "swap",
+  weight: "100 900",
+  adjustFontFallback: "Arial",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
+});
+
+// Identifiers only — order numbers, bin codes, door numbers, keyboard hints. Plex over
+// Geist Mono deliberately: Geist would read as Vercel cosplay, and Plex is an
+// industrial face with a native slashed zero and unambiguous Il1.
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -41,11 +60,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" data-fidelity="hi" suppressHydrationWarning>
+    // The font variables go on <html>, not <body>: --font-sans in globals.css is
+    // declared on :root and references --font-inter, and a custom property that
+    // references an undefined property at the element where it is *declared* becomes
+    // invalid at computed-value time. With the classes on <body> the whole stack
+    // resolved to the initial font (Times), silently.
+    <html
+      lang="en"
+      className={`${inter.variable} ${plexMono.variable}`}
+      data-theme="light"
+      data-fidelity="hi"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
-      <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

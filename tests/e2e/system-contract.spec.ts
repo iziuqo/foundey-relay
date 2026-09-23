@@ -47,12 +47,38 @@ test.describe("G1 size contract", () => {
   });
 
   test("h-12 (a Tailwind spacing multiple) is 48px, not redefined by the token layer", async ({ page }) => {
+    // The token layer adds semantic sizes (--h-lg) and never rewrites the framework's
+    // own scale, so a bare h-12 must still be 48px. v1 remapped Tailwind's spacing keys
+    // and made every size in the app wrong at once (v1 README §5.1).
     await page.goto("/system");
-    const label = page.getByText("12 (a control's md height)");
-    await expect(label).toBeVisible();
-    const box = await label.locator("xpath=preceding-sibling::div").boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.height).toBeCloseTo(48, 0);
+    const height = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.className = "h-12 w-12";
+      document.body.append(probe);
+      const measured = probe.getBoundingClientRect().height;
+      probe.remove();
+      return measured;
+    });
+    expect(height).toBeCloseTo(48, 0);
+  });
+
+  test("the primary action is filled with --text-1, never the accent", async ({ page }) => {
+    // Craft check 8, at its sharpest point: v2's indigo fill was the highest-chroma
+    // object on /work, sitting inside the highest tier, which broke the plan's own rule
+    // that loudness follows rank.
+    await page.goto("/system");
+    const [fill, ink] = await page.evaluate(() => {
+      const probe = document.createElement("span");
+      document.body.append(probe);
+      const read = (token: string) => {
+        probe.style.backgroundColor = `var(${token})`;
+        return getComputedStyle(probe).backgroundColor;
+      };
+      const values = [read("--primary-bg"), read("--text-1")];
+      probe.remove();
+      return values;
+    });
+    expect(fill).toBe(ink);
   });
 
   test("all button variants are present and labeled", async ({ page }) => {

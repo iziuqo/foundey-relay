@@ -33,64 +33,12 @@ describe("contrastBetween", () => {
     expect(ratio!).toBeGreaterThanOrEqual(4.5);
   });
 
-  // Regression coverage for a real bug the G4 axe gate caught: the primary Button used
-  // to be bg-(--accent) text-white. --accent is tuned for thin uses (rings/text/links),
-  // not a solid fill's contrast — it fails white text in dark (2.03:1) and wire (3.79:1).
-  // --accent-solid/--accent-solid-fg (app/globals.css) is the fix; these pin it at 4.5:1.
-  it("--accent-solid-fg on --accent-solid meets AA in every theme/fidelity combination", () => {
-    const white = "oklch(1 0 0)";
-    const lightAndDarkAccentSolid = "oklch(0.535 0.19 275)"; // --indigo-9, both themes
-    const wireAccentSolid = "oklch(0.44 0.006 264)"; // --gray-11
-
-    expect(contrastBetween(white, lightAndDarkAccentSolid)!).toBeGreaterThanOrEqual(4.5);
-    expect(contrastBetween(white, wireAccentSolid)!).toBeGreaterThanOrEqual(4.5);
-
-    // The bug, pinned so it can't silently come back: --accent itself is NOT safe as a
-    // solid fill in dark or wire, which is exactly why it needs its own --accent-solid.
-    const darkAccent = "oklch(0.78 0.1 275)"; // --indigo-6
-    const wireAccent = "oklch(0.61 0.006 264)"; // --gray-9
-    expect(contrastBetween(white, darkAccent)!).toBeLessThan(4.5);
-    expect(contrastBetween(white, wireAccent)!).toBeLessThan(4.5);
-  });
-
-  // Another real bug the G4 axe gate caught: wire's --when-fg/--fyi-fg were gray-10 on
-  // gray-2, 4.43:1 — a hair under AA. Bumped to gray-11 (app/globals.css); pinned here.
-  it("wire --when-fg/--fyi-fg (gray-11 on gray-2) meets AA", () => {
-    const grayFg = "oklch(0.44 0.006 264)"; // --gray-11
-    const grayBg = "oklch(0.977 0.001 264)"; // --gray-2
-    expect(contrastBetween(grayFg, grayBg)!).toBeGreaterThanOrEqual(4.5);
-
-    const oldGrayFg = "oklch(0.556 0.006 264)"; // --gray-10, the bug
-    expect(contrastBetween(oldGrayFg, grayBg)!).toBeLessThan(4.5);
-  });
-
-  // Phase 6's G4 axe runs started intermittently flagging --text-2 against
-  // --surface-1/--surface-3 (the assign popover's role/count text, avatar initials) at
-  // ratios as low as 1.04:1 — well under AA. Chasing it by eye against a static
-  // screenshot found the tokens themselves fine; the actual cause was two Phase 6
-  // animations (the popover's own opacity fade-in, and the theme toggle's
-  // document.startViewTransition hop) landing their final state some tens of
-  // milliseconds *after* the click axe's analyze() ran on, so axe was blending a
-  // mid-transition frame rather than reading the settled UI — axe factors an element's
-  // current opacity into its contrast math, so a still-fading-in popover reports
-  // whatever partial blend it happens to be at that instant. Fixed in the two specs
-  // (tests/e2e/system-a11y.spec.ts, tests/e2e/team-contract.spec.ts) by waiting for the
-  // real settled state before analyzing — not here, since there was never a bad token
-  // pairing to fix. These pin the steady-state ratios so a *real* future regression in
-  // either token still fails loudly, without re-introducing that false alarm.
-  it("--text-2 on --surface-1 and --surface-3 meets AA at rest, light and dark", () => {
-    const lightText2 = "oklch(0.44 0.006 264)"; // --gray-11
-    const lightSurface1 = "oklch(1 0 0)";
-    const lightSurface3 = "oklch(0.951 0.002 264)"; // --gray-3
-    expect(contrastBetween(lightText2, lightSurface1)!).toBeGreaterThanOrEqual(4.5);
-    expect(contrastBetween(lightText2, lightSurface3)!).toBeGreaterThanOrEqual(4.5);
-
-    const darkText2 = "oklch(0.82 0.004 264)";
-    const darkSurface1 = "oklch(0.21 0.004 264)";
-    const darkSurface3 = "oklch(0.28 0.005 264)";
-    expect(contrastBetween(darkText2, darkSurface1)!).toBeGreaterThanOrEqual(4.5);
-    expect(contrastBetween(darkText2, darkSurface3)!).toBeGreaterThanOrEqual(4.5);
-  });
+  // The token-by-token contrast pins that used to live here moved to
+  // tests/unit/tokens.test.ts in v3 M1. They asserted v2's literal values (--indigo-9
+  // as a button fill, wire's hand-written gray table), which no longer exist: the
+  // primary button is now --text-1 filled and wire is a chroma multiplier rather than a
+  // second palette. The new tests read app/globals.css and resolve it, so they cannot
+  // go stale the way retyped literals did. What stays here is the color math itself.
 });
 
 describe("parseLab / labToLinearSrgb", () => {

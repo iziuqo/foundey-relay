@@ -32,7 +32,7 @@ export function ItemShell({ itemId, tier, variant, className }: ItemShellProps) 
     <motion.div
       layoutId={`item-shell-${itemId}`}
       layout
-      transition={spring.snappy}
+      transition={spring.layout}
       aria-hidden
       className={cn(
         "pointer-events-none absolute inset-0 -z-10",
