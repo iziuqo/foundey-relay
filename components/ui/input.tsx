@@ -1,13 +1,8 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/cn";
+import { CONTROL, DISABLED, FOCUS, type ControlSize } from "./sizing";
 
-const sizeClasses = {
-  sm: "h-(--size-control-sm) px-2.5 text-(length:--text-meta)",
-  md: "h-(--size-control-md) px-3 text-(length:--text-body)",
-  lg: "h-(--size-control-lg) px-3.5 text-(length:--text-body)",
-} as const;
-
-export type InputSize = keyof typeof sizeClasses;
+export type InputSize = ControlSize;
 
 export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   size?: InputSize;
@@ -19,22 +14,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { size = "md", invalid = false, forceState, disabled, className, ...props },
   ref,
 ) {
+  const control = CONTROL[size];
   return (
     <input
       ref={ref}
       disabled={disabled}
       aria-invalid={invalid || undefined}
       data-force={forceState}
+      data-control={size}
       className={cn(
-        "w-full rounded-(--radius-control) border bg-(--surface-1) text-(--text-1) placeholder:text-(--text-3)",
-        "border-(--border-1) hover:border-(--border-2) data-[force=hover]:border-(--border-2)",
-        "outline-none transition-[border-color,box-shadow] duration-[90ms] ease-out",
-        "focus-visible:border-(--focus) focus-visible:ring-2 focus-visible:ring-(--focus)",
-        "data-[force=focus]:border-(--focus) data-[force=focus]:ring-2 data-[force=focus]:ring-(--focus)",
-        "disabled:opacity-50 disabled:pointer-events-none",
-        invalid &&
-          "border-(--act-border) focus-visible:border-(--act-fg) focus-visible:ring-(--act-fg) data-[force=focus]:border-(--act-fg) data-[force=focus]:ring-(--act-fg)",
-        sizeClasses[size],
+        "w-full border bg-(--surface-1) text-(--text-1) placeholder:text-(--text-2) placeholder:opacity-70",
+        "border-(--line-2) hover:border-(--text-3) data-[force=hover]:border-(--text-3)",
+        "transition-[border-color] duration-(--dur-instant) ease-(--ease-out) motion-reduce:transition-none",
+        control.height,
+        control.radius,
+        control.text,
+        control.padding,
+        FOCUS,
+        DISABLED,
+        // An invalid field carries the Act-now line colour, because an error is the one
+        // state where a form element is allowed to borrow a tier's hue.
+        invalid && "border-(--act-line) focus-visible:outline-(--act-fg) data-[force=focus]:outline-(--act-fg)",
         className,
       )}
       {...props}

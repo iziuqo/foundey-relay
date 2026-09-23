@@ -1,20 +1,25 @@
 import { forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { CONTROL, DISABLED, FOCUS, type ControlSize } from "./sizing";
 
-const sizeClasses = {
-  sm: "h-(--size-control-sm) pl-2.5 pr-8 text-(length:--text-meta)",
-  md: "h-(--size-control-md) pl-3 pr-9 text-(length:--text-body)",
-  lg: "h-(--size-control-lg) pl-3.5 pr-10 text-(length:--text-body)",
+// The chevron's inset mirrors the control's own padding, so the gap on the right of the
+// glyph matches the gap on the left of the text.
+const chevron = {
+  xs: "size-(--icon-sm) right-2",
+  sm: "size-(--icon-sm) right-2.5",
+  md: "size-(--icon-md) right-3",
+  lg: "size-(--icon-lg) right-4",
 } as const;
 
-const iconPosition = {
-  sm: "size-(--size-icon-sm) right-2",
-  md: "size-(--size-icon-md) right-2.5",
-  lg: "size-(--size-icon-lg) right-3",
+const textPadding = {
+  xs: "pl-2.5 pr-7",
+  sm: "pl-3 pr-8",
+  md: "pl-3.5 pr-9",
+  lg: "pl-5 pr-11",
 } as const;
 
-export type SelectSize = keyof typeof sizeClasses;
+export type SelectSize = ControlSize;
 
 export type SelectProps = Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> & {
   size?: SelectSize;
@@ -28,20 +33,24 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   { size = "md", forceState, disabled, className, wrapperClassName, children, ...props },
   ref,
 ) {
+  const control = CONTROL[size];
   return (
     <span className={cn("relative inline-block w-full", wrapperClassName)}>
       <select
         ref={ref}
         disabled={disabled}
         data-force={forceState}
+        data-control={size}
         className={cn(
-          "w-full appearance-none rounded-(--radius-control) border bg-(--surface-1) text-(--text-1)",
-          "border-(--border-1) hover:border-(--border-2) data-[force=hover]:border-(--border-2)",
-          "outline-none transition-[border-color,box-shadow] duration-[90ms] ease-out",
-          "focus-visible:border-(--focus) focus-visible:ring-2 focus-visible:ring-(--focus)",
-          "data-[force=focus]:border-(--focus) data-[force=focus]:ring-2 data-[force=focus]:ring-(--focus)",
-          "disabled:opacity-50 disabled:pointer-events-none",
-          sizeClasses[size],
+          "w-full appearance-none border bg-(--surface-1) text-(--text-1)",
+          "border-(--line-2) hover:border-(--text-3) data-[force=hover]:border-(--text-3)",
+          "transition-[border-color] duration-(--dur-instant) ease-(--ease-out) motion-reduce:transition-none",
+          control.height,
+          control.radius,
+          control.text,
+          textPadding[size],
+          FOCUS,
+          DISABLED,
           className,
         )}
         {...props}
@@ -50,7 +59,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
       </select>
       <ChevronDown
         aria-hidden
-        className={cn("pointer-events-none absolute top-1/2 -translate-y-1/2 text-(--text-3)", iconPosition[size])}
+        className={cn("pointer-events-none absolute top-1/2 -translate-y-1/2 text-(--text-2)", chevron[size])}
       />
     </span>
   );

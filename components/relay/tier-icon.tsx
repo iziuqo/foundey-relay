@@ -12,7 +12,7 @@ export interface TierIconProps extends Omit<React.SVGAttributes<SVGSVGElement>, 
 }
 
 export function TierIcon({ tier, safety, className, ...props }: TierIconProps) {
-  const sizeClass = cn("size-(--size-icon-md) shrink-0", className);
+  const sizeClass = cn("size-(--icon-lg) shrink-0", className);
 
   if (tier === "now") {
     return (

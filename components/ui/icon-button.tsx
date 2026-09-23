@@ -1,20 +1,21 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/cn";
-
-const sizeClasses = {
-  sm: "size-(--size-control-sm) [&_svg]:size-(--size-icon-sm)",
-  md: "size-(--size-control-md) [&_svg]:size-(--size-icon-md)",
-  lg: "size-(--size-control-lg) [&_svg]:size-(--size-icon-lg)",
-} as const;
+import { CONTROL, DISABLED, FOCUS, PRESS, TAP, type ControlSize } from "./sizing";
 
 const variantClasses = {
-  ghost:
-    "bg-transparent text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1) active:bg-(--surface-3) data-[force=hover]:bg-(--surface-2) data-[force=hover]:text-(--text-1) data-[force=active]:bg-(--surface-3)",
-  secondary:
-    "bg-(--surface-2) text-(--text-1) border border-(--border-1) hover:bg-(--surface-3) active:bg-(--surface-3) data-[force=hover]:bg-(--surface-3) data-[force=active]:bg-(--surface-3)",
+  ghost: [
+    "bg-transparent text-(--text-2)",
+    "hover:bg-(--surface-2) hover:text-(--text-1) active:bg-(--surface-2)",
+    "data-[force=hover]:bg-(--surface-2) data-[force=hover]:text-(--text-1) data-[force=active]:bg-(--surface-2)",
+  ].join(" "),
+  secondary: [
+    "bg-(--surface-1) text-(--text-1) border border-(--line-2)",
+    "hover:bg-(--surface-2) active:bg-(--surface-2)",
+    "data-[force=hover]:bg-(--surface-2) data-[force=active]:bg-(--surface-2)",
+  ].join(" "),
 } as const;
 
-export type IconButtonSize = keyof typeof sizeClasses;
+export type IconButtonSize = ControlSize;
 export type IconButtonVariant = keyof typeof variantClasses;
 
 export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -29,20 +30,25 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
   { size = "md", variant = "ghost", forceState, disabled, className, children, ...props },
   ref,
 ) {
+  const control = CONTROL[size];
   return (
     <button
       ref={ref}
       type={props.type ?? "button"}
       disabled={disabled}
       data-force={forceState}
+      data-control={size}
       className={cn(
-        "inline-flex items-center justify-center rounded-(--radius-control)",
-        "transition-[background-color,color,transform] duration-[90ms] ease-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg)",
-        "data-[force=focus]:outline-none data-[force=focus]:ring-2 data-[force=focus]:ring-(--focus) data-[force=focus]:ring-offset-2 data-[force=focus]:ring-offset-(--bg)",
-        "active:scale-[0.98] data-[force=active]:scale-[0.98]",
-        "disabled:opacity-50 disabled:pointer-events-none",
-        sizeClasses[size],
+        "inline-flex items-center justify-center",
+        // Square, so its height still comes from the same contract entry as the text
+        // buttons it shares a row with.
+        control.square,
+        control.radius,
+        control.icon,
+        FOCUS,
+        PRESS,
+        DISABLED,
+        TAP,
         variantClasses[variant],
         className,
       )}

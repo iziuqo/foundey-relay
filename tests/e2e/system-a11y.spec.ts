@@ -45,8 +45,23 @@ test.describe("G4 accessibility", () => {
     const firstButton = page.getByRole("button", { name: "Mark done" }).first();
     await firstButton.focus();
     await expect(firstButton).toBeFocused();
-    const outline = await firstButton.evaluate((el) => getComputedStyle(el).boxShadow);
-    expect(outline).not.toBe("none");
+    // Focus is an `outline`, not a Tailwind `ring`. A ring is a box-shadow whose offset
+    // has to be painted in a background colour, which is wrong the moment a control sits
+    // on a tinted surface — a white halo around a button inside the Act-now hero. An
+    // outline follows the border radius and needs no background to match.
+    const focusRing = await firstButton.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return {
+        style: style.outlineStyle,
+        width: parseFloat(style.outlineWidth),
+        offset: parseFloat(style.outlineOffset),
+        color: style.outlineColor,
+      };
+    });
+    expect(focusRing.style).not.toBe("none");
+    expect(focusRing.width).toBeGreaterThanOrEqual(2);
+    expect(focusRing.offset).toBeGreaterThanOrEqual(2);
+    expect(focusRing.color).not.toBe("rgba(0, 0, 0, 0)");
   });
 
   test("icon-only controls have an accessible name", async ({ page }) => {

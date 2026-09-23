@@ -610,6 +610,27 @@ samp {
   font-variant-numeric: tabular-nums slashed-zero;
 }
 
+/* Handheld hit area, §5.5: at 390 every interactive element needs 48×48, but the
+ * visual box must stay at its contract height or the row's rhythm breaks. So the
+ * target grows, not the box — a transparent pseudo-element centred on the control.
+ * Scoped to coarse pointers and narrow viewports, so a mouse user's hover targets stay
+ * exactly the size they look. v2 shipped 14 of 31 targets under 44px at 390 (measured). */
+@media (pointer: coarse), (width < 48rem) {
+  .tap-48 {
+    position: relative;
+  }
+
+  .tap-48::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 48px);
+    height: max(100%, 48px);
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* The canvas texture: 1px dots at 24px pitch, painted on --bg only. Below the acuity
  * limit at two metres, so it costs nothing there and gives the empty right side of
  * /work at 1920 something to be. */
