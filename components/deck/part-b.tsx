@@ -1,136 +1,136 @@
 "use client";
 
-import Link from "next/link";
 import { SlideFrame, type SlideProps } from "./slide-frame";
-import { SlideTitle, SlideBody, NumberedRow } from "./deck-kit";
+import { SlideTitle, Lead, Body, Label, Split, Column, ThreeUpSlide, ListSlide, Stat, RuleRow, Legend, rich } from "./deck-kit";
+import { DeviceFrame, Annotation } from "./device-frame";
 import { MiniWork } from "./mini-work";
-import { MiniTeam } from "./mini-team";
+import { MiniTeam, TEAM_DESIGN_WIDTH } from "./mini-team";
+import * as copy from "./deck-copy";
 
-function HiFiProduct({ n, total }: SlideProps) {
+const EYEBROW = "Part B · Beyond the hour · Optional";
+
+/** Slide 11 is slide 2's mirror, inverted (§8.4): the deck's only theme flip, so the
+ * boundary is unmissable in a PDF thumbnail grid. Built as `data-theme="dark"`, not
+ * hand-swapped colors, so its contrast comes out of the same tokens as every other slide. */
+function DividerB({ n, total }: SlideProps) {
   return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>The hi-fi product</SlideTitle>
-      <div className="grid h-full grid-cols-2 gap-6 pb-2">
-        <MiniWork className="h-full rounded-(--radius-hero) border border-(--border-1) shadow-(--shadow-e1)" />
-        <MiniTeam className="h-full rounded-(--radius-hero) border border-(--border-1) shadow-(--shadow-e1)" />
+    <SlideFrame n={n} total={total} theme="dark" band>
+      <div className="flex h-full flex-col justify-center gap-10">
+        <SlideTitle size={1}>{copy.dividerB.title}</SlideTitle>
+        <Lead className="max-w-[44ch]">{rich(copy.dividerB.lead)}</Lead>
+        <Label>{copy.dividerB.label}</Label>
       </div>
     </SlideFrame>
   );
 }
 
-const MOTION_ROWS = [
-  "Done: the check draws, the next item rises into the hero with a shared element morph, the counter ticks, undo counts down.",
-  "The countdown arc and truck tracks advance every simulated minute — digits roll, nothing pulses.",
-  "One rule for all fourteen moments: show where something went. Nothing loops except the all clear aurora.",
-];
+/** Dark on a light slide, so the one flourish that only exists in dark — the hero's
+ * glow — is actually seen by the reviewers who open the light default (advisor §11).
+ * Laid out at 1600 wide, not 1408: at 1:1 the frame clipped after the first Act now row,
+ * and the second legend describes rows nobody could see. */
+function HiFiProduct({ n, total }: SlideProps) {
+  return (
+    <SlideFrame n={n} total={total} eyebrow={EYEBROW}>
+      <div className="flex h-full flex-col">
+        <div className="grid grid-cols-12 items-end gap-x-6">
+          <SlideTitle className="col-span-5">{copy.hifi.title}</SlideTitle>
+          <Lead className="col-span-7">{rich(copy.hifi.lead)}</Lead>
+        </div>
+        <div className="relative mt-8">
+          <DeviceFrame width={1408} height={540} designWidth={1600} theme="dark">
+            <MiniWork />
+          </DeviceFrame>
+          <Annotation n={1} className="top-[101px] left-[21px]" />
+          <Annotation n={2} className="top-[422px] left-[4px]" />
+          <Annotation n={3} className="top-[46px] left-[1058px]" />
+        </div>
+        <Legend items={copy.hifi.legend} className="mt-auto" />
+      </div>
+    </SlideFrame>
+  );
+}
 
 function Motion({ n, total }: SlideProps) {
   return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>Motion</SlideTitle>
-      <div className="flex flex-col gap-8">
-        {MOTION_ROWS.map((row, i) => (
-          <NumberedRow key={row} n={i + 1}>
-            {row}
-          </NumberedRow>
-        ))}
-      </div>
-      <p className="mt-10 text-(length:--text-meta) text-(--text-2)">
-        Replay the real &ldquo;done&rdquo; choreography at{" "}
-        <Link href="/system/patterns" className="text-(--accent) underline underline-offset-2">
-          /system/patterns
-        </Link>
-        .
-      </p>
+    <SlideFrame n={n} total={total} eyebrow={EYEBROW}>
+      <Split
+        left={
+          <div className="flex h-full flex-col">
+            <SlideTitle>{copy.motion.title}</SlideTitle>
+            <Lead className="mt-6">{rich(copy.motion.lead)}</Lead>
+            <Body className="mt-auto">{rich(copy.motion.body)}</Body>
+          </div>
+        }
+        right={
+          <div className="flex h-full flex-col justify-center gap-12">
+            <Stat value={copy.motion.stat.value} label={copy.motion.stat.label} />
+            <div>
+              {copy.motion.beats.map((beat, i) => (
+                <RuleRow key={beat} n={i + 1} className="grid-cols-[48px_1fr] py-5">
+                  <p className="t-deck-lead text-(--text-1)">{beat}</p>
+                </RuleRow>
+              ))}
+            </div>
+          </div>
+        }
+      />
     </SlideFrame>
   );
 }
 
 function ManagerEthics({ n, total }: SlideProps) {
   return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>The manager view, and the line it doesn&rsquo;t cross</SlideTitle>
-      <SlideBody>
-        A per person stopwatch reads as surveillance, not help. The board never times a person —
-        only an item, and only when that item signals a problem.
-      </SlideBody>
-      <div className="mt-8 flex flex-col gap-8">
-        <NumberedRow n={1}>
-          &ldquo;On: {"{item title}"}&rdquo; carries that item&rsquo;s own tier icon — never a
-          hardcoded Act now octagon regardless of what the person is doing.
-        </NumberedRow>
-        <NumberedRow n={2}>
-          &ldquo;Open 52 min&rdquo; appears on an item only when it may need help — never a
-          running clock next to every name on the board.
-        </NumberedRow>
-      </div>
+    <SlideFrame n={n} total={total} eyebrow={EYEBROW}>
+      <Split
+        leftSpan={5}
+        left={
+          <div className="flex h-full flex-col">
+            <SlideTitle>{copy.manager.title}</SlideTitle>
+            <Lead className="mt-6">{rich(copy.manager.lead)}</Lead>
+            <Legend items={copy.manager.legend} stacked className="mt-auto" />
+          </div>
+        }
+        right={
+          <div className="relative">
+            <DeviceFrame width={806} height={708} designWidth={TEAM_DESIGN_WIDTH - 200}>
+              <MiniTeam />
+            </DeviceFrame>
+            <Annotation n={1} className="top-[300px] left-[24px]" />
+            <Annotation n={2} className="top-[553px] left-[754px]" />
+            <Annotation n={3} className="top-[553px] left-[14px]" />
+          </div>
+        }
+      />
     </SlideFrame>
   );
 }
-
-const GATES = [
-  { g: "G4", d: "axe, zero violations, at every theme × fidelity state — keyboard-only run of the demo script" },
-  { g: "G6", d: "Reduced motion: every transform collapses to instant; done and undo still complete" },
-  { g: "G3", d: "No computed font under 14px outside kbd; hero why and “On:” never clip" },
-];
 
 function Accessibility({ n, total }: SlideProps) {
   return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>Accessibility</SlideTitle>
-      <SlideBody>Three gates that fail the build, not a checklist read once at the end.</SlideBody>
-      <div className="mt-8 flex flex-col gap-6">
-        {GATES.map(({ g, d }) => (
-          <div key={g} className="flex gap-6 border-b border-(--border-1) pb-6 last:border-0">
-            <span className="w-16 shrink-0 text-(length:--text-deck-3) leading-(--leading-deck-3) font-semibold text-(--accent)">
-              {g}
-            </span>
-            <p className="text-(length:--text-body) leading-(--leading-body) text-(--text-1)">{d}</p>
-          </div>
+    <SlideFrame n={n} total={total} eyebrow={EYEBROW}>
+      <ThreeUpSlide title={copy.accessibility.title} lead={rich(copy.accessibility.lead)}>
+        {copy.accessibility.columns.map((col, i) => (
+          <Column key={col.label} mark={copy.accessibility.marks[i]} label={col.label} title={col.title}>
+            {col.body}
+          </Column>
         ))}
-      </div>
-    </SlideFrame>
-  );
-}
-
-function HandoffWireframe({ n, total }: SlideProps) {
-  return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>Handoff at shift end</SlideTitle>
-      <p className="mb-6 max-w-2xl text-(length:--text-body) text-(--text-2)">
-        An idea from Tiimo&rsquo;s end of day review — a 16:30 handoff that lists what&rsquo;s
-        still open and passes it to the next shift in one action. Wireframe only; not built (§12).
-      </p>
-      <div className="flex flex-col gap-3 rounded-(--radius-hero) border border-dashed border-(--border-2) p-6">
-        <div className="h-8 w-56 rounded-(--radius-control) bg-(--surface-3)" />
-        <div className="h-16 rounded-(--radius-control) bg-(--surface-2)" />
-        <div className="h-16 rounded-(--radius-control) bg-(--surface-2)" />
-        <div className="h-10 w-40 self-end rounded-(--radius-control) bg-(--surface-3)" />
-      </div>
+      </ThreeUpSlide>
     </SlideFrame>
   );
 }
 
 function NextSteps({ n, total }: SlideProps) {
   return (
-    <SlideFrame eyebrow="Beyond the hour" slideNumber={n} totalSlides={total} optional>
-      <SlideTitle>Next steps</SlideTitle>
-      <div className="flex flex-col gap-8">
-        <NumberedRow n={1}>
-          Independent review (G9): a fresh session drives the preview against this plan and
-          writes up its own verdict before anything merges.
-        </NumberedRow>
-        <NumberedRow n={2}>
-          Cut over to `main`, rebase and merge from the project owner&rsquo;s account, so Vercel
-          keeps deploying it.
-        </NumberedRow>
-        <NumberedRow n={3}>
-          Stretch: push the final screens and the design system to Figma through the Figma MCP —
-          generated from the app, not maintained by hand.
-        </NumberedRow>
-      </div>
+    <SlideFrame n={n} total={total} eyebrow={EYEBROW}>
+      <ListSlide title={copy.next.title} lead={rich(copy.next.lead)}>
+        {copy.next.columns.map((col) => (
+          <Column key={col.label} label={col.label} title={col.title}>
+            {col.body}
+          </Column>
+        ))}
+      </ListSlide>
     </SlideFrame>
   );
 }
 
-export const partB = [HiFiProduct, Motion, ManagerEthics, Accessibility, HandoffWireframe, NextSteps];
+export const partB = [DividerB, HiFiProduct, Motion, ManagerEthics, Accessibility, NextSteps];

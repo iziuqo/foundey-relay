@@ -215,16 +215,6 @@
   --text-kbd: var(--t-mono-size);
   --leading-kbd: var(--t-mono-line);
 
-  /* ---- Deck type scale. M10 owns this; left at the v2 values until then. ---- */
-  --text-deck-1: 4rem;
-  --leading-deck-1: 4.5rem;
-  --text-deck-2: 2.5rem;
-  --leading-deck-2: 2.75rem;
-  --text-deck-3: 1.875rem;
-  --leading-deck-3: 2.25rem;
-  --text-deck-4: 1.375rem;
-  --leading-deck-4: 1.875rem;
-
   /* ================= Geometry ================= */
   /* Radius is a function of height — r = round(h × 0.28), snapped to this ladder —
    * not a constant. v2 computed r12 on everything from a 28px pill to a 48px button. */
@@ -663,6 +653,70 @@ samp {
   letter-spacing: -0.022em;
   font-weight: 600;
   font-variation-settings: "opsz" 32;
+}
+
+/* ---- Deck type scale (ADVISOR-craft §8.1). ----
+ * Separate from the app's because the viewing distance is a room, or a PDF at 40cm, and
+ * it lives on the fixed 1600×900 slide canvas, so these are px on purpose: the deck is
+ * scaled as a picture, never reflowed. Same bundling as the t-* steps above — size, line,
+ * tracking, weight and opsz in one utility, so tracking cannot be forgotten. */
+@utility t-deck-eyebrow {
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-variation-settings: "opsz" 14;
+  font-feature-settings: "ss02" 1, "cv05" 1, "cv08" 1, "calt" 1, "case" 1;
+}
+
+@utility t-deck-h1 {
+  font-size: 72px;
+  line-height: 72px;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 32;
+}
+
+@utility t-deck-h2 {
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 32;
+}
+
+@utility t-deck-lead {
+  font-size: 26px;
+  line-height: 36px;
+  letter-spacing: -0.008em;
+  font-weight: 400;
+  font-variation-settings: "opsz" 26;
+}
+
+@utility t-deck-body {
+  font-size: 20px;
+  line-height: 30px;
+  letter-spacing: -0.004em;
+  font-weight: 400;
+  font-variation-settings: "opsz" 20;
+}
+
+@utility t-deck-caption {
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: 0.002em;
+  font-weight: 500;
+  font-variation-settings: "opsz" 14;
+}
+
+@utility t-deck-stat {
+  font-size: 88px;
+  line-height: 80px;
+  letter-spacing: -0.022em;
+  font-weight: 600;
+  font-variation-settings: "opsz" 32;
+  font-variant-numeric: tabular-nums slashed-zero;
 }
 
 /* Anything whose digits change in place also needs a container sized to its widest
@@ -1414,13 +1468,13 @@ samp {
   }
 }
 
-/* §6.8 /deck/print: one 1280×720 slide per page when a browser prints the route.
+/* §8 /deck/print: one 1600×900 slide per page when a browser prints the route.
  * scripts/export-deck.mjs deliberately does not rely on these rules — Chromium didn't
  * honor break-after reliably at this page size (see that script's header), so it
  * composes the PDF from one screenshot per slide instead. */
 @media print {
   @page {
-    size: 1280px 720px;
+    size: 1600px 900px;
     margin: 0;
   }
 
@@ -1431,4 +1485,21 @@ samp {
   [data-deck-print-slide]:last-child {
     break-after: auto;
   }
+}
+
+/* §8.3 abstract the context, render the subject. A slide embed wraps a real screen in
+ * [data-deck-abstract]; components/deck/abstract.tsx tags every element that owns text
+ * outside a [data-deck-focus] subtree with [data-ghost], and this turns the text into a
+ * bar of the same box. CSS cannot select a text node, which is the only reason a client
+ * component is involved at all. Structure (rows, rules, surfaces) stays exactly as
+ * rendered — that is what makes the one live subject read as the subject. */
+[data-deck-abstract] [data-ghost] {
+  color: transparent !important;
+  background: color-mix(in oklab, var(--text-1) 16%, transparent) !important;
+  border-radius: 4px;
+  text-shadow: none;
+}
+
+[data-deck-abstract] svg:not([data-deck-focus] svg) {
+  opacity: 0.3;
 }

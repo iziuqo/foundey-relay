@@ -14,6 +14,7 @@ function indexFromHash(): number {
 
 export function DeckShell() {
   const [index, setIndex] = useState(0);
+  const [ready, setReady] = useState(false);
   const [scale, setScale] = useState(0.5);
   const containerRef = useRef<HTMLElement>(null);
 
@@ -23,6 +24,7 @@ export function DeckShell() {
     // markup whenever the URL carries a hash other than #1.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time correction from the URL hash after mount, not a state sync loop
     setIndex(indexFromHash());
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -37,8 +39,10 @@ export function DeckShell() {
   }, []);
 
   useEffect(() => {
-    window.history.replaceState(null, "", `#${index + 1}`);
-  }, [index]);
+    // Not before the hash has been read: writing `#1` first would overwrite the very
+    // `#11` the visitor arrived with (and did, under StrictMode's double-run of effects).
+    if (ready) window.history.replaceState(null, "", `#${index + 1}`);
+  }, [index, ready]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -66,15 +70,15 @@ export function DeckShell() {
     <div className="flex h-screen w-screen overflow-hidden bg-(--bg)">
       <nav
         aria-label="Slides"
-        className="flex w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r border-(--border-1) p-4"
+        className="flex w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r border-(--line-1) p-4"
       >
-        <Link href="/" className="text-(length:--text-meta) font-medium text-(--text-2) hover:text-(--text-1)">
+        <Link href="/" className="t-meta text-(--text-2) hover:text-(--text-1)">
           ← Relay
         </Link>
         {(["A", "B"] as const).map((part) => (
           <div key={part} className="flex flex-col gap-1">
-            <p className="px-2 text-(length:--text-kbd) leading-(length:--leading-kbd) font-semibold tracking-wide text-(--text-2) uppercase">
-              {part === "A" ? "The one hour answer" : "Beyond the hour"}
+            <p className="t-eyebrow px-2 text-(--text-2)">
+              {part === "A" ? "Part A · The one hour answer" : "Part B · Beyond the hour"}
             </p>
             {deckSlides.map((s, i) =>
               s.part === part ? (
@@ -84,7 +88,7 @@ export function DeckShell() {
                   onClick={() => setIndex(i)}
                   aria-current={i === index ? "true" : undefined}
                   className={cn(
-                    "rounded-(--radius-control) px-2 py-1.5 text-left text-(length:--text-meta) transition-colors",
+                    "t-meta rounded-(--r-2) px-2 py-1.5 text-left transition-colors",
                     i === index
                       ? "bg-(--surface-2) font-medium text-(--text-1)"
                       : "text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1)",
@@ -100,7 +104,7 @@ export function DeckShell() {
         ))}
         <Link
           href="/deck/print"
-          className="mt-auto rounded-(--radius-control) border border-(--border-1) px-2 py-1.5 text-center text-(length:--text-meta) text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1)"
+          className="t-meta mt-auto rounded-(--r-2) border border-(--line-1) px-2 py-1.5 text-center text-(--text-2) hover:bg-(--surface-2) hover:text-(--text-1)"
         >
           Print view
         </Link>
@@ -111,7 +115,7 @@ export function DeckShell() {
         onClick={() => setIndex((i) => Math.min(deckSlides.length - 1, i + 1))}
       >
         {/* eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (fit-to-viewport scale), not color */}
-        <div style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, transform: `scale(${scale})` }}>
+        <div className="shrink-0" style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, transform: `scale(${scale})` }}>
           <Slide n={index + 1} total={deckSlides.length} />
         </div>
       </main>

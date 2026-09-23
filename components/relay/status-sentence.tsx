@@ -89,7 +89,12 @@ export function StatusSentence({ now, nowTierCount, done, total, nextCutoff }: S
     <h1 data-testid="status-line" className="t-section max-w-[44ch] font-medium text-(--text-2)">
       <span className="font-semibold text-(--text-1)">{operative}</span>
       {rest.map(({ key, node }) => (
-        <span key={key}> · {node}</span>
+        // The separator is glued to the clause before it and the clause is unbreakable, so
+        // a line can only break *between* clauses and never strands a "·" at the start of
+        // the next line (the mono wire face used to break inside "4 of 10 done").
+        <span key={key}>
+          <span className="whitespace-nowrap"> ·</span> <span className="whitespace-nowrap">{node}</span>
+        </span>
       ))}
     </h1>
   );

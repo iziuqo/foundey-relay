@@ -94,7 +94,7 @@ export default function TeamPage() {
             headline is one computed sentence, not a display-sized greeting, and it
             doubles as the page's own h1 (the nav's active state is the only other
             location cue the shell needs). */}
-        <h1 data-testid="team-status" className="t-section max-w-[44ch] font-semibold text-(--text-1)">
+        <h1 data-testid="team-status" className="t-section max-w-[44ch] font-semibold text-balance text-(--text-1)">
           {status}
         </h1>
         <p className="tnum t-meta mt-1 text-(--text-2)">{t(copy.team.live, { hhmm: formatClock(now) })}</p>

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds the app, serves it, and exports the deck to exports/relay-deck.pdf. §6.8.
+// Builds the app, serves it, and exports the deck to exports/relay-deck.pdf. §8.
 //
 // Composes the PDF from one full resolution PNG per slide (via pdf-lib) instead of
 // `page.pdf()` pagination over `@media print` — v1's own export script
@@ -7,7 +7,7 @@
 // found Chromium didn't honor it reliably at this page size (27 slides came out as 8
 // PDF pages). Per-slide screenshots sidestep that entirely: one page in, one page out.
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chromium } from "playwright";
@@ -18,8 +18,8 @@ const PORT = 4173;
 const BASE = `http://localhost:${PORT}`;
 // Must match SLIDE_WIDTH/SLIDE_HEIGHT in components/deck/slide-frame.tsx — this is a
 // plain Node script, so it can't import a .tsx module's constants directly.
-const SLIDE_WIDTH = 1280;
-const SLIDE_HEIGHT = 720;
+const SLIDE_WIDTH = 1600;
+const SLIDE_HEIGHT = 900;
 
 function run(cmd, args) {
   return new Promise((resolve, reject) => {
@@ -57,6 +57,9 @@ async function main() {
 
     const slidesDir = join(root, "exports/slides");
     mkdirSync(slidesDir, { recursive: true });
+    // Clear last run's PNGs first: v1 left slide-17..27 here after the deck shrank to 16,
+    // and a directory that disagrees with the PDF is a stale export waiting to be trusted.
+    for (const f of readdirSync(slidesDir)) if (/^slide-\d+\.png$/.test(f)) rmSync(join(slidesDir, f));
 
     const browser = await chromium.launch();
     // §8's reduced-motion global (app/globals.css + MotionConfig reducedMotion="user")
@@ -64,6 +67,9 @@ async function main() {
     // each screenshot is the slide at rest, not mid animation.
     const page = await browser.newPage({
       viewport: { width: SLIDE_WIDTH, height: SLIDE_HEIGHT },
+      // 2×: the PDF page is still 1600×900pt, but each slide is drawn from a 3200×1800 PNG,
+      // so the type stays sharp when the PDF is zoomed or printed.
+      deviceScaleFactor: 2,
       reducedMotion: "reduce",
     });
     await page.goto(`${BASE}/deck/print`, { waitUntil: "networkidle" });

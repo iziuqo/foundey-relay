@@ -11,7 +11,7 @@ export interface DeckSlide {
 
 const labelsA = [
   "Cover",
-  "If you only see one slide",
+  "The one hour answer",
   "The brief",
   "The insight",
   "Five failures, five fixes",
@@ -23,17 +23,17 @@ const labelsA = [
 ];
 
 const labelsB = [
+  "Beyond the hour",
   "The hi-fi product",
   "Motion",
   "Manager view & ethics",
   "Accessibility",
-  "Handoff concept",
   "Next steps",
 ];
 
-/** §6.8: Part A (the one hour answer, ≤10) then Part B (beyond the hour, ≤10, every
- * slide marked optional) — one running order, used by both the interactive deck
- * shell and `/deck/print`. */
+/** §8: Part A (the one hour answer, slides 1–10) then Part B (beyond the hour, 11–16, every
+ * slide marked optional). Slides 2 and 11 are the dividers. One running order, used by
+ * both the interactive deck shell and `/deck/print`. */
 export const deckSlides: DeckSlide[] = [
   ...partA.map((Component, i) => ({ Component, label: labelsA[i], part: "A" as const })),
   ...partB.map((Component, i) => ({ Component, label: labelsB[i], part: "B" as const })),

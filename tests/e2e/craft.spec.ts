@@ -13,7 +13,15 @@ import { cssColorToOklch } from "../../lib/color";
  * ---------------------------------------------------------------------------------
  * MIGRATED is the list of routes whose craft has actually been rebuilt. **Each
  * milestone adds its own route here when it lands** — M4 `/work`, M6 `/team`,
- * M7 `/updates` and `/lookup`, M9 the rest of `/system`, M10 `/deck`.
+ * M7 `/updates` and `/lookup`, M9 the rest of `/system`.
+ *
+ * `/deck` is deliberately **not** on this list (M10). These checks assume one app type
+ * scale in `main`, a chroma budget, and a 390px handheld layout; a slide is a fixed
+ * 1600×900 canvas with its own type scale (advisor §8.1) that embeds whole app screens
+ * inside it, so check 2 would fail by construction and check 10 has no meaning for a
+ * surface that is scaled, never reflowed. The deck's own equivalents — tracking above
+ * 16px, sizes drawn only from the deck scale, no clipped text, at most three annotations
+ * a slide, chroma-zero wire embeds — live in `deck-contract.spec.ts`.
  *
  * Routes that are not listed still render through the v2 back-compat token aliases
  * (one radius for every control, one type size for most text), so running these checks

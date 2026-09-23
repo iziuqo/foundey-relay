@@ -8,13 +8,21 @@ import { copy, t } from "@/lib/copy";
 import { RiskTile } from "@/components/relay/risk-tile";
 import { NeedsYouList } from "@/components/relay/needs-you-list";
 import { Roster } from "@/components/relay/roster";
-import { cn } from "@/lib/cn";
+import { DECK_NOW } from "./deck-now";
 
 const noop = () => {};
 
-/** §6.8: the manager screen's live embed, same pattern as MiniWork. */
-export function MiniTeam({ wire, className }: { wire?: boolean; className?: string }) {
-  const now = new Date("2026-09-22T10:40:00-07:00");
+/** The design width `/team` is laid out at inside a slide. */
+export const TEAM_DESIGN_WIDTH = 1200;
+
+/**
+ * §8: the manager screen's live embed, same pattern as `MiniWork` — the real
+ * `RiskTile`/`NeedsYouList`/`Roster`, a fixed snapshot, and the frame around it owning
+ * theme, wire and inertness. It mirrors `app/(app)/team/page.tsx` as the manager sees it:
+ * one computed sentence, four neutral tiles, Needs you above the roster.
+ */
+export function MiniTeam() {
+  const now = DECK_NOW;
   const risk = teamRisk(seedItems, seedTeam, now);
   const cutoff = nextCutoff(now);
   const workers = seedTeam.filter((p) => !p.isManager);
@@ -27,25 +35,10 @@ export function MiniTeam({ wire, className }: { wire?: boolean; className?: stri
       : copy.team.statusAllTrack;
 
   return (
-    <div
-      // A slide embed is a picture of the app, so it stays out of the accessibility tree
-      // and the tab order: `inert` is the semantic half of the `pointer-events-none` above.
-      // Without it the real components inside bring their own landmarks (Hero's "Do this
-      // now" region, the Needs you aside), and stacking 16 slides on /deck/print turns
-      // those into duplicates axe flags as landmark-unique — plus every mock button lands
-      // in the deck's tab order. The slide's own title and body carry the meaning.
-      inert
-      aria-hidden="true"
-      data-fidelity={wire ? "wire" : "hi"}
-      className={cn("pointer-events-none flex flex-col gap-4 overflow-hidden bg-(--bg) p-4", className)}
-    >
+    <div className="flex flex-col gap-6 px-8 py-8">
       <div>
-        <h1 className="text-(length:--text-display) leading-(length:--leading-display) font-semibold text-(--text-1)">
-          {status}
-        </h1>
-        <p className="tnum mt-1 text-(length:--text-meta) text-(--text-2)">
-          {t(copy.team.live, { hhmm: formatClock(now) })}
-        </p>
+        <h1 className="t-section max-w-[44ch] font-semibold text-balance text-(--text-1)">{status}</h1>
+        <p className="tnum t-meta mt-1 text-(--text-2)">{t(copy.team.live, { hhmm: formatClock(now) })}</p>
       </div>
       <div className="flex flex-wrap gap-3">
         <RiskTile icon={OctagonAlert} label={copy.team.tiles.now} value={risk.doNowCount} onClick={noop} />
@@ -66,21 +59,17 @@ export function MiniTeam({ wire, className }: { wire?: boolean; className?: stri
           onClick={noop}
         />
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
-        <NeedsYouList rows={needsRows} candidates={candidates} onAssign={noop} onCheckIn={noop} onAcknowledge={noop} />
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <Roster
-            workers={workers}
-            items={seedItems}
-            countsFor={(personId) => tierCountsFor(seedItems, personId, now)}
-            candidates={candidates}
-            now={now}
-            onOpen={noop}
-            onReassign={noop}
-            canReassign
-          />
-        </div>
-      </div>
+      <NeedsYouList rows={needsRows} candidates={candidates} onAssign={noop} onCheckIn={noop} onAcknowledge={noop} />
+      <Roster
+        workers={workers}
+        items={seedItems}
+        countsFor={(personId) => tierCountsFor(seedItems, personId, now)}
+        candidates={candidates}
+        now={now}
+        onOpen={noop}
+        onReassign={noop}
+        canReassign
+      />
     </div>
   );
 }

@@ -1,7 +1,10 @@
 import { cn } from "@/lib/cn";
 
-export const SLIDE_WIDTH = 1280;
-export const SLIDE_HEIGHT = 720;
+export const SLIDE_WIDTH = 1600;
+export const SLIDE_HEIGHT = 900;
+/** Where the two halves of the deck meet: slides 1–10 are the one hour answer. */
+export const PART_A_LAST = 10;
+export const SLIDE_COUNT = 16;
 
 /** Every slide in part-a.tsx / part-b.tsx is a component of this shape — the deck
  * shell (and /deck/print) supply its position in the running order. */
@@ -12,68 +15,73 @@ export interface SlideProps {
 
 export interface SlideFrameProps {
   children: React.ReactNode;
-  slideNumber?: number;
-  totalSlides?: number;
+  n: number;
+  total: number;
+  /** Names the half this slide belongs to; every slide carries one (§8 rule 5). */
   eyebrow?: string;
-  optional?: boolean;
-  noFooter?: boolean;
+  /** `dark` is the one theme flip in the deck: the inverted divider (§8.4). */
+  theme?: "light" | "dark";
+  /** Tinted full-bleed band, for the two dividers (mk02). */
+  band?: boolean;
   className?: string;
 }
 
 /**
- * The fixed 1280×720 canvas every slide renders into (§6.8). Forces `data-theme="light"`
- * regardless of whatever theme the visitor's browser last left in localStorage — a
- * deck is presented to other people, and its printed export (`/deck/print`) has to be
- * deterministic, not a function of whoever last touched `/work` on this machine.
+ * The 4px progress rail (§8.4): sixteen cells, one per slide. Part A's cells fill in
+ * `--text-1` as the reader passes them; Part B's fill in `--line-2` — so on any slide the
+ * reader can tell which half they are in from the rail alone, and in a PDF thumbnail grid
+ * the change of tone lands exactly at the boundary.
  */
-export function SlideFrame({
-  children,
-  slideNumber,
-  totalSlides,
-  eyebrow,
-  optional,
-  noFooter,
-  className,
-}: SlideFrameProps) {
+function ProgressRail({ n, total }: { n: number; total: number }) {
+  return (
+    <div aria-hidden className="absolute inset-x-0 top-0 flex h-1 gap-0.5">
+      {Array.from({ length: total }, (_, i) => {
+        const cell = i + 1;
+        const reached = cell <= n;
+        const partA = cell <= PART_A_LAST;
+        return (
+          <span
+            key={cell}
+            className={cn("h-full flex-1", reached ? (partA ? "bg-(--text-1)" : "bg-(--line-2)") : "bg-(--line-1)")}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * The fixed 1600×900 canvas every slide renders into (§8): a 96px safe area (1408×708),
+ * the eyebrow in the top margin, the folio in the bottom one. Pins `data-theme` and
+ * `data-fidelity` together — a deck is presented to other people and exported to a PDF,
+ * so it may not be a function of whichever mode the last visitor left in localStorage,
+ * and the token block only re-declares for an element carrying *both* attributes
+ * (LOG M9). The dividers get `--surface-2` (light) or the dark set, never a hand-picked
+ * colour, so contrast comes out of the same tokens as everything else.
+ */
+export function SlideFrame({ children, n, total, eyebrow, theme = "light", band, className }: SlideFrameProps) {
   return (
     <div
-      data-theme="light"
+      data-theme={theme}
+      data-fidelity="hi"
       data-testid="slide"
       className={cn(
-        "relative shrink-0 overflow-hidden bg-(--bg) font-sans text-(--text-1)",
+        "relative shrink-0 overflow-hidden font-sans text-(--text-1)",
+        band && theme === "light" ? "bg-(--surface-2)" : "bg-(--bg)",
         className,
       )}
       // eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (the fixed slide canvas size), not color
       style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT }}
     >
-      {eyebrow && (
-        <div className="absolute top-10 left-16 flex items-center gap-2">
-          <p className="text-(length:--text-meta) leading-(--leading-meta) font-semibold tracking-wide text-(--text-2) uppercase">
-            {eyebrow}
-          </p>
-          {optional && (
-            <span className="rounded-(--radius-chip) border border-(--border-1) bg-(--surface-2) px-2 py-0.5 text-(length:--text-kbd) leading-(length:--leading-kbd) font-medium text-(--text-2) uppercase">
-              Optional
-            </span>
-          )}
-        </div>
-      )}
-      <div
-        className="absolute right-16 left-16"
-        // eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (content area offset depends on eyebrow/footer), not color
-        style={{ top: eyebrow ? 76 : 48, bottom: noFooter ? 48 : 88 }}
-      >
-        {children}
+      <ProgressRail n={n} total={total} />
+      {eyebrow && <p data-slide-eyebrow="" className="t-deck-eyebrow absolute top-12 left-24 text-(--text-2)">{eyebrow}</p>}
+      <div className="absolute inset-x-24 top-24 bottom-24">{children}</div>
+      <div className="t-deck-caption absolute inset-x-24 bottom-9 flex items-center justify-between text-(--text-2)">
+        <span>Relay · Foundey challenge</span>
+        <span>
+          {n} / {total}
+        </span>
       </div>
-      {!noFooter && slideNumber !== undefined && (
-        <div className="absolute right-16 bottom-8 left-16 flex items-center justify-between text-(length:--text-meta) text-(--text-2)">
-          <span>Relay · Foundey challenge</span>
-          <span className="tnum">
-            {slideNumber}
-            {totalSlides ? ` / ${totalSlides}` : ""}
-          </span>
-        </div>
-      )}
     </div>
   );
 }

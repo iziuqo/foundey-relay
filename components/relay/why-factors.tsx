@@ -12,6 +12,10 @@ const T_MAX = 40;
 const B_MAX = 30;
 const I_MAX = 87; // customerHigh(10) + compliance(15) + escalated(12) + safety(50)
 
+/** The most each factor can add to a score, for anything that has to state the rule (the
+ * deck's priority-rule slide reads these rather than retyping them). */
+export const FACTOR_MAX = { T: T_MAX, B: B_MAX, I: I_MAX } as const;
+
 function timeReason(item: Item, now: Date): string {
   if (!item.dueAt) return copy.why.factors.noDue;
   const target = new Date(item.dueAt);
