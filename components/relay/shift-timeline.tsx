@@ -36,18 +36,21 @@ export function ShiftTimeline({ now, shift, cutoffs }: ShiftTimelineProps) {
         <span
           title={copy.shiftTimeline.handoff.replace("{hhmm}", formatClock(new Date(shift.handoffAt)))}
           aria-hidden
-          className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-(--when-fg)"
+          className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-(--text-2)"
           // eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (the shift's own handoff time), not color
           style={{ left: `${pct(shift.handoffAt)}%` }}
         />
         <span
           aria-hidden
-          className="absolute top-1/2 h-4 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--act-fg)"
+          // The now line is --text-1, not the Act-now hue: §4.5 names the shift timeline
+          // in the list of places saturated colour may not appear, and a red hairline in
+          // the rail competes with the one red object that is supposed to win.
+          className="absolute top-1/2 h-4 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--text-1)"
           // eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (the live clock), not color
           style={{ left: `${nowPct}%` }}
         />
       </div>
-      <div className="tnum flex justify-between text-(length:--text-meta) text-(--text-2)">
+      <div className="tnum t-meta flex justify-between text-(--text-2)">
         <span>{formatClock(new Date(shift.start))}</span>
         <span>{copy.shiftTimeline.now} {formatClock(now)}</span>
         <span>{formatClock(new Date(shift.end))}</span>

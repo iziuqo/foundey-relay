@@ -12,6 +12,17 @@ export const copy = {
     nothingUrgent: "Nothing urgent. {n} left before your shift ends.",
     progress: "{done} of {total} done today.",
     truckLine: "{carrier} leaves in {rel}",
+    // v3 M4 (§5.1): the status line is three clauses joined by "·", so each one drops
+    // its full stop. The first is the operative clause and is the only part set in
+    // --text-1 600 — "2 need you now · UPS Ground in 50 min · 4 of 10 done".
+    clauseNeedYou: "{n} need you now",
+    clauseNeedYouOne: "1 needs you now",
+    clauseNothingUrgent: "Nothing urgent",
+    clauseTruck: "{carrier} in {rel}",
+    clauseTruckAt: "{carrier} at {hhmm}",
+    clauseTruckGone: "{carrier} has left",
+    clauseProgress: "{done} of {total} done",
+    clauseLeft: "{n} left before your shift ends",
   },
   hero: {
     now: "Do this now",
@@ -170,6 +181,12 @@ export const copy = {
     leavesIn: "{carrier} leaves {door} in {rel}",
     leavesAt: "{carrier} leaves {door} at {hhmm}",
     departed: "{carrier} left {door}",
+    // The rail card carries the carrier as its title and the door as a chip, so the
+    // line under them says the one thing neither of those does: when it goes. The three
+    // keys above keep the full sentence for the detail panel, which has no such title.
+    railLeavesIn: "Leaves in {rel}",
+    railLeavesAt: "Leaves at {hhmm}",
+    railDeparted: "Already left",
     atRisk: "{n} orders at risk",
     allOnTrack: "All orders on track",
     none: "No trucks left today",

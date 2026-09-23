@@ -25,13 +25,15 @@ function FyiPreview() {
     .slice(0, 3);
   if (fyi.length === 0) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-(--radius-control) border border-(--border-1) p-3">
-      <p className="text-(length:--text-meta) font-semibold tracking-wide text-(--text-2) uppercase">
+    <div className="flex min-h-22 flex-col gap-2 rounded-(--r-4) border border-(--line-1) p-4">
+      {/* t-meta rather than t-eyebrow: the eyebrow step is 12px, and /work holds a 14px
+          floor for anything carrying content (G3). */}
+      <p data-eyebrow className="t-meta font-semibold tracking-[0.06em] text-(--text-2) uppercase">
         {copy.tiers.fyi.label}
       </p>
       <ul className="flex flex-col gap-2">
         {fyi.map((item) => (
-          <li key={item.id} className="text-(length:--text-meta) text-(--text-1)">
+          <li key={item.id} className="t-body text-(--text-1)">
             {item.title}
           </li>
         ))}
@@ -139,9 +141,10 @@ export default function WorkPage() {
 
   return (
     <PageGrid className="py-8 lg:py-12">
-      <PageMain data-testid="work-main">
+      {/* §7.1 puts the status line 16px above the hero; §5.2 keeps 24 between the hero
+          and the queue, which is the one override this column needs. */}
+      <PageMain data-testid="work-main" className="gap-4">
         <StatusSentence
-          name={person.name.split(" ")[0]}
           now={now}
           nowTierCount={nowTierCount}
           done={done}
@@ -167,6 +170,7 @@ export default function WorkPage() {
                 nextCutoffAt={cutoff?.departsAt ?? null}
                 pendingTitle={pendingItem?.title ?? null}
                 focusOnMount={focusHeroId === queue.hero.item.id}
+                primaryInDock
                 onShowMe={showPending}
                 onStart={() => start(queue.hero!.item.id, person.id, now.toISOString())}
                 onMarkDone={() => markDone(queue.hero!.item.id, now.toISOString())}
@@ -186,6 +190,7 @@ export default function WorkPage() {
             queue.waiting.length > 0 ||
             queue.snoozed.length > 0) && (
             <Queue
+              className="mt-2"
               now={now}
               nowGroup={queue.now}
               nextGroup={queue.next}
@@ -212,11 +217,19 @@ export default function WorkPage() {
         <FyiPreview />
       </PageRail>
 
+      {/* The handheld primary. It is the *only* primary below 768 — the hero's own
+          version is hidden there (hero.tsx) rather than painted twice, which is what v2
+          did. A bar rather than a floating pill: it sits flush on the dock, so the two
+          fixed elements meet edge to edge instead of overlapping by a pixel, and the
+          120px inset `<main>` reserves is exactly this bar plus that dock. */}
       {queue.hero && (
-        <div data-testid="work-mobile-cta" className="fixed inset-x-3 bottom-[calc(var(--h-dock)+0.5rem)] z-30 lg:hidden">
+        <div
+          data-testid="work-mobile-cta"
+          className="fixed inset-x-0 bottom-(--h-dock) z-30 border-t border-(--line-1) bg-(--surface-1) px-4 py-3 md:hidden"
+        >
           <Button
             size="lg"
-            className="w-full shadow-(--shadow-e3)"
+            className="w-full"
             onClick={
               queue.hero.item.status === "in_progress"
                 ? () => markDone(queue.hero!.item.id, now.toISOString())

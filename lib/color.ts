@@ -146,3 +146,73 @@ export function contrastBetween(colorA: string, colorB: string): number | null {
   if (!a || !b) return null;
   return contrastRatio(relativeLuminance(a), relativeLuminance(b));
 }
+
+/* ---------------------------------------------------------------------------------
+ * The reverse trip: a computed colour string -> OKLCH, so craft check 8 (the chroma
+ * budget, ADVISOR-craft.md §9) can ask "how saturated is this element, really" about a
+ * value the engine has already flattened. `getComputedStyle` never hands back the
+ * author's oklch() for a var-resolved colour — it serializes lab() or rgb() — and Lab
+ * chroma is not OKLCh chroma, so measuring the budget needs an actual conversion.
+ * ------------------------------------------------------------------------------- */
+
+const RGB_RE =
+  /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%)?)?\s*\)$/i;
+
+/** sRGB gamma decode, one channel in [0, 1]. */
+function toLinear(channel: number): number {
+  return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+}
+
+export function parseRgb(input: string): { rgb: [number, number, number]; alpha: number } | null {
+  const match = RGB_RE.exec(input.trim());
+  if (!match) return null;
+  const [, r, g, b, aRaw, aPct] = match;
+  const alpha = aRaw !== undefined ? (aPct ? Number(aRaw) / 100 : Number(aRaw)) : 1;
+  return { rgb: [Number(r) / 255, Number(g) / 255, Number(b) / 255], alpha };
+}
+
+/** Linear sRGB -> OKLCH. The exact inverse of `oklchToLinearSrgb` above. */
+export function linearSrgbToOklch([r, g, b]: [number, number, number]): Omit<Oklch, "alpha"> {
+  const l_ = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m_ = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s_ = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+
+  const l = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const bb = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+
+  const c = Math.hypot(a, bb);
+  const h = c < 1e-6 ? 0 : ((Math.atan2(bb, a) * 180) / Math.PI + 360) % 360;
+  return { l, c, h };
+}
+
+/**
+ * Whatever the engine handed back -> OKLCH. An `oklch()` string is read directly rather
+ * than round-tripped, because clamping to the sRGB gamut on the way out and back in
+ * would quietly shave chroma off exactly the saturated colours the budget is counting.
+ * Returns null for a notation we don't handle, and for fully transparent colours, which
+ * paint nothing and therefore spend no budget.
+ */
+export function cssColorToOklch(input: string): Oklch | null {
+  const trimmed = input.trim();
+  if (trimmed === "transparent" || trimmed === "none") return null;
+
+  if (/^oklch\(/i.test(trimmed)) {
+    const parsed = parseOklch(trimmed);
+    return parsed && parsed.alpha > 0 ? parsed : null;
+  }
+
+  const rgb = parseRgb(trimmed);
+  if (rgb) {
+    if (rgb.alpha === 0) return null;
+    const linear = rgb.rgb.map(toLinear) as [number, number, number];
+    return { ...linearSrgbToOklch(linear), alpha: rgb.alpha };
+  }
+
+  const linear = cssColorToLinearSrgb(trimmed);
+  if (!linear) return null;
+  const parsedLab = parseLab(trimmed);
+  const alpha = parsedLab?.alpha ?? 1;
+  if (alpha === 0) return null;
+  return { ...linearSrgbToOklch(linear), alpha };
+}

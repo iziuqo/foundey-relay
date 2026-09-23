@@ -1,54 +1,68 @@
 import { copy, t } from "@/lib/copy";
-import { greetingPeriod, dueKind, relativeDuration } from "@/lib/time";
+import { dueKind, relativeDuration } from "@/lib/time";
 import type { Cutoff } from "@/lib/types";
 
 export interface StatusSentenceProps {
-  name: string;
   now: Date;
-  /** Count of items in the Act now tier, hero included — drives the "N things need you" clause. */
+  /** Count of items in the Act now tier, hero included — drives the operative clause. */
   nowTierCount: number;
   done: number;
   total: number;
   nextCutoff: Cutoff | null;
 }
 
-function truckLine(cutoff: Cutoff, now: Date): string {
+/**
+ * "UPS Ground in 50 min" while a truck is still coming, "USPS at 15:30" once it is far
+ * enough out to be a time rather than a countdown. The two need different prepositions:
+ * routing a clock time through the "in {rel}" string reads "USPS in 15:30", which is the
+ * kind of thing only the demo's time jump reaches.
+ */
+export function truckClause(cutoff: Cutoff, now: Date): string {
   const kind = dueKind(cutoff.departsAt, now);
-  if (kind.kind === "due-in" || kind.kind === "tomorrow") {
-    const rel = kind.kind === "due-in" ? relativeDuration(kind.n) : kind.hhmm;
-    return t(copy.status.truckLine, { carrier: cutoff.carrier, rel });
-  }
-  if (kind.kind === "late-min" || kind.kind === "late-hr") {
-    return t(copy.truckClock.departed, { carrier: cutoff.carrier, door: cutoff.door });
-  }
-  return t(copy.truckClock.leavesAt, { carrier: cutoff.carrier, door: cutoff.door, hhmm: kind.hhmm });
+  if (kind.kind === "due-in") return t(copy.status.clauseTruck, { carrier: cutoff.carrier, rel: relativeDuration(kind.n) });
+  if (kind.kind === "tomorrow" || kind.kind === "due-at")
+    return t(copy.status.clauseTruckAt, { carrier: cutoff.carrier, hhmm: kind.hhmm });
+  return t(copy.status.clauseTruckGone, { carrier: cutoff.carrier });
 }
 
 /**
- * §3.3 / §6.1: replaces "Good morning, Priya" and a duplicate page title with one
- * computed status sentence, plus a shift-progress line under it. Page title and
- * greeting are the same element — the left nav's active state is the only other
- * location cue (README §8.9).
+ * §5.1 / advisor §7.1. The greeting stops being a headline.
+ *
+ * v2 opened with "Good morning, Priya" at 56px over 737×120px — 3.3× the pixel area of
+ * the hero title it introduced, a quarter of the first viewport, and an answer to
+ * neither of the two questions the brief asks. It is now one computed status line at
+ * `t-section` (23/30), capped at 44ch, with only the operative clause in `--text-1` 600
+ * and the rest in `--text-2`:
+ *
+ *     2 need you now · UPS Ground in 50 min · 4 of 10 done
+ *
+ * The greeting itself survives at `t-meta` in the top bar beside the persona control
+ * (M3's `Greeting`, `lg:` and up), where the name already lives. What it may not do is
+ * be the largest type in the content column: that belongs to the hero title, which is
+ * the only defensible answer to "what do I do now" read at two metres.
+ *
+ * Kept as the page `h1` — the page title and the status are the same sentence, and the
+ * nav's active state is the only other location cue the shell needs.
  */
-export function StatusSentence({ name, now, nowTierCount, done, total, nextCutoff }: StatusSentenceProps) {
-  const period = greetingPeriod(now);
-  const greeting = t(copy.greeting[period], { name });
+export function StatusSentence({ now, nowTierCount, done, total, nextCutoff }: StatusSentenceProps) {
   const remaining = Math.max(total - done, 0);
-  const status =
+  const operative =
     nowTierCount > 0
-      ? t(nowTierCount === 1 ? copy.status.needYouOne : copy.status.needYou, { n: nowTierCount })
-      : t(copy.status.nothingUrgent, { n: remaining });
-  const truck = nextCutoff ? truckLine(nextCutoff, now) : null;
+      ? t(nowTierCount === 1 ? copy.status.clauseNeedYouOne : copy.status.clauseNeedYou, { n: nowTierCount })
+      : copy.status.clauseNothingUrgent;
+  const rest = [
+    nextCutoff ? truckClause(nextCutoff, now) : null,
+    nowTierCount > 0
+      ? t(copy.status.clauseProgress, { done, total })
+      : t(copy.status.clauseLeft, { n: remaining }),
+  ].filter(Boolean) as string[];
 
   return (
-    <div>
-      <h1 className="text-(length:--text-display) leading-(length:--leading-display) font-semibold text-(--text-1)">
-        {greeting} {status}
-      </h1>
-      <p className="tnum mt-1 text-(length:--text-body) text-(--text-2)">
-        {t(copy.status.progress, { done, total })}
-        {truck ? ` · ${truck}` : ""}
-      </p>
-    </div>
+    <h1 data-testid="status-line" className="t-section max-w-[44ch] font-medium text-(--text-2)">
+      <span className="font-semibold text-(--text-1)">{operative}</span>
+      {rest.map((clause) => (
+        <span key={clause}> · {clause}</span>
+      ))}
+    </h1>
   );
 }

@@ -8,6 +8,8 @@ import NumberFlow from "@number-flow/react";
 import { copy, t } from "@/lib/copy";
 import { cn } from "@/lib/cn";
 import { formatClock } from "@/lib/time";
+import { SectionBand } from "@/components/ui/section-band";
+import { FOCUS } from "@/components/ui/sizing";
 import type { Ranked } from "@/lib/priority";
 import type { Item, DoneEntry } from "@/lib/types";
 import { TierIcon } from "./tier-icon";
@@ -23,6 +25,7 @@ export interface QueueActions {
 }
 
 export interface QueueProps extends QueueActions {
+  className?: string;
   now: Date;
   nowGroup: Ranked[];
   nextGroup: Ranked[];
@@ -59,11 +62,19 @@ function TierGroup({
   if (rows.length === 0) return null;
   return (
     <div>
-      <div className="flex h-9 items-center gap-2 border-b border-(--border-1) bg-(--surface-2) px-3">
-        <TierIcon tier={tier} className={cn("size-(--size-icon-sm)", tierFgClass[tier])} />
-        <span className={cn("text-(length:--text-meta) font-semibold", tierFgClass[tier])}>{label}</span>
-        <NumberFlow value={rows.length} className="tnum text-(length:--text-meta) text-(--text-2)" />
-      </div>
+      {/* The band is neutral and the hue lives in the icon and the label — `z01`'s
+          structure with the colour moved off the band, so it never competes with the
+          rows beneath it (advisor §7.2). */}
+      <SectionBand
+        data-tier={tier}
+        icon={<TierIcon tier={tier} className="size-(--icon-sm) text-(--text-2)" />}
+        label={
+          <span data-tier-label className={tierFgClass[tier]}>
+            {label}
+          </span>
+        }
+        count={<NumberFlow value={rows.length} />}
+      />
       <ul>
         <AnimatePresence initial={false}>
           {rows.map((ranked) => (
@@ -87,65 +98,63 @@ function TierGroup({
   );
 }
 
-function CollapsibleSection({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function CollapsibleSection({ label, children }: { label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
-      <Collapsible.Trigger className="flex h-9 w-full items-center gap-2 border-b border-(--border-1) bg-(--surface-2) px-3 text-left">
+      <Collapsible.Trigger
+        className={cn(
+          "flex h-(--h-band) w-full items-center gap-2 bg-(--surface-2) px-3 text-left shadow-[inset_0_-1px_0_var(--line-1)] max-md:h-12",
+          FOCUS,
+        )}
+      >
         <ChevronDown
           aria-hidden
-          className={cn("size-(--size-icon-sm) text-(--text-2) transition-transform duration-[160ms]", open && "rotate-180")}
+          className={cn(
+            "size-(--icon-sm) text-(--text-2) transition-transform duration-(--dur-quick) ease-(--ease-out)",
+            open && "rotate-180",
+          )}
         />
-        <span className="text-(length:--text-meta) font-semibold text-(--text-1)">{label}</span>
+        <span className="t-meta font-semibold text-(--text-1)">{label}</span>
       </Collapsible.Trigger>
       <Collapsible.Content>{children}</Collapsible.Content>
     </Collapsible.Root>
   );
 }
 
-function WaitingRow({ item }: { item: Item }) {
+/** The settled groups at the foot of the queue share the row's geometry exactly, so
+ *  opening one cannot introduce a second row height into the list. */
+function QuietRow({ title, meta, struck }: { title: string; meta: string; struck?: boolean }) {
   return (
-    <li className="flex min-h-(--size-row-min-handheld) items-center gap-3 border-b border-(--border-1) px-3 last:border-0 lg:min-h-(--size-row-min)">
-      <span className="min-w-0 flex-1 truncate text-(length:--text-row) text-(--text-1)">{item.title}</span>
-      <span className="text-(length:--text-meta) whitespace-nowrap text-(--text-2)">
-        {item.waitingOn}
-        {item.checkBackAt ? ` · back ${formatClock(new Date(item.checkBackAt))}` : ""}
+    <li data-craft-row className="queue-row">
+      <span aria-hidden />
+      <span className="flex min-w-0 flex-col justify-center gap-0.5">
+        <span className={cn("t-row truncate", struck ? "text-(--text-2) line-through decoration-(--line-2)" : "text-(--text-1)")}>
+          {title}
+        </span>
+        {/* Below 768 the meta track is gone, so the meta becomes the row's second line
+            — the same shape the ranked rows take there. */}
+        <span className="tnum t-body hidden truncate text-(--text-2) max-md:block">{meta}</span>
       </span>
+      <span aria-hidden className="max-md:hidden" />
+      <span className="tnum t-meta justify-self-end whitespace-nowrap text-(--text-2) max-md:hidden">{meta}</span>
     </li>
   );
 }
 
-function SnoozedRow({ item }: { item: Item }) {
-  return (
-    <li className="flex min-h-(--size-row-min-handheld) items-center gap-3 border-b border-(--border-1) px-3 last:border-0 lg:min-h-(--size-row-min)">
-      <span className="min-w-0 flex-1 truncate text-(length:--text-row) text-(--text-1)">{item.title}</span>
-      <span className="tnum text-(length:--text-meta) whitespace-nowrap text-(--text-2)">
-        {item.snoozeUntil ? formatClock(new Date(item.snoozeUntil)) : ""}
-      </span>
-    </li>
-  );
-}
-
-function DoneRow({ entry }: { entry: DoneEntry }) {
-  return (
-    <li className="flex min-h-(--size-row-min-handheld) items-center gap-3 border-b border-(--border-1) px-3 last:border-0 lg:min-h-(--size-row-min)">
-      <span className="min-w-0 flex-1 truncate text-(length:--text-row) text-(--text-2) line-through decoration-(--border-2)">
-        {entry.title}
-      </span>
-      <span className="tnum text-(length:--text-meta) whitespace-nowrap text-(--text-2)">{formatClock(new Date(entry.doneAt))}</span>
-    </li>
-  );
-}
-
-/** §6.1 queue: tier groups with a header band and count, then Waiting / Moved to later
- * / Done today as collapsible groups at the bottom (Radix Collapsible, not `<details>`). */
+/**
+ * The queue: three tier groups, then the settled work.
+ *
+ * **Grouped rows, not a table and not cards** (advisor §7.2). A table implies
+ * column-wise comparison and this worker never compares columns — they read down a
+ * ranked list and stop at the first thing. Cards cost roughly twice the vertical space
+ * and destroy the left alignment that makes a ranked list scannable in one pass.
+ *
+ * Exactly three groups render here. "For your info" is not one of them: it needs no
+ * action, so it lives in Updates and, three lines of it, in the rail.
+ */
 export function Queue({
+  className,
   now,
   nowGroup,
   nextGroup,
@@ -163,44 +172,41 @@ export function Queue({
   onNotMine,
 }: QueueProps) {
   const actions: QueueActions = { onStart, onMarkDone, onWaiting, onMoveLater, onNotMine };
+  const groups = [
+    { tier: "now", label: copy.tiers.now.label, rows: nowGroup },
+    { tier: "next", label: copy.tiers.next.label, rows: nextGroup },
+    { tier: "later", label: copy.tiers.later.label, rows: laterGroup },
+  ] as const;
+
   return (
-    <div className="overflow-hidden rounded-(--radius-control) border border-(--border-1)">
-      <TierGroup
-        tier="now"
-        label={copy.tiers.now.label}
-        rows={nowGroup}
-        now={now}
-        nextCutoffAt={nextCutoffAt}
-        nextHeroId={nextHeroId}
-        justPromotedId={justPromotedId}
-        actions={actions}
-      />
-      <TierGroup
-        tier="next"
-        label={copy.tiers.next.label}
-        rows={nextGroup}
-        now={now}
-        nextCutoffAt={nextCutoffAt}
-        nextHeroId={nextHeroId}
-        justPromotedId={justPromotedId}
-        actions={actions}
-      />
-      <TierGroup
-        tier="later"
-        label={copy.tiers.later.label}
-        rows={laterGroup}
-        now={now}
-        nextCutoffAt={nextCutoffAt}
-        nextHeroId={nextHeroId}
-        justPromotedId={justPromotedId}
-        actions={actions}
-      />
+    <div
+      data-craft-list
+      data-testid="queue"
+      className={cn("overflow-hidden rounded-(--r-4) border border-(--line-1) bg-(--surface-1)", className)}
+    >
+      {groups.map((group) => (
+        <TierGroup
+          key={group.tier}
+          tier={group.tier}
+          label={group.label}
+          rows={group.rows}
+          now={now}
+          nextCutoffAt={nextCutoffAt}
+          nextHeroId={nextHeroId}
+          justPromotedId={justPromotedId}
+          actions={actions}
+        />
+      ))}
 
       {waiting.length > 0 && (
         <CollapsibleSection label={t(copy.tiers.waitingGroup, { n: waiting.length })}>
           <ul>
             {waiting.map((item) => (
-              <WaitingRow key={item.id} item={item} />
+              <QuietRow
+                key={item.id}
+                title={item.title}
+                meta={`${item.waitingOn}${item.checkBackAt ? ` · back ${formatClock(new Date(item.checkBackAt))}` : ""}`}
+              />
             ))}
           </ul>
         </CollapsibleSection>
@@ -209,7 +215,11 @@ export function Queue({
         <CollapsibleSection label={t(copy.tiers.laterGroup, { n: snoozed.length })}>
           <ul>
             {snoozed.map((item) => (
-              <SnoozedRow key={item.id} item={item} />
+              <QuietRow
+                key={item.id}
+                title={item.title}
+                meta={item.snoozeUntil ? formatClock(new Date(item.snoozeUntil)) : ""}
+              />
             ))}
           </ul>
         </CollapsibleSection>
@@ -218,7 +228,7 @@ export function Queue({
         <CollapsibleSection label={t(copy.tiers.done.withCount, { n: done.length })}>
           <ul>
             {done.map((entry) => (
-              <DoneRow key={entry.id} entry={entry} />
+              <QuietRow key={entry.id} title={entry.title} meta={formatClock(new Date(entry.doneAt))} struck />
             ))}
           </ul>
         </CollapsibleSection>

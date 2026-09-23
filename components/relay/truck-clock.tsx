@@ -8,12 +8,12 @@ const WINDOW_MIN = 120;
 function departureText(cutoff: Cutoff, now: Date): string {
   const kind = dueKind(cutoff.departsAt, now);
   if (kind.kind === "late-min" || kind.kind === "late-hr") {
-    return t(copy.truckClock.departed, { carrier: cutoff.carrier, door: cutoff.door });
+    return copy.truckClock.railDeparted;
   }
   const rel = kind.kind === "due-in" ? relativeDuration(kind.n) : kind.hhmm;
   return kind.kind === "due-in"
-    ? t(copy.truckClock.leavesIn, { carrier: cutoff.carrier, door: cutoff.door, rel })
-    : t(copy.truckClock.leavesAt, { carrier: cutoff.carrier, door: cutoff.door, hhmm: rel });
+    ? t(copy.truckClock.railLeavesIn, { rel })
+    : t(copy.truckClock.railLeavesAt, { hhmm: rel });
 }
 
 function progressFraction(cutoff: Cutoff, now: Date): number {
@@ -24,19 +24,22 @@ function progressFraction(cutoff: Cutoff, now: Date): number {
 function Capsule({ cutoff, now }: { cutoff: Cutoff; now: Date }) {
   const fraction = progressFraction(cutoff, now);
   return (
-    <div role="listitem" className="flex w-56 shrink-0 flex-col gap-2 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 xl:w-full">
+    <div role="listitem" className="flex min-h-22 w-56 shrink-0 flex-col gap-2 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-4 min-[75rem]:w-full">
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-(length:--text-meta) font-semibold text-(--text-1)">{cutoff.carrier}</span>
-        <span className="shrink-0 rounded-full border border-(--border-1) bg-(--surface-2) px-2 py-0.5 text-(length:--text-meta) font-medium text-(--text-2)">
+        <span className="t-body truncate font-semibold text-(--text-1)">{cutoff.carrier}</span>
+        <span className="t-meta shrink-0 rounded-(--r-2) border border-(--line-1) bg-(--surface-2) px-2 text-(--text-2)">
           {cutoff.door}
         </span>
       </div>
-      <p className="tnum text-(length:--text-meta) text-(--text-2)">{departureText(cutoff, now)}</p>
+      <p className="tnum t-meta text-(--text-2)">{departureText(cutoff, now)}</p>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--surface-2)">
-        {/* eslint-disable-next-line react/forbid-dom-props -- dynamic bar geometry from the live clock, not a color/shadow/background token */}
-        <div className="h-full rounded-full bg-(--accent-solid)" style={{ width: `${fraction * 100}%` }} />
+        {/* The track carries no emphasis: §4.5 bans saturated colour on progress tracks,
+            and --primary-bg is --text-1, so the v2 fill was a near-black bar competing
+            with the hero's own button from inside a rail that is meant to be reference. */}
+        {/* eslint-disable-next-line react/forbid-dom-props -- dynamic bar geometry from the live clock, not a colour token */}
+        <div className="h-full rounded-full bg-(--line-2)" style={{ width: `${fraction * 100}%` }} />
       </div>
-      <p className={cn("tnum text-(length:--text-meta)", cutoff.ordersAtRisk > 0 ? "text-(--act-fg)" : "text-(--text-2)")}>
+      <p className={cn("tnum t-row", cutoff.ordersAtRisk > 0 ? "text-(--text-1)" : "text-(--text-2)")}>
         {cutoff.ordersAtRisk > 0 ? t(copy.truckClock.atRisk, { n: cutoff.ordersAtRisk }) : copy.truckClock.allOnTrack}
       </p>
     </div>
@@ -50,8 +53,15 @@ export interface TruckClockProps {
   stacked?: boolean;
 }
 
-/** §3.2 / §6.1: Flighty-style departure capsules, sorted by departure, with a door
- * chip, "leaves in", a filling progress track, and orders at risk. */
+/**
+ * Departure capsules, sorted by departure: carrier, door, "leaves in", a filling track,
+ * and the orders at risk behind it.
+ *
+ * Nothing in here is saturated. In the rail this is reference material (§7.3) and §4.5
+ * bans hue on progress tracks outright, so "236 orders at risk" carries its weight in
+ * `font-weight` and `--text-1`, not in red — three red lines stacked down the rail were
+ * the loudest thing on the v2 screen after the hero, and they rank nothing.
+ */
 export function TruckClock({ cutoffs, now, stacked }: TruckClockProps) {
   const sorted = [...cutoffs].sort(
     (a, b) => new Date(a.departsAt).getTime() - new Date(b.departsAt).getTime(),

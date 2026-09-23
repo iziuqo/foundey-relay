@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { contrastBetween, labToLinearSrgb, parseLab, parseOklch, relativeLuminance } from "./color";
+import {
+  contrastBetween,
+  cssColorToOklch,
+  labToLinearSrgb,
+  parseLab,
+  parseOklch,
+  relativeLuminance,
+} from "./color";
 
 describe("parseOklch", () => {
   it("parses fractional lightness with no percent sign", () => {
@@ -72,5 +79,38 @@ describe("parseLab / labToLinearSrgb", () => {
     expect(viaLab).not.toBeNull();
     expect(viaOklch).not.toBeNull();
     expect(Math.abs(viaLab! - viaOklch!)).toBeLessThan(0.5);
+  });
+});
+
+describe("cssColorToOklch (craft check 8: the chroma budget)", () => {
+  it("round-trips an oklch token without losing chroma to a gamut clamp", () => {
+    // Read directly, not round-tripped: --act-fg is oklch(0.4 0.155 27), and clipping
+    // it through sRGB and back is exactly how a saturated colour would get quietly
+    // under-counted by the budget it is supposed to blow.
+    const parsed = cssColorToOklch("oklch(0.4 0.155 27)");
+    expect(parsed!.c).toBeCloseTo(0.155, 6);
+  });
+
+  it("agrees with the source oklch after the engine flattens it to lab()", () => {
+    const viaLab = cssColorToOklch("lab(40.9% 52.5 30.6)");
+    expect(viaLab).not.toBeNull();
+    expect(viaLab!.c).toBeGreaterThan(0.12);
+    expect(viaLab!.c).toBeLessThan(0.2);
+  });
+
+  it("reads a plain rgb() string", () => {
+    const white = cssColorToOklch("rgb(255, 255, 255)");
+    expect(white!.l).toBeCloseTo(1, 2);
+    expect(white!.c).toBeLessThan(0.001);
+  });
+
+  it("returns null for colours that paint nothing, so they spend no budget", () => {
+    expect(cssColorToOklch("rgba(0, 0, 0, 0)")).toBeNull();
+    expect(cssColorToOklch("transparent")).toBeNull();
+  });
+
+  it("puts the neutral ramp under the 0.06 budget threshold and the tier hues over it", () => {
+    expect(cssColorToOklch("oklch(0.44 0.006 250)")!.c).toBeLessThan(0.06);
+    expect(cssColorToOklch("oklch(0.46 0.115 68)")!.c).toBeGreaterThan(0.06);
   });
 });

@@ -19,19 +19,27 @@ export function SectionBand({
 }: React.HTMLAttributes<HTMLDivElement> & {
   icon?: React.ReactNode;
   label: React.ReactNode;
-  count?: number;
+  count?: React.ReactNode;
 }) {
   return (
     <div
       className={cn(
-        "flex h-(--h-band) items-center gap-2 bg-(--surface-2) px-4",
+        // The separator is an inset shadow, never a border: a border is part of the box
+        // and would make this band a different height from the next one (§5.4).
+        // px-3 matches the queue row's own 12px inline padding, so the tier icon in the
+        // band and the tier icon in the rows under it sit on one vertical line.
+        "flex h-(--h-band) items-center gap-2 bg-(--surface-2) px-3 shadow-[inset_0_-1px_0_var(--line-1)] max-md:h-10",
         className,
       )}
       {...props}
     >
       {icon}
       <span className="t-meta font-semibold">{label}</span>
-      {count !== undefined && <span className="t-meta text-(--text-2)">{count}</span>}
+      {count !== undefined && (
+        // Tabular figures need a container sized to the widest state or the box reflows
+        // around them and undoes the alignment they exist for (§3.5).
+        <span className="tnum t-meta min-w-[2ch] text-(--text-2)">{count}</span>
+      )}
     </div>
   );
 }

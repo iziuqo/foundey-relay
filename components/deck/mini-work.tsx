@@ -41,7 +41,6 @@ export function MiniWork({ wire, className }: { wire?: boolean; className?: stri
       className={cn("pointer-events-none flex flex-col gap-4 overflow-hidden bg-(--bg) p-4", className)}
     >
       <StatusSentence
-        name="Priya"
         now={now}
         nowTierCount={queue.now.length + (queue.hero?.result.tier === "now" ? 1 : 0)}
         done={done}

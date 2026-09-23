@@ -33,7 +33,11 @@ export default function AppLayout({
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
-        <main className="min-w-0 flex-1 pb-[120px] lg:pb-0">{children}</main>
+        {/* The one texture (§4.6): 1px dots at 24px pitch on the canvas, below the
+            acuity limit at two metres, so it costs nothing there and gives the empty
+            right side of /work at 1920 something to be. M1 defined the utility; nothing
+            had applied it. */}
+        <main className="canvas-texture min-w-0 flex-1 pb-[120px] lg:pb-0">{children}</main>
       </div>
       <BottomDock />
       <ToastBridge />

@@ -300,10 +300,18 @@
   }
 }
 
+/* The queue row grows to 72 below 768, not below 480: that is where §5.5 puts it, and
+ * where every control step already resolves to 48 (components/ui/sizing.ts), so the row
+ * and the things inside it change size at the same breakpoint rather than 288px apart. */
+@media (width < 48rem) {
+  :root {
+    --h-row: var(--h-row-handheld);
+  }
+}
+
 @media (width < 30rem) {
   :root {
     --gutter: 1rem;
-    --h-row: var(--h-row-handheld);
   }
 }
 
@@ -691,6 +699,50 @@ samp {
 
   .page-rail {
     display: flex;
+  }
+}
+
+/* ================= The queue row — v3 M4 =================
+ * advisor §5.1: `24px | minmax(0, 62ch) | 1fr | auto` — tier icon, capped text, elastic
+ * spacer, meta cluster. The spacer is the point: it absorbs the extra width so the
+ * measure stops growing, instead of a line of 19px titles running to 90 characters on a
+ * 1440 screen.
+ *
+ * The meta track is a fixed width rather than `auto`, which is advisor §5.6 item 4 read
+ * literally — "a shared track ... so a 92px chip and a 156px chip still share an edge".
+ * Per-row `auto` gives a shared *right* edge and a ragged left one, and the cluster's
+ * width also changes between its resting state (a time chip) and its revealed one (a
+ * button and an overflow), which would move the chip's edge on hover. One fixed track
+ * pins both edges for every row in every group, and costs no subgrid.
+ *
+ * **Rows never carry a border** (§5.4). The separator is an inset shadow, so it cannot
+ * change the row's box — v2 measured 63/64/64/63/63 on this exact list because the
+ * border was real on some rows and not others.
+ *
+ * Below 768 the elastic spacer and the reserved action track both go: there is no hover
+ * on a touch screen, so reserving ~100px for a cluster that can never be revealed would
+ * cost a third of the title's width to buy nothing. The row keeps icon · text · chip. */
+.queue-row {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 62ch) 1fr var(--meta-w, 8.5rem);
+  column-gap: 0.75rem;
+  align-items: center;
+  height: var(--h-row);
+  padding-inline: 0.75rem;
+  box-shadow: inset 0 -1px 0 var(--line-1);
+}
+
+.queue-row:last-child {
+  box-shadow: none;
+}
+
+@media (width < 48rem) {
+  /* Two tracks, not four. A 130px time chip on the right leaves a 19px title 156px to
+   * live in at 390, which truncates it to four words — so on a handheld the time folds
+   * into the subtitle line instead, where it leads rather than trails and therefore
+   * survives the truncation the title cannot avoid. */
+  .queue-row {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
   }
 }
 

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { cssColorToOklch } from "../../lib/color";
 
 /**
  * The mechanical craft checks — plan/redesign/v3/ADVISOR-craft.md §9, the half that
@@ -19,7 +20,7 @@ import { test, expect, type Page } from "@playwright/test";
  * route to this list is part of that milestone's exit gate, not an afterthought.
  * ---------------------------------------------------------------------------------
  */
-const MIGRATED = ["/system/components"];
+const MIGRATED = ["/system/components", "/work"];
 
 /** Radius is a function of height: r = round(h × 0.28), snapped to the ladder. */
 const RADIUS_FOR_HEIGHT: [number, number][] = [
@@ -32,11 +33,26 @@ const RADIUS_FOR_HEIGHT: [number, number][] = [
 
 const CONTROLS = "button, input, select, a[role='button'], [role='button']";
 
-/** Text nodes that are actually painted, with their computed type. */
+/**
+ * Text nodes that are actually painted, with their computed type.
+ *
+ * "Painted" has to include ancestor opacity, not just the node's own box: §5.6 item 6
+ * requires a row's action cluster to occupy its track **at all times** at `opacity: 0`
+ * so that revealing it cannot move anything, which means every queue row lays out a
+ * "Start" that puts no ink on the screen. Counting those as visible text made check 2
+ * read five phantom 14px nodes on `/work` and would have had this suite grading the DOM
+ * rather than the page.
+ */
 async function textNodes(page: Page) {
   return page.evaluate(() => {
     const out: { text: string; size: number; tracking: string; color: string; tabular: string }[] = [];
     const walker = document.createTreeWalker(document.querySelector("main") ?? document.body, NodeFilter.SHOW_TEXT);
+    const transparent = (el: Element) => {
+      for (let node: Element | null = el; node; node = node.parentElement) {
+        if (parseFloat(getComputedStyle(node).opacity) === 0) return true;
+      }
+      return false;
+    };
     let node = walker.nextNode();
     while (node) {
       const text = node.textContent?.trim() ?? "";
@@ -44,7 +60,7 @@ async function textNodes(page: Page) {
       if (text && el) {
         const box = el.getBoundingClientRect();
         const style = getComputedStyle(el);
-        if (box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none") {
+        if (box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.display !== "none" && !transparent(el)) {
           out.push({
             text,
             size: parseFloat(style.fontSize),
@@ -254,5 +270,117 @@ test.describe("craft: handheld", () => {
       });
       expect(overlaps, `overlapping pinned elements on ${path}`).toEqual([]);
     }
+  });
+});
+
+/**
+ * Check 8 · the chroma budget. ADVISOR-craft.md §9: "Sample every painted element on
+ * /work: at most 12 have OKLCH chroma > 0.06, and the single highest-chroma element
+ * belongs to the Act-now tier." *v2: the indigo primary button (C ≈ 72 in Lab) beat the
+ * Act-now tint (C ≈ 14)* — the accent was the loudest object on a screen whose whole
+ * argument is that loudness follows rank.
+ *
+ * Scoped to /work and /team by the advisor's own note (§11): /system and /deck must be
+ * able to *show* the palette. /team is M6's; this runs on /work today.
+ *
+ * "Painted" means the element itself puts colour on the screen — its own text, its own
+ * background, or a border with real width. An element counts once no matter how many of
+ * those are saturated, because the budget counts objects the eye has to rank, not
+ * declarations. Colour is read after the engine has resolved it, so a token that picks
+ * up chroma through a var() chain cannot hide.
+ */
+const CHROMA_BUDGET = 12;
+const SATURATED = 0.06;
+
+async function saturatedElements(page: Page) {
+  const samples = await page.evaluate(() => {
+    const all = [...document.querySelectorAll<HTMLElement>("body *")];
+    const indexOf = new Map(all.map((el, i) => [el, i]));
+
+    function describe(el: Element): string {
+      const tag = el.tagName.toLowerCase();
+      const testid = el.getAttribute("data-testid");
+      const text = (el.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 32);
+      return `${tag}${testid ? `[${testid}]` : ""} "${text}"`;
+    }
+
+    return all.map((el, i) => {
+      const style = getComputedStyle(el);
+      const box = el.getBoundingClientRect();
+      const painted =
+        style.visibility !== "hidden" &&
+        style.display !== "none" &&
+        parseFloat(style.opacity) !== 0 &&
+        box.width > 0 &&
+        box.height > 0;
+
+      const colors: string[] = [];
+      if (painted) {
+        // Text colour counts only where this element paints text of its own; an
+        // inherited `color` on a wrapper puts nothing on the screen.
+        const paintsText = [...el.childNodes].some(
+          (n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? "").trim() !== "",
+        );
+        if (paintsText) colors.push(style.color);
+        colors.push(style.backgroundColor);
+        for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
+          if (parseFloat(style[`border${side}Width`]) > 0) colors.push(style[`border${side}Color`]);
+        }
+        // An SVG glyph paints with fill and stroke, not colour — the tier icons and
+        // every lucide icon live here.
+        if (el instanceof SVGElement) colors.push(style.fill, style.stroke);
+      }
+
+      const parent = el.parentElement;
+      return {
+        index: i,
+        parent: parent && indexOf.has(parent) ? indexOf.get(parent)! : -1,
+        label: describe(el),
+        colors,
+        tier: el.closest("[data-tier]")?.getAttribute("data-tier") ?? null,
+      };
+    });
+  });
+
+  const chroma = samples.map((sample) =>
+    Math.max(0, ...sample.colors.map((color) => cssColorToOklch(color)?.c ?? 0)),
+  );
+  const isSaturated = chroma.map((c) => c > SATURATED);
+
+  /**
+   * One coloured object, one entry. An icon is an `<svg>` whose `<polygon>` inherits
+   * the same fill, and a time chip is a bordered span wrapping a glyph and a label in
+   * the same hue — counting those as five saturated elements would measure the DOM, not
+   * what the eye has to rank. So an element that has a saturated ancestor folds into it,
+   * and the ancestor reports the loudest chroma in its own subtree.
+   */
+  const merged = new Map<number, { label: string; tier: string | null; chroma: number }>();
+  for (const sample of samples) {
+    if (!isSaturated[sample.index]) continue;
+    let owner = sample.index;
+    for (let p = sample.parent; p !== -1; p = samples[p].parent) {
+      if (isSaturated[p]) owner = p;
+    }
+    const existing = merged.get(owner);
+    const value = Math.max(chroma[sample.index], existing?.chroma ?? 0);
+    merged.set(owner, { label: samples[owner].label, tier: samples[owner].tier, chroma: value });
+  }
+
+  return [...merged.values()].sort((a, b) => b.chroma - a.chroma);
+}
+
+test.describe("craft: the chroma budget", () => {
+  test("8 · at most 12 elements on /work are saturated, and the loudest is Act now", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1024 });
+    await page.goto("/work");
+    await expect(page.getByTestId("hero")).toBeVisible();
+
+    const saturated = await saturatedElements(page);
+    const listed = saturated.map((s) => `${s.chroma.toFixed(3)} ${s.tier ?? "—"} ${s.label}`);
+
+    expect(listed.length, `saturated elements (C > ${SATURATED}):\n${listed.join("\n")}`).toBeLessThanOrEqual(
+      CHROMA_BUDGET,
+    );
+    expect(saturated[0]?.tier, `the loudest element on the page: ${listed[0]}`).toBe("now");
   });
 });
