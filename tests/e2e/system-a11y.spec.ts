@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeViolations } from "./axe";
 
 // Gate G4 (plan §9.1). Phase 2 covered Foundations and Components; Phase 7 adds
 // Patterns and Rules, the last two /system sections (§6.7).
@@ -8,8 +8,7 @@ test.describe("G4 accessibility", () => {
   for (const path of ["/system", "/system/components", "/system/patterns", "/system/rules"]) {
     test(`${path} has zero axe violations`, async ({ page }) => {
       await page.goto(path);
-      const results = await new AxeBuilder({ page }).analyze();
-      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      expect(await axeViolations(page)).toEqual([]);
     });
 
     test(`${path} has zero axe violations in dark (hi-fi)`, async ({ page }) => {
@@ -23,15 +22,13 @@ test.describe("G4 accessibility", () => {
       // this, axe can sample mid-flip and report whatever half-applied color pairing
       // happened to be current at that instant (flaky, not a real defect).
       await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
-      const results = await new AxeBuilder({ page }).analyze();
-      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      expect(await axeViolations(page)).toEqual([]);
     });
 
     test(`${path} has zero axe violations in light + wireframe`, async ({ page }) => {
       await page.goto(path);
       await page.getByRole("button", { name: /^(Hi-fi|Wire)$/ }).click();
-      const results = await new AxeBuilder({ page }).analyze();
-      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      expect(await axeViolations(page)).toEqual([]);
     });
 
     test(`${path} has zero axe violations in dark + wireframe`, async ({ page }) => {
@@ -39,8 +36,7 @@ test.describe("G4 accessibility", () => {
       await page.getByRole("button", { name: /^(Light|Dark)$/ }).click();
       await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
       await page.getByRole("button", { name: /^(Hi-fi|Wire)$/ }).click();
-      const results = await new AxeBuilder({ page }).analyze();
-      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      expect(await axeViolations(page)).toEqual([]);
     });
   }
 

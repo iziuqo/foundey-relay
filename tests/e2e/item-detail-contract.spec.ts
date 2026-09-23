@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeViolations } from "./axe";
 
 // Phase 4 exit gate (plan §10): "G4 keyboard flow end to end" for item detail, the
 // command palette, and /lookup. G2's screenshot baselines need a human to approve them,
@@ -159,8 +159,7 @@ test.describe("G4 accessibility", () => {
     // axe can race the transition and flag a transient, not-actually-visible frame.
     await page.mouse.move(0, 0);
     await page.waitForTimeout(250);
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the command palette has zero axe violations", async ({ page }) => {
@@ -169,8 +168,7 @@ test.describe("G4 accessibility", () => {
     await expect(page.getByTestId("hero")).toBeVisible();
     await page.keyboard.press("Meta+k");
     await expect(page.getByRole("dialog", { name: "Command palette" })).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the shortcuts sheet has zero axe violations", async ({ page }) => {
@@ -179,22 +177,19 @@ test.describe("G4 accessibility", () => {
     await expect(page.getByTestId("hero")).toBeVisible();
     await page.keyboard.press("?");
     await expect(page.getByRole("dialog", { name: "Keyboard shortcuts" })).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the full item page has zero axe violations", async ({ page }) => {
     await resetDemo(page);
     await page.goto("/items/it-01");
     await expect(page.getByTestId("item-detail-title")).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("/lookup has zero axe violations", async ({ page }) => {
     await resetDemo(page);
     await page.goto("/lookup");
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 });

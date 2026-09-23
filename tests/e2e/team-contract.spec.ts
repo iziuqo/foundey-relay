@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeViolations } from "./axe";
 
 // Gates G3 (text) and G7 (layout) for /team (plan §9.1, Phase 5 exit gate). G2's
 // screenshot baselines need a human to approve them, so they aren't here. Tests run as
@@ -49,8 +49,12 @@ test.describe("G7 layout (/team)", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await gotoTeamAsManager(page);
     const tiles = page.getByTestId("risk-tiles").getByRole("button");
-    const count = await tiles.count();
-    expect(count).toBe(4);
+    // toHaveCount polls; count() reads once. The tiles only exist after the store
+    // rehydrates the seeded persona from localStorage, so a single read races hydration
+    // — it passed only because a production build won the race (same failure mode as
+    // a617ca5: assert the settled state, don't sample it).
+    await expect(tiles).toHaveCount(4);
+    const count = 4;
     const boxes = await Promise.all(Array.from({ length: count }, (_, i) => tiles.nth(i).boundingBox()));
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
@@ -140,16 +144,14 @@ test.describe("Team defect fixes (README §6)", () => {
 test.describe("G4 accessibility (/team)", () => {
   test("the manager board has zero axe violations", async ({ page }) => {
     await gotoTeamAsManager(page);
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the check-in sheet has zero axe violations", async ({ page }) => {
     await gotoTeamAsManager(page);
     await page.locator("li", { hasText: "Luis Herrera" }).getByRole("button", { name: "Check in" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the assign popover has zero axe violations", async ({ page }) => {
@@ -165,7 +167,6 @@ test.describe("G4 accessibility (/team)", () => {
     // Settling past the animation's own duration before analyzing is what makes this
     // check the same steady state a user actually reads.
     await page.waitForTimeout(300);
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 });

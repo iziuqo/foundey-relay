@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeViolations } from "./axe";
 
 // Gates G3 (text) and G7 (layout) for /updates (plan §9.1, Phase 5 exit gate). G2's
 // screenshot baselines need a human to approve them, so they aren't here.
@@ -121,8 +121,7 @@ test.describe("G4 accessibility (/updates)", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/updates");
     await page.getByTestId("updates-list").getByRole("button").first().click();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   test("the handheld update sheet has zero axe violations", async ({ page }) => {
@@ -131,7 +130,6 @@ test.describe("G4 accessibility (/updates)", () => {
     await page.goto("/updates");
     await page.getByTestId("updates-list").getByRole("button").first().click();
     await expect(page.getByRole("dialog")).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 });
