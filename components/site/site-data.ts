@@ -29,7 +29,7 @@ export interface Stat {
 /** The hero band. Five numbers, each one checkable. */
 export const STATS: Stat[] = [
   { value: "50 min", label: "Scaffold to a live URL", note: "12:05 → 12:55, day one" },
-  { value: "42", label: "Commits", note: "Across three days" },
+  { value: "12", label: "Commits with nobody awake", note: "22:20 Mon → 13:07 Tue" },
   { value: "635", label: "Automated checks", note: "283 unit · 304 end-to-end · 48 pixel" },
   { value: "11", label: "Quality gates", note: "Nine of them a single command" },
   { value: "0", label: "Screens drawn by hand", note: "The Figma files are generated" },
@@ -155,7 +155,7 @@ export const BEATS: Beat[] = [
     human: true,
   },
   {
-    time: "22:03",
+    time: "22:20",
     day: "Mon 22",
     title: "Last instruction of the night.",
     detail: "The test loop is made cheap to run and cheap to read, so that a long unattended run does not drown in its own output.",
@@ -199,7 +199,7 @@ export const BEATS: Beat[] = [
   {
     time: "13:07",
     day: "Tue 23",
-    title: "The deck. Thirteen commits since the last instruction.",
+    title: "The deck. Twelve commits since the last instruction.",
     detail: "Part A is the one-hour answer in ten slides. Part B is marked Optional on every slide.",
     night: true,
   },
@@ -265,7 +265,7 @@ export const OMISSIONS: Omission[] = [
   {
     title: "I did not sit and watch it build.",
     detail:
-      "My own time went into the argument, the plan, the gates and the reviews. The longest stretch of work in this repo happened between 22:03 and 13:07 while nobody was at the keyboard.",
+      "My own time went into the argument, the plan, the gates and the reviews. The longest stretch of work in this repo happened between 22:20 and 13:07 while nobody was at the keyboard.",
   },
   {
     title: "I did not finish everything, and the repo says so.",

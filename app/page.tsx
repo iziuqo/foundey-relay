@@ -288,7 +288,7 @@ export default function CaseStudyPage() {
             numeral="05"
             eyebrow="The process"
             title="I wrote the argument and the gates. The night shift wrote the code."
-            lead="Transcribed from git log, in the machine's own time zone. Thirteen commits landed between the last instruction of one night and lunchtime the next day. Six of them arrived between midnight and half past eight."
+            lead="Transcribed from git log, in the machine's own time zone. Twelve commits landed between the last instruction of one night and lunchtime the next day. Six of them arrived between midnight and half past eight."
           >
             <div className="flex flex-col gap-8">
               <ul className="t-site-mono flex flex-wrap gap-x-6 gap-y-2 text-(--site-text-3)">
