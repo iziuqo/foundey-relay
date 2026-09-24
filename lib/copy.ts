@@ -63,6 +63,15 @@ export const copy = {
     tomorrow: "Tomorrow {hhmm}",
     ago: "{rel} ago",
     justNow: "Just now",
+    // The coarse form the /updates list uses, and the two units the hero ring splits its
+    // label into. Both exist because a precise string lost a width fight it should not
+    // have been in: "1 h 40 min ago" was taking 113px of a 356px row at 390 while the
+    // update's own title was cut to eight characters (M15, G11). The exact time is still
+    // one tap away — the update detail prints "10:40 · 1 h 40 min ago" in full.
+    agoHours: "{n} h ago",
+    unitHour: "h",
+    unitMinute: "min",
+    lateSuffix: "late",
   },
   why: {
     title: "Why is this first?",

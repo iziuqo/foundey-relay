@@ -16,6 +16,18 @@ import { defineConfig, devices } from "@playwright/test";
 // starts and stops one per run.
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 
+// M15 needs the suite pointed at a deployed URL ("every gate re-run against the deploy",
+// plan §10 M15). BASE_URL takes over `baseURL` and removes `webServer` entirely — not just
+// `reuseExistingServer`, which would still try to start a local server and then grade a
+// remote one. Unset, everything below behaves exactly as it did before.
+//
+//   BASE_URL=https://foundey-relay.vercel.app npm run test:e2e
+//
+// The visual project stays local-only: its baselines are Chromium-on-macOS pixels of a dev
+// server, and a deploy differs in ways (fonts over the network, no dev overlay) that make a
+// remote comparison meaningless rather than informative.
+const REMOTE = process.env.BASE_URL?.replace(/\/$/, "");
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
@@ -26,7 +38,7 @@ export default defineConfig({
   // bytes, and failures still print in full. CI keeps "list" for a readable log.
   reporter: process.env.CI ? "list" : "dot",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: REMOTE ?? `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
   // Two projects, because they answer different questions and cost differently. `chromium`
@@ -58,13 +70,15 @@ export default defineConfig({
       maxDiffPixelRatio: 0.001,
     },
   },
-  webServer: {
-    // CI still builds for real: the gates are graded against a production build.
-    command: process.env.CI
-      ? `npm run build && npx next start -p ${PORT}`
-      : `NEXT_DIST_DIR=.next-test npx next dev -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: REMOTE
+    ? undefined
+    : {
+        // CI still builds for real: the gates are graded against a production build.
+        command: process.env.CI
+          ? `npm run build && npx next start -p ${PORT}`
+          : `NEXT_DIST_DIR=.next-test npx next dev -p ${PORT}`,
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      },
 });

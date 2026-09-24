@@ -240,7 +240,11 @@ function LoudnessRows({ loud = false }: { loud?: boolean }) {
             <TierIcon tier={row.tier} className={tone[row.tier]} />
             <span className="min-w-0 flex-1">
               <span className={cn("block t-eyebrow", tone[row.tier])}>{row.label}</span>
-              <span className="block t-row text-(--text-1)">{row.title}</span>
+              {/* truncate, like the real QueueRow this illustrates: the row is a fixed
+                h-14 so that craft checks 3 and 4 hold (one height, one centre), and a
+                title allowed to wrap grew the content to ~68px, broke out of the tint and
+                landed on the next row's eyebrow at 1024 and 390. */}
+              <span className="block truncate t-row text-(--text-1)">{row.title}</span>
             </span>
             {row.tier !== "fyi" && (
               <Chip

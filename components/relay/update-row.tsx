@@ -13,6 +13,23 @@ export function relativePast(at: string, now: Date): string {
   return t(copy.time.ago, { rel: relativeDuration(mins) });
 }
 
+/**
+ * The list's form of the same thing, rounded down to the hour once there is an hour.
+ *
+ * The row is a grid whose last column is `auto` and `whitespace-nowrap`, so whatever this
+ * returns is taken off the title before the title gets anything. Measured at 390 on the
+ * production build, `relativePast` took 113px of a 356px row — more than the title's 131px,
+ * for a label accurate to the minute about something two hours old — and every title in the
+ * list truncated to about eight characters. Recency is what a list needs; precision is what
+ * the detail is for, and it still prints the clock time beside the full relative one.
+ */
+export function relativePastShort(at: string, now: Date): string {
+  const mins = minutesBetween(new Date(at), now);
+  if (mins < 1) return copy.time.justNow;
+  if (mins < 60) return t(copy.time.ago, { rel: relativeDuration(mins) });
+  return t(copy.time.agoHours, { n: String(Math.floor(mins / 60)) });
+}
+
 export interface UpdateRowViewProps {
   row: UpdateRow;
   author: Person | undefined;
@@ -78,7 +95,7 @@ export function UpdateRowView({ row, author, now, unread, selected, onSelect }: 
       </span>
 
       <span aria-hidden className="tnum pointer-events-none t-body justify-self-end whitespace-nowrap text-(--text-2)">
-        {relativePast(row.at, now)}
+        {relativePastShort(row.at, now)}
       </span>
     </li>
   );

@@ -1,5 +1,6 @@
 import NumberFlow from "@number-flow/react";
 import { minutesBetween, relativeDuration } from "@/lib/time";
+import { copy } from "@/lib/copy";
 import { cn } from "@/lib/cn";
 import type { Item } from "@/lib/types";
 import { tierStrokeClass } from "./tier-tokens";
@@ -31,9 +32,16 @@ export interface CountdownArcProps {
  * The numeral is `t-hero`, tabular: §3.3 counts the hero countdown as one of exactly
  * three things on this screen that are read at two metres, and that needs 33px. Only
  * the number is shown — the ring itself is the unit, and the accessible name on the
- * wrapper still says "50 min" in full. Values that cannot be a bare number (an
- * hours-and-minutes label, or a late one) drop to `t-section`, which fits the ring
- * without the digits colliding with the stroke.
+ * wrapper still says "50 min" in full.
+ *
+ * A value that cannot be a bare number (past 100 minutes, or late) used to render its
+ * whole label at `t-section` on the claim that 23px fits the ring. Measured, it does
+ * not: "22 h 20 min" wrapped to three lines and "Late 2 h 2 min" to two, both spilling
+ * over the stroke — and "22 h 20 min" is the seeded default of the last item in the
+ * queue, not an edge case (M15, G11). So those values split instead: the magnitude
+ * stays large enough to read across the aisle at `t-hero-sm`, and the unit — plus
+ * "late", when it applies — sits under it at `t-eyebrow`. The minutes a split drops are
+ * not lost: they are in this element's own `aria-label`, and in the row's TimePill.
  *
  * At 15 minutes left the arc and numeral shift to the Act-now hue over 600ms — a
  * reading of time itself, not of the item's tier, so a When-you-can item still turns
@@ -55,6 +63,11 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
   const strokeTier = urgent ? "now" : tier;
   const label = late ? `Late ${relativeDuration(ml)}` : relativeDuration(ml);
   const bare = !late && absMin < 100;
+  // The split form: hours once there is an hour to show, minutes otherwise. Both fit the
+  // ring's 62px of usable width at the sizes below; the full string never did.
+  const overAnHour = absMin >= 60;
+  const magnitude = overAnHour ? Math.floor(absMin / 60) : absMin;
+  const unit = `${overAnHour ? copy.time.unitHour : copy.time.unitMinute}${late ? ` ${copy.time.lateSuffix}` : ""}`;
 
   return (
     <div
@@ -82,12 +95,20 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
       <span
         aria-hidden
         className={cn(
-          "tnum absolute inset-0 flex items-center justify-center text-center transition-colors duration-(--dur-hue) ease-(--ease-out)",
-          bare ? "t-hero" : "t-section",
+          "tnum absolute inset-0 flex flex-col items-center justify-center text-center leading-none transition-colors duration-(--dur-hue) ease-(--ease-out)",
           urgent ? "text-(--act-fg)" : "text-(--text-1)",
         )}
       >
-        {bare ? <NumberFlow value={absMin} /> : label}
+        {bare ? (
+          <span className="t-hero leading-none">
+            <NumberFlow value={absMin} />
+          </span>
+        ) : (
+          <>
+            <span className="t-hero-sm leading-none">{magnitude}</span>
+            <span className="t-eyebrow leading-none">{unit}</span>
+          </>
+        )}
       </span>
     </div>
   );

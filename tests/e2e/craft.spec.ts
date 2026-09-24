@@ -252,7 +252,13 @@ test.describe("craft: handheld", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     for (const path of MIGRATED) {
       await page.goto(path);
-      const small = await page.evaluate((selector) => {
+      // expect.poll, not a bare evaluate: `goto` resolves before hydration finishes, and a
+      // single measurement taken then is a sample of a layout still settling. Against
+      // `next start` under five workers this check failed once and passed in isolation and
+      // on every repeat — the flake CLAUDE.md names ("assert settled state, never sample
+      // it"). Polling keeps the assertion identical and removes the race, which matters
+      // most when the target is a deploy rather than localhost (M15).
+      const measureSmall = () => page.evaluate((selector) => {
         return [...document.querySelectorAll<HTMLElement>(selector)]
           .filter((node) => node.offsetParent !== null)
           .map((node) => {
@@ -268,9 +274,11 @@ test.describe("craft: handheld", () => {
           })
           .filter(Boolean);
       }, CONTROLS);
-      expect(small, `targets under 44px on ${path}`).toEqual([]);
+      await expect
+        .poll(measureSmall, { message: `targets under 44px on ${path}` })
+        .toEqual([]);
 
-      const overlaps = await page.evaluate(() => {
+      const measureOverlaps = () => page.evaluate(() => {
         const pinned = [...document.querySelectorAll<HTMLElement>("*")].filter((node) => {
           const position = getComputedStyle(node).position;
           return position === "fixed" || position === "sticky";
@@ -288,7 +296,9 @@ test.describe("craft: handheld", () => {
         }
         return hits;
       });
-      expect(overlaps, `overlapping pinned elements on ${path}`).toEqual([]);
+      await expect
+        .poll(measureOverlaps, { message: `overlapping pinned elements on ${path}` })
+        .toEqual([]);
     }
   });
 });
