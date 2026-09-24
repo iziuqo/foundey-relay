@@ -114,8 +114,17 @@ export function DeckShell() {
         className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden bg-(--surface-2)"
         onClick={() => setIndex((i) => Math.min(deckSlides.length - 1, i + 1))}
       >
-        {/* eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (fit-to-viewport scale), not color */}
-        <div className="shrink-0" style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, transform: `scale(${scale})` }}>
+        {/* absolute, not a flex child: `transform` scales what is painted and leaves the
+            layout box at its full 1600×900, so in flow this div made the row wider than the
+            window — `/deck` scrolled sideways by 160px at 1280 and 80px at 1440, measured
+            (M15, G11). `overflow-hidden` on this main only clipped the paint. Out of flow,
+            the row is the window's width, the scale is measured from a box that no longer
+            depends on its own content, and nothing moves visually. */}
+        <div
+          className="absolute shrink-0"
+          // eslint-disable-next-line react/forbid-dom-props -- dynamic geometry (fit-to-viewport scale), not color
+          style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, transform: `scale(${scale})` }}
+        >
           <Slide n={index + 1} total={deckSlides.length} />
         </div>
       </main>

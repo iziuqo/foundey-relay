@@ -11,12 +11,17 @@ snapshot of a Tuesday morning at 10:40 local time, and no data is invented at ru
 The brief asked for under an hour and a low-fidelity solution. That answer comes first, everywhere
 — in the deck, in this file, and in the order of the Figma pages:
 
-**Workers cannot rank their own work, because the dashboard never ranked it for them.** So rank it,
-once, by the only thing that matters in a fulfillment center — what a truck, a person or an order
-count is about to lose — and put exactly one thing at the top of the screen with the reason
-written underneath it in plain words. Four tiers, not a feed: **Act now · Up next · When you can ·
-For your info**. The manager gets the same ranking from the other side: not a roster, but the
-exceptions, and who is already on them.
+**The dashboard already ranks, and that was never the missing piece.** Today's screen has a queue
+titled "Needs Your Attention, ranked by urgency", and people still say they do not know what to do
+first. So the problem is not the order. What is missing is everything around it: it ranks but
+never says **why**, it groups by **source** instead of by what happens next, every row asks for
+attention **at once**, and there is **no way to be done**.
+
+So: one thing at the top of the screen, the reason written underneath it in plain words, and the
+score openable on the spot — *Time 30 + Orders 22 + Impact 10 = 62, and 60 or higher means act
+now*. Four tiers instead of a feed — **Act now · Up next · When you can · For your info** — and a
+real finish line when the queue is empty. The manager gets the same thing from the other side: not
+a roster and never a stopwatch on a person, but the exceptions and who is already on them.
 
 Wireframe mode (`Wire` in the top bar) is that answer with every colour channel multiplied by
 zero. If the ranking still reads, the ranking is real and not a paint job. It is a real mode with
@@ -87,7 +92,7 @@ npm run dev
 | `npm run build` | Production build |
 | `npm test` | 278 unit tests: the priority model, actions, copy, contrast pairs, tokens |
 | `npm run test:tz` | The same suite under São Paulo, Tokyo and UTC (G7) |
-| `npm run test:e2e` | 291 Playwright tests: size contract, breakpoints, axe, wire, reduced motion |
+| `npm run test:e2e` | 292 Playwright tests: size contract, breakpoints, axe, wire, reduced motion |
 | `npm run test:visual` | 48 pixel baselines — eight surfaces × six widths. `:update` re-records them |
 | `npm run check:gates` | G1–G7 and G9 in one command, about 75s, one line per step |
 | `npm run check:g8` | Lighthouse over `/work`, median of three. Takes a deploy URL, and `--mobile` |
@@ -116,8 +121,9 @@ Gates are mechanical, and nothing is graded by looking at the thing it grades.
 | G10 | Each Figma file matches what shipped, verified by screenshot rather than by an API call returning 200 |
 | G11 | A session that did not build it drives every route at three widths and writes the review |
 
-Ten of the eleven are a command. G10 and G11 are judgement, so they are done by a different
-session from the one that built the thing.
+Nine of the eleven are a command — `npm run check:gates` carries G1–G7 and G9, `check:g8` carries
+G8. G10 and G11 are judgement, so they are done by a session other than the one that built the
+thing.
 
 ## Stack
 

@@ -211,7 +211,13 @@ function Row({ row }: { row: CommandRow }) {
       )}
       {row.icon}
       <span className="min-w-0 flex-1 truncate t-body text-(--text-1)">{row.label}</span>
-      {row.sub && <span className="truncate t-meta text-(--text-2)">{row.sub}</span>}
+      {/* The reason is a desktop column. It carries no `min-w-0`, so as a flex item it
+          never gives any width back, and at 390 it was taking the row: "Label printer
+          offline at Pack 7" rendered in 82px of the 220 it needs — "Label pri…" — while
+          "Blocks 140 orders for UPS 11:30" sat beside it in full (M15, G11). Letting both
+          shrink would only produce two truncated strings instead of one. At handheld there
+          is room for the thing that identifies the row, and that is its title. */}
+      {row.sub && <span className="hidden truncate t-meta text-(--text-2) md:inline">{row.sub}</span>}
       {row.shortcut && (
         <kbd
           data-kbd

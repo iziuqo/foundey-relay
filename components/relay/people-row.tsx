@@ -64,16 +64,16 @@ export function PeopleRow({ person, currentItem, counts, candidates, now, onOpen
             <span className="t-meta text-(--text-2)"> · {person.role}</span>
           </span>
         ) : (
-          <>
-            {/* The presence chip is the point of this row in this state — it never
-                gives up its space to the name, which truncates first instead
-                (found in wire mode: a wider monospace name was clipping the chip
-                itself down to nothing). */}
-            <span className="t-row min-w-0 truncate text-(--text-1)">{person.name}</span>
-            <Chip size="md" className="shrink-0">
-              {person.status === "on_break" ? copy.team.rightNow.onBreak : copy.team.rightNow.out}
-            </Chip>
-          </>
+          /* The presence chip used to sit here and win the space fight, on the reasoning
+             that it is the point of the row in this state (found in wire mode: a wider
+             monospace name was clipping the chip down to nothing). It held, and it cost
+             the name: measured at 1440 *and* at 1920, "Aisha Bello" and "Kwame Asante"
+             were both cut, because this column is a hard `minmax(0, 22ch)` that never
+             grows — while the `working` column next to it rendered an empty span for
+             exactly these people. So the chip moved there. It can no longer be squeezed
+             by anything, the name is no longer squeezed by it, and a column that was
+             blank on every away row now says what the person is doing. */
+          <span className="t-row min-w-0 truncate text-(--text-1)">{person.name}</span>
         )}
       </div>
 
@@ -91,6 +91,12 @@ export function PeopleRow({ person, currentItem, counts, candidates, now, onOpen
       ) : person.status === "working" ? (
         <span data-testid="person-on" className="pointer-events-none t-body min-w-0 text-(--text-2) [grid-area:working]">
           {copy.team.rightNow.available}
+        </span>
+      ) : person.status === "on_break" || person.status === "out" ? (
+        <span data-testid="person-on" className="pointer-events-none [grid-area:working]">
+          <Chip size="md">
+            {person.status === "on_break" ? copy.team.rightNow.onBreak : copy.team.rightNow.out}
+          </Chip>
         </span>
       ) : (
         <span data-testid="person-on" className="pointer-events-none [grid-area:working]" />

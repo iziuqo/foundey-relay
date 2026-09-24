@@ -414,3 +414,71 @@ test.describe("craft: the chroma budget", () => {
     expect(saturated[0]?.tier, `the loudest element on the page: ${listed[0]}`).toBe("now");
   });
 });
+
+/**
+ * M15 · the hero countdown stays inside its own ring.
+ *
+ * Not a craft check from §9 — a regression test for a defect three sessions saw and none
+ * could pin (M12 in Figma, M14 at 1280, M15 at 1440), because every committed visual
+ * baseline happens to catch the one state that always fitted: a bare number. The label
+ * only overflows once it is *not* a bare number, and reaching that needs the queue driven
+ * by hand, which no baseline does.
+ *
+ * Measured against the usable space inside the stroke, not against the 72px box: a label
+ * can be "inside the box" and still sit on the ring itself, which is what it looked like.
+ */
+test.describe("craft: the hero countdown", () => {
+  const RING = 72;
+  const STROKE = 5;
+  const USABLE = RING - STROKE * 2; // 62px of clear space inside the arc
+
+  test("its label fits inside the ring in every state the queue can reach", async ({ page }) => {
+    await page.goto("/work");
+    const seen: string[] = [];
+
+    for (let step = 0; step < 14; step += 1) {
+      const ring = page.getByTestId("hero-countdown");
+      if (!(await ring.count())) break;
+
+      const measured = await ring.first().evaluate((el) => {
+        const label = el.querySelector<HTMLElement>("span[aria-hidden]");
+        if (!label) return null;
+        // A Range over the label's contents, not scrollWidth and not the rect. The rect is
+        // useless (the span is inset-0, so it is always the ring's own size). scrollWidth is
+        // worse than useless here: NumberFlow renders each digit in its own clipped span and
+        // reports 73px for a "50" that inks about 40, so a bare number would fail a bound
+        // the eye can see it meets. A Range measures the glyphs that are actually painted.
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        const box = range.getBoundingClientRect();
+        range.detach();
+        return {
+          aria: el.getAttribute("aria-label") ?? "",
+          w: Math.round(box.width),
+          h: Math.round(box.height),
+        };
+      });
+      expect(measured).not.toBeNull();
+      seen.push(measured!.aria);
+      expect(
+        [measured!.w, measured!.h],
+        `"${measured!.aria}" is ${measured!.w}×${measured!.h} inside ${USABLE}px of ring`,
+      ).toEqual([expect.any(Number), expect.any(Number)]);
+      expect(measured!.w, `"${measured!.aria}" overflows the ring horizontally`).toBeLessThanOrEqual(USABLE);
+      expect(measured!.h, `"${measured!.aria}" overflows the ring vertically`).toBeLessThanOrEqual(USABLE);
+
+      const primary = page
+        .getByRole("button", { name: /^(Mark done|Start|Reprint|Release|Send|Confirm|Rush|Open|Acknowledge|Reply|Upgrade)/ })
+        .first();
+      if (!(await primary.count())) break;
+      await primary.click();
+      // Settled state, not a sample: the queue re-ranks and promotes a new hero.
+      await expect(ring.first()).toBeVisible();
+      await page.waitForTimeout(700);
+    }
+
+    // The point of driving the queue is to reach the labels a baseline never sees.
+    expect(seen.some((s) => /late/i.test(s)), `no late state reached; saw ${seen.join(", ")}`).toBe(true);
+    expect(seen.some((s) => /\bh\b/.test(s)), `no hours state reached; saw ${seen.join(", ")}`).toBe(true);
+  });
+});

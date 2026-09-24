@@ -79,11 +79,17 @@ export function StatusSentence({ now, nowTierCount, done, total, nextCutoff }: S
       : copy.status.clauseNothingUrgent;
   const rest: { key: string; node: React.ReactNode }[] = [];
   if (nextCutoff) rest.push({ key: "truck", node: truckClause(nextCutoff, now) });
-  rest.push(
-    nowTierCount > 0
-      ? { key: "progress", node: <ProgressClause done={done} total={total} /> }
-      : { key: "left", node: t(copy.status.clauseLeft, { n: remaining }) },
-  );
+  // Nothing left is the one case that gets no third clause. <AllClear> renders directly
+  // under this line and already says "You're all caught up." over "10 done today", so
+  // "0 left before your shift ends" was the same news in worse words — and at 390 it
+  // pushed the sentence to three lines, taking a third of the first viewport to announce
+  // a zero (M15, G11). The truck clause stays: the shift is not over, and a truck leaving
+  // in 50 minutes is still the one live fact worth carrying.
+  if (nowTierCount > 0) {
+    rest.push({ key: "progress", node: <ProgressClause done={done} total={total} /> });
+  } else if (remaining > 0) {
+    rest.push({ key: "left", node: t(copy.status.clauseLeft, { n: remaining }) });
+  }
 
   return (
     <h1 data-testid="status-line" className="t-section max-w-[44ch] font-medium text-(--text-2)">

@@ -65,7 +65,10 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
   const bare = !late && absMin < 100;
   // The split form: hours once there is an hour to show, minutes otherwise. Both fit the
   // ring's 62px of usable width at the sizes below; the full string never did.
-  const overAnHour = absMin >= 60;
+  // 100, the same threshold `bare` uses, not 60: flooring a late value to hours from an
+  // hour up makes "Late 1 h 55 min" read "1 H LATE", understating lateness by up to 59
+  // minutes — the one direction where being wrong is not safe.
+  const overAnHour = absMin >= 100;
   const magnitude = overAnHour ? Math.floor(absMin / 60) : absMin;
   const unit = `${overAnHour ? copy.time.unitHour : copy.time.unitMinute}${late ? ` ${copy.time.lateSuffix}` : ""}`;
 
