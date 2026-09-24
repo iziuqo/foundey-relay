@@ -35,9 +35,17 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  // Vercel sets VERCEL_URL on every deploy (preview and production) with no config
-  // needed; falls back to localhost for `next dev`/`next start`.
-  metadataBase: new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+  // The canonical host in production, VERCEL_URL on a preview, localhost otherwise.
+  // Deliberately not VERCEL_URL in production: that is the per-deployment hostname, which
+  // sits behind deployment protection, so Slack, LinkedIn and Gmail get a 401 fetching
+  // the card image and show a bare link instead of the preview.
+  metadataBase: new URL(
+    process.env.VERCEL_ENV === "production"
+      ? "https://foundey.izaias.xyz"
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000",
+  ),
   title: "Relay",
   description: "Relay: ranked queue for outbound exceptions.",
 };

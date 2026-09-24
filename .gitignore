@@ -19,3 +19,9 @@ playwright/.cache
 # a milestone otherwise stages ~400 of them, which is a mistake every session gets to
 # make exactly once.
 plan/redesign/
+
+# Foundey's own document and the screenshot of their current dashboard: described
+# throughout, never republished. See README.md, "The plan".
+brief/
+plan/research/brief.pdf
+plan/research/current-dashboard.png

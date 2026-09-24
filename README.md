@@ -33,10 +33,11 @@ labelled Optional on every slide.
 
 ## Links
 
-- Prototype: [foundey-relay.vercel.app](https://foundey-relay.vercel.app)
-- Deck: [foundey-relay.vercel.app/deck](https://foundey-relay.vercel.app/deck) (`/deck/print` is the export view)
-- Design system: [foundey-relay.vercel.app/system](https://foundey-relay.vercel.app/system)
-- GitHub: [github.com/iziuqo/foundey-relay](https://github.com/iziuqo/foundey-relay) (private; contains the brief PDF)
+- Case study: [foundey.izaias.xyz](https://foundey.izaias.xyz) — the write-up: the diagnosis, the answer, the build log and what was left undone
+- Prototype: [foundey.izaias.xyz/work](https://foundey.izaias.xyz/work)
+- Deck: [foundey.izaias.xyz/deck](https://foundey.izaias.xyz/deck) (`/deck/print` is the export view)
+- Design system: [foundey.izaias.xyz/system](https://foundey.izaias.xyz/system)
+- GitHub: [github.com/iziuqo/foundey-relay](https://github.com/iziuqo/foundey-relay)
 - Figma — Design System: [Relay — Design System (v3)](https://www.figma.com/design/e3B6SgcYfcdvMHuQ3xoHLH) — variables in three modes, text and effect styles, every component as a variant set. Published as a library
 - Figma — Prototype: [Relay — Prototype (v3)](https://www.figma.com/design/8mlKK2l3gEJ5wB6vTipuxA) — 21 frames at 1440 and 21 at 390, built from library instances, eight flows runnable in presentation mode
 - Figma — Deck: [Relay — Deck (v3)](https://www.figma.com/slides/VKG6ns7bXazMo8FOIVLRnU) — the in-app deck mirrored slide for slide, with native text
@@ -49,6 +50,7 @@ are hand-maintained in two places drift within days; this one has a direction.
 
 | Route | What it is |
 |---|---|
+| `/` | The case study: the brief, the diagnosis, the answer, the build log read out of `git log`, the gates, and what was deliberately not done |
 | `/work` | The worker's screen: one status sentence, one hero task with its reason and a countdown, then a ranked queue in four tiers, and the truck clock |
 | `/team` | The manager's screen: exceptions first — a status sentence, four tiles that filter, "Needs you", then the people board |
 | `/updates` | List plus preview, split into For you, Team and System |
@@ -90,9 +92,9 @@ npm run dev
 | `npm run dev` | Next dev server on :3000 |
 | `npm run dev:test` | A second dev server on :3100 for Playwright, with its own build directory |
 | `npm run build` | Production build |
-| `npm test` | 278 unit tests: the priority model, actions, copy, contrast pairs, tokens |
+| `npm test` | 283 unit tests: the priority model, actions, copy, contrast pairs, tokens |
 | `npm run test:tz` | The same suite under São Paulo, Tokyo and UTC (G7) |
-| `npm run test:e2e` | 292 Playwright tests: size contract, breakpoints, axe, wire, reduced motion |
+| `npm run test:e2e` | 304 Playwright tests: size contract, breakpoints, axe, wire, reduced motion |
 | `npm run test:visual` | 48 pixel baselines — eight surfaces × six widths. `:update` re-records them |
 | `npm run check:gates` | G1–G7 and G9 in one command, about 75s, one line per step |
 | `npm run check:g8` | Lighthouse over `/work`, median of three. Takes a deploy URL, and `--mobile` |
@@ -140,7 +142,11 @@ once read from the reviewer's own browser clock.
 ## The plan
 
 [`plan/PLAN.md`](plan/PLAN.md) is the original implementation plan and
-[`plan/research/`](plan/research/) holds the advisor research and the brief behind it. The plan for
+[`plan/research/`](plan/research/) holds the advisor research written from it.
+
+**The brief itself is not in this repository.** It is Foundey's document, along with the
+screenshot of the current dashboard inside it, and republishing either on a public repo is
+not mine to do. Everything here describes the brief and answers it; nothing reproduces it. The plan for
 this rebuild — the decisions, the type and colour system, the motion catalog, the milestones and
 the gates above — is kept outside the repo along with its screenshot evidence and the independent
 review that cleared it to ship.
