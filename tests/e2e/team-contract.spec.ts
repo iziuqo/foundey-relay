@@ -11,7 +11,10 @@ const breakpoints = [390, 768, 1024, 1280, 1440, 1920];
 
 async function gotoTeamAsManager(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("relay-demo-v2", JSON.stringify({ state: { persona: "m1" }, version: 0 }));
+    window.localStorage.setItem(
+      "relay-demo-v2",
+      JSON.stringify({ state: { persona: "m1" }, version: 0 }),
+    );
   });
   await page.goto("/team");
   await expect(page.getByTestId("team-main")).toBeVisible();
@@ -19,7 +22,10 @@ async function gotoTeamAsManager(page: Page) {
 
 async function gotoTeamAsWorker(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("relay-demo-v2", JSON.stringify({ state: { persona: "u1" }, version: 0 }));
+    window.localStorage.setItem(
+      "relay-demo-v2",
+      JSON.stringify({ state: { persona: "u1" }, version: 0 }),
+    );
   });
   await page.goto("/team");
   await expect(page.getByTestId("team-main")).toBeVisible();
@@ -41,7 +47,9 @@ test.describe("G3 layout (/team)", () => {
   // §7.4/§5.1: Needs you holds Assign/Acknowledge controls, so — unlike v2 — it can
   // never live in `PageRail` (zero interactive elements there, page-grid.tsx). It
   // stacks above the roster in the main column at every width instead.
-  test("Needs you stacks above the roster in the main column at every width", async ({ page }) => {
+  test("Needs you stacks above the roster in the main column at every width", async ({
+    page,
+  }) => {
     for (const width of [1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await gotoTeamAsManager(page);
@@ -52,9 +60,82 @@ test.describe("G3 layout (/team)", () => {
       const boardBox = await board.boundingBox();
       expect(needsBox).not.toBeNull();
       expect(boardBox).not.toBeNull();
-      expect(needsBox!.y + needsBox!.height).toBeLessThanOrEqual(boardBox!.y + 1);
+      expect(needsBox!.y + needsBox!.height).toBeLessThanOrEqual(
+        boardBox!.y + 1,
+      );
     }
   });
+
+  /**
+   * M15 · the Needs-you reason is never clipped, at any width, in either fidelity.
+   *
+   * Nothing covered this: craft check 3 runs at Playwright's default 1280, and the `team`
+   * visual baseline at 390 is 844px tall, where this list starts at the fold. Measured on
+   * the production build, the row gave its sentence whatever the action button left over —
+   * 196px after "Assign", and **91px of the 567 it needs** after "Open Tomasz's queue",
+   * which rendered as "Escalation…". The row's own action was setting how much of the
+   * problem the manager could read.
+   *
+   * Both axes matter. `scrollWidth` catches a truncate; `scrollHeight` catches a
+   * `line-clamp` quietly hiding the tail, which is the failure a naive fix introduces.
+   */
+  for (const fidelity of ["Hi-fi", "Wire"] as const) {
+    test(`the Needs-you reason is never clipped · ${fidelity}`, async ({
+      page,
+    }) => {
+      for (const width of [390, 768, 1024, 1440]) {
+        await page.setViewportSize({ width, height: 844 });
+        await gotoTeamAsManager(page);
+        if (fidelity === "Wire") {
+          // Through the real control, never by seeding: the store uses skipHydration and
+          // rehydrates after first paint, so a seeded mode is silently overwritten.
+          await page
+            .getByRole("radiogroup", { name: "Appearance" })
+            .getByRole("radio", { name: "Wire" })
+            .click();
+          await expect(page.locator("html")).toHaveAttribute(
+            "data-fidelity",
+            "wire",
+          );
+        }
+
+        const rows = page.locator(".needs-row");
+        await expect(rows.first()).toBeVisible();
+        const clipped = await rows.evaluateAll((nodes) =>
+          nodes.flatMap((row) => {
+            const reason = row.querySelector("p");
+            if (!reason) return [];
+            const text = (reason.textContent ?? "").slice(0, 40);
+            const out: string[] = [];
+            if (reason.scrollWidth > reason.clientWidth + 1) {
+              out.push(
+                `"${text}" needs ${reason.scrollWidth}px of ${reason.clientWidth}px across`,
+              );
+            }
+            if (reason.scrollHeight > reason.clientHeight + 1) {
+              out.push(
+                `"${text}" needs ${reason.scrollHeight}px of ${reason.clientHeight}px down`,
+              );
+            }
+            return out;
+          }),
+        );
+        expect(clipped, `clipped Needs-you reasons at ${width}`).toEqual([]);
+
+        // Craft check 3's contract, at the widths it does not run: reserving room for the
+        // longest reason must not give a short row a shorter box.
+        const heights = await rows.evaluateAll((nodes) => [
+          ...new Set(
+            nodes.map((n) => Math.round(n.getBoundingClientRect().height)),
+          ),
+        ]);
+        expect(
+          heights,
+          `distinct Needs-you row heights at ${width}`,
+        ).toHaveLength(1);
+      }
+    });
+  }
 
   test("risk tiles never overlap each other at 1440", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -66,12 +147,18 @@ test.describe("G3 layout (/team)", () => {
     // a617ca5: assert the settled state, don't sample it).
     await expect(tiles).toHaveCount(4);
     const count = 4;
-    const boxes = await Promise.all(Array.from({ length: count }, (_, i) => tiles.nth(i).boundingBox()));
+    const boxes = await Promise.all(
+      Array.from({ length: count }, (_, i) => tiles.nth(i).boundingBox()),
+    );
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
         const a = boxes[i]!;
         const b = boxes[j]!;
-        const overlaps = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+        const overlaps =
+          a.x < b.x + b.width &&
+          b.x < a.x + a.width &&
+          a.y < b.y + b.height &&
+          b.y < a.y + a.height;
         expect(overlaps).toBe(false);
       }
     }
@@ -82,13 +169,21 @@ test.describe("G3 layout (/team)", () => {
   // up on a narrow phone. This is that check, at the width that matters, for both of
   // /team's lists (`.roster-row` reserves a taller fixed height below 768 specifically
   // so "working on" can wrap without ever needing to be that spread).
-  test("every roster and Needs You row shares one height at 390", async ({ page }) => {
+  test("every roster and Needs You row shares one height at 390", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 900 });
     await gotoTeamAsManager(page);
     for (const testId of ["needs-you", "team-board"]) {
-      const heights = await page.getByTestId(testId).evaluate((list) => [
-        ...new Set([...list.querySelectorAll("[data-craft-row]")].map((row) => Math.round(row.getBoundingClientRect().height))),
-      ]);
+      const heights = await page
+        .getByTestId(testId)
+        .evaluate((list) => [
+          ...new Set(
+            [...list.querySelectorAll("[data-craft-row]")].map((row) =>
+              Math.round(row.getBoundingClientRect().height),
+            ),
+          ),
+        ]);
       expect(heights, `${testId} row heights at 390`).toHaveLength(1);
     }
   });
@@ -96,7 +191,9 @@ test.describe("G3 layout (/team)", () => {
 
 test.describe("G3 text (/team)", () => {
   for (const width of [390, 1440]) {
-    test(`no computed font under 14px outside kbd at ${width}px`, async ({ page }) => {
+    test(`no computed font under 14px outside kbd at ${width}px`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width, height: 900 });
       await gotoTeamAsManager(page);
       const tooSmall = await page.evaluate(() => {
@@ -109,7 +206,10 @@ test.describe("G3 text (/team)", () => {
           );
           if (!hasDirectText) continue;
           const size = parseFloat(getComputedStyle(el).fontSize);
-          if (size < 14) offenders.push(`${el.tagName}.${el.className}: ${size}px "${el.textContent?.slice(0, 30)}"`);
+          if (size < 14)
+            offenders.push(
+              `${el.tagName}.${el.className}: ${size}px "${el.textContent?.slice(0, 30)}"`,
+            );
         }
         return offenders;
       });
@@ -121,14 +221,18 @@ test.describe("G3 text (/team)", () => {
   // precisely so it *can't* wrap onto a second one and reintroduce the 88/67 spread.
   // "Working on" keeps the opposite guarantee: never truncated, at any width — the
   // roster row is tall enough below 768 to hold two wrapped lines of it instead.
-  test("'working on' never clips (scrollWidth <= clientWidth)", async ({ page }) => {
+  test("'working on' never clips (scrollWidth <= clientWidth)", async ({
+    page,
+  }) => {
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await gotoTeamAsManager(page);
       const nodes = page.getByTestId("person-on");
       const count = await nodes.count();
       for (let i = 0; i < count; i++) {
-        const overflow = await nodes.nth(i).evaluate((el) => el.scrollWidth - el.clientWidth);
+        const overflow = await nodes
+          .nth(i)
+          .evaluate((el) => el.scrollWidth - el.clientWidth);
         expect(overflow).toBeLessThanOrEqual(1);
       }
     }
@@ -136,17 +240,26 @@ test.describe("G3 text (/team)", () => {
 });
 
 test.describe("Team defect fixes (README §6, plan §7.4)", () => {
-  test("the 'On:' icon takes the item's own tier, not a hardcoded Act now octagon (P0 8)", async ({ page }) => {
+  test("the 'On:' icon takes the item's own tier, not a hardcoded Act now octagon (P0 8)", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
     // Luis Herrera is on it-08, which scores into "next" (Up next) at the seed clock —
     // v1 hardcoded every row to the Act now ("now") octagon regardless.
     const row = page.locator("li", { hasText: "Luis Herrera" });
-    await expect(row.getByTestId("person-on")).toHaveAttribute("data-tier", "next");
+    await expect(row.getByTestId("person-on")).toHaveAttribute(
+      "data-tier",
+      "next",
+    );
   });
 
-  test("risk tiles are real toggle filters with aria-pressed (P1 20)", async ({ page }) => {
+  test("risk tiles are real toggle filters with aria-pressed (P1 20)", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
-    const noOwnerTile = page.getByTestId("risk-tiles").getByRole("button", { name: /No owner/ });
+    const noOwnerTile = page
+      .getByTestId("risk-tiles")
+      .getByRole("button", { name: /No owner/ });
     await expect(noOwnerTile).toHaveAttribute("aria-pressed", "false");
     await noOwnerTile.click();
     await expect(noOwnerTile).toHaveAttribute("aria-pressed", "true");
@@ -156,46 +269,72 @@ test.describe("Team defect fixes (README §6, plan §7.4)", () => {
 
   // §7.4's whole point: the roster's seven identical "Check in" buttons are gone, and
   // nothing on the page says the generic verb again — every action names what it does.
-  test("the generic 'Check in' verb appears nowhere on the page", async ({ page }) => {
+  test("the generic 'Check in' verb appears nowhere on the page", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
     await expect(page.getByText("Check in", { exact: true })).toHaveCount(0);
   });
 
-  test("selecting a roster row opens a read-only sheet scrolled to that person's queue", async ({ page }) => {
+  test("selecting a roster row opens a read-only sheet scrolled to that person's queue", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
     await page.getByRole("button", { name: "Open Luis's queue" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     // Read only: no action buttons inside the sheet, only plain rows.
-    await expect(page.getByRole("dialog").getByRole("button", { name: "Mark done" })).toHaveCount(0);
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: "Mark done" }),
+    ).toHaveCount(0);
   });
 
-  test("a flagged Needs You row's action names the person, never 'Check in'", async ({ page }) => {
+  test("a flagged Needs You row's action names the person, never 'Check in'", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
-    const row = page.getByTestId("needs-you").locator("li", { hasText: "No update for" });
+    const row = page
+      .getByTestId("needs-you")
+      .locator("li", { hasText: "No update for" });
     await expect(row.getByRole("button")).toHaveText(/Open .+'s queue/);
   });
 
-  test("the roster's ghost menu reassigns the person's current item (a real quick action, not a dead control)", async ({ page }) => {
+  test("the roster's ghost menu reassigns the person's current item (a real quick action, not a dead control)", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
     const row = page.locator("li", { hasText: "Priya Raman" });
-    await row.getByRole("button", { name: "Reassign Priya's current item" }).click();
+    await row
+      .getByRole("button", { name: "Reassign Priya's current item" })
+      .click();
     await expect(page.getByPlaceholder("Find a teammate")).toBeVisible();
   });
 
-  test("a worker sees the same roster read only — no reassign menu, no Needs You", async ({ page }) => {
+  test("a worker sees the same roster read only — no reassign menu, no Needs You", async ({
+    page,
+  }) => {
     await gotoTeamAsWorker(page);
     await expect(page.getByTestId("needs-you")).toHaveCount(0);
     await expect(page.getByTestId("risk-tiles")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /Reassign .+'s current item/ })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /Reassign .+'s current item/ }),
+    ).toHaveCount(0);
     // The row itself still opens the read-only sheet — the mirror is real, not a stub.
     await page.getByRole("button", { name: "Open Luis's queue" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
   });
 
-  test("an unowned item's Assign action opens a working popover, not a dead control (P1 20)", async ({ page }) => {
+  test("an unowned item's Assign action opens a working popover, not a dead control (P1 20)", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
-    await page.getByTestId("risk-tiles").getByRole("button", { name: /No owner/ }).click();
-    const assignButton = page.getByTestId("needs-you").getByRole("button", { name: "Assign" }).first();
+    await page
+      .getByTestId("risk-tiles")
+      .getByRole("button", { name: /No owner/ })
+      .click();
+    const assignButton = page
+      .getByTestId("needs-you")
+      .getByRole("button", { name: "Assign" })
+      .first();
     await assignButton.click();
     await expect(page.getByPlaceholder("Find a teammate")).toBeVisible();
   });
@@ -207,7 +346,9 @@ test.describe("G4 accessibility (/team)", () => {
     expect(await axeViolations(page)).toEqual([]);
   });
 
-  test("the worker's read-only board has zero axe violations", async ({ page }) => {
+  test("the worker's read-only board has zero axe violations", async ({
+    page,
+  }) => {
     await gotoTeamAsWorker(page);
     expect(await axeViolations(page)).toEqual([]);
   });
@@ -221,7 +362,10 @@ test.describe("G4 accessibility (/team)", () => {
 
   test("the reassign popover has zero axe violations", async ({ page }) => {
     await gotoTeamAsManager(page);
-    await page.locator("li", { hasText: "Priya Raman" }).getByRole("button", { name: "Reassign Priya's current item" }).click();
+    await page
+      .locator("li", { hasText: "Priya Raman" })
+      .getByRole("button", { name: "Reassign Priya's current item" })
+      .click();
     await expect(page.getByPlaceholder("Find a teammate")).toBeVisible();
     // The popover's own entrance animation (.popover-content, globals.css) fades opacity
     // 0 -> 1 over --dur-base (240ms). `toBeVisible()` above is satisfied the instant
@@ -234,10 +378,19 @@ test.describe("G4 accessibility (/team)", () => {
     expect(await axeViolations(page)).toEqual([]);
   });
 
-  test("the Needs You assign popover has zero axe violations", async ({ page }) => {
+  test("the Needs You assign popover has zero axe violations", async ({
+    page,
+  }) => {
     await gotoTeamAsManager(page);
-    await page.getByTestId("risk-tiles").getByRole("button", { name: /No owner/ }).click();
-    await page.getByTestId("needs-you").getByRole("button", { name: "Assign" }).first().click();
+    await page
+      .getByTestId("risk-tiles")
+      .getByRole("button", { name: /No owner/ })
+      .click();
+    await page
+      .getByTestId("needs-you")
+      .getByRole("button", { name: "Assign" })
+      .first()
+      .click();
     await expect(page.getByPlaceholder("Find a teammate")).toBeVisible();
     await page.waitForTimeout(300);
     expect(await axeViolations(page)).toEqual([]);

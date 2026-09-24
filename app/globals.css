@@ -832,10 +832,42 @@ samp {
   }
 
   /* M6's Needs You row: the action is the row's only way to act on it (there is no
-   * link target the way a queue row has one), so it keeps a third track here instead
-   * of disappearing into the two-track collapse above. */
+   * link target the way a queue row has one), so it cannot disappear into the two-track
+   * collapse above.
+   *
+   * M15 — it kept a third track instead, `1.5rem minmax(0, 1fr) auto`, and that `auto`
+   * was the bug: the button's own label decided how much of the problem the manager could
+   * read. "Assign" left the sentence 196px; "Open Tomasz's queue" is a 193px button and
+   * left it **91px of the 567 it needs**, rendering "Escalation…". Nine characters, on the
+   * one list that exists to say what has gone wrong. Nothing caught it — craft check 3
+   * runs at 1280, and the 390 baseline is 844px tall, where this list starts at the fold.
+   *
+   * So it stacks, the way `.roster-row` does: the sentence takes the full width on its own
+   * lines, the action sits under it, and the text track is a **fixed number of lines**, so
+   * every row is the same height whether or not its own sentence needs them all (craft
+   * check 3, and the 88/67 spread that rule exists to prevent). Two lines carry every
+   * reachable string in Inter — measured across `reasonFor`'s five templates × every
+   * seeded title, not the four rows that happen to be on screen. */
   .queue-row.needs-row {
-    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
+    grid-template-areas: "text" "action";
+    grid-template-rows: calc(2 * var(--t-body-line)) auto;
+    row-gap: 0.5rem;
+    /* stretch, not `.queue-row`'s `center`: a centred grid item sizes to its own content,
+       so the sentence's box would be 48px inside a 72px track and `scrollHeight` could
+       never exceed `clientHeight` — the assertion that a string has outgrown its track
+       would be structurally unable to fire. Stretched, the box *is* the track. */
+    align-items: stretch;
+    height: auto;
+    padding-block: 0.625rem;
+  }
+
+  /* Wire is IBM Plex Mono, about 25% wider at the same size (the escalation sentence goes
+   * 567px → 710px), so the same strings take three lines rather than two. A mode that is a
+   * real token set and not a filter gets a real value here, rather than the light layout
+   * clipping in mono — the wire-only clipping `people-row.tsx` records is this same trap. */
+  [data-fidelity="wire"] .queue-row.needs-row {
+    grid-template-rows: calc(3 * var(--t-body-line)) auto;
   }
 }
 

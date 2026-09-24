@@ -44,10 +44,25 @@ export function NeedsYouItem({ row, candidates, onAssign, onCheckIn, onAcknowled
   const { item, assignee, action } = row;
   return (
     <li data-craft-row className="queue-row needs-row [--meta-w:auto]">
-      <span aria-hidden />
-      <p className="t-body min-w-0 truncate text-(--text-1)">{reasonFor(row)}</p>
+      {/* The queue row's marker track. Hidden below the breakpoint, and that is load
+          bearing rather than cosmetic: the handheld row is laid out with named areas, and
+          a child without one gets auto-placed into an implicit row, which would add its
+          own height to every row in the list. */}
       <span aria-hidden className="max-md:hidden" />
-      <div className="justify-self-end">
+      {/* Below the breakpoint the sentence wraps inside a track sized for the longest one;
+          from the breakpoint up it wraps to at most two lines, which still fit the 64px row
+          and so change no row's height. It used to `truncate` here, and that clipped too —
+          "…order 4833 not shipped. No update for 80 min." lost its tail at 768 in hi and at
+          *every* desktop width in wire, where mono is about 25% wider (567px → 710px). Two
+          lines carry every reachable string in both faces, measured.
+          `overflow-hidden` is the failsafe if a longer one ever appears, and
+          `team-contract.spec.ts` asserts it never has to do anything — both axes, both
+          fidelities, at 390 and at the desktop widths. */}
+      <p className="t-body min-w-0 overflow-hidden text-(--text-1) max-md:[grid-area:text] md:line-clamp-2">
+        {reasonFor(row)}
+      </p>
+      <span aria-hidden className="max-md:hidden" />
+      <div className="justify-self-end max-md:[grid-area:action]">
         {action === "assign" ? (
           <AssignPopover
             candidates={candidates}

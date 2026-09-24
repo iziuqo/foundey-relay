@@ -263,12 +263,17 @@ test.describe("craft: handheld", () => {
         return [...document.querySelectorAll<HTMLElement>(selector)]
           .filter((node) => node.offsetParent !== null)
           .map((node) => {
-            const box = node.getBoundingClientRect();
-            // The hit area may be extended by a transparent ::before rather than by
-            // growing the box, so measure the pseudo-element when there is one.
+            // offsetWidth/Height, not getBoundingClientRect: the rect includes transforms,
+            // and a control caught mid-animation reports the size it is being painted at
+            // rather than the size a thumb has to hit. /system/patterns holds a live undo
+            // toast, and under load this read its Undo button as 48×20 — a real 48px
+            // target, scaled. Check 4 already measures layout for exactly this reason
+            // ("that is the demo working, not a contract break"); polling cannot fix it,
+            // because a poll is happy to keep sampling an animation that is still running,
+            // and the page's 8s countdown ring means nothing here ever fully settles.
             const before = getComputedStyle(node, "::before");
-            const width = Math.max(box.width, parseFloat(before.width) || 0);
-            const height = Math.max(box.height, parseFloat(before.height) || 0);
+            const width = Math.max(node.offsetWidth, parseFloat(before.width) || 0);
+            const height = Math.max(node.offsetHeight, parseFloat(before.height) || 0);
             return width >= 44 && height >= 44
               ? null
               : `${node.tagName.toLowerCase()} ${Math.round(width)}×${Math.round(height)} "${(node.textContent ?? "").trim().slice(0, 24)}"`;

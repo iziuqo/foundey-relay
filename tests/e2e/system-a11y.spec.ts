@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { axeViolations } from "./axe";
+import { animationsSettled } from "./settle";
 
 // Gate G4 (plan §9.1), over all five /system sections in all four mode combinations. M9
 // added Motion, whose stages hold real components twice over (duplicate ids are the
@@ -9,6 +10,12 @@ test.describe("G4 accessibility", () => {
   for (const path of ["/system", "/system/components", "/system/patterns", "/system/rules", "/system/motion"]) {
     test(`${path} has zero axe violations`, async ({ page }) => {
       await page.goto(path);
+      // M15: this scanned immediately and flaked under load, reporting `color-contrast
+      // (serious) → h1[data-testid="item-detail-title"]` on /system/patterns — the item
+      // sheet's entrance stagger, graded mid-fade against a colour it holds for 200ms and
+      // never again. Exactly what `animationsSettled` exists for; `512db5f` fixed the
+      // theme-crossfade instance of this by hand and the plain scans kept the bug.
+      await animationsSettled(page);
       expect(await axeViolations(page)).toEqual([]);
     });
 
@@ -23,12 +30,14 @@ test.describe("G4 accessibility", () => {
       // this, axe can sample mid-flip and report whatever half-applied color pairing
       // happened to be current at that instant (flaky, not a real defect).
       await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
+      await animationsSettled(page);
       expect(await axeViolations(page)).toEqual([]);
     });
 
     test(`${path} has zero axe violations in light + wireframe`, async ({ page }) => {
       await page.goto(path);
       await page.getByRole("button", { name: /^(Hi-fi|Wire)$/ }).click();
+      await animationsSettled(page);
       expect(await axeViolations(page)).toEqual([]);
     });
 
@@ -37,6 +46,7 @@ test.describe("G4 accessibility", () => {
       await page.getByRole("button", { name: /^(Light|Dark)$/ }).click();
       await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
       await page.getByRole("button", { name: /^(Hi-fi|Wire)$/ }).click();
+      await animationsSettled(page);
       expect(await axeViolations(page)).toEqual([]);
     });
   }

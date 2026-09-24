@@ -304,11 +304,20 @@ test.describe("M4 the check", () => {
     // pinning it to a persona's name means the locator stops matching the moment the
     // switch this test is making succeeds.
     const persona = page.getByRole("button", { name: /^Demo:/ });
+    // The demo panel is a console, not a one-shot menu: picking a persona switches it and
+    // leaves the panel open, so the other controls stay to hand. This test used to click
+    // the trigger again before reaching for "Priya", which *closed* the panel it was
+    // about to read — the click then waited out its timeout against a dismissed popover.
+    // It passed only when that second click lost a race. Assert the state instead.
+    await expect(persona).toHaveAttribute("aria-expanded", "false");
     await persona.click();
+    await expect(persona).toHaveAttribute("aria-expanded", "true");
+
     await page.getByRole("button", { name: /Danielle/ }).click();
-    await page.waitForTimeout(400);
-    await persona.click();
+    await expect(persona).toHaveAccessibleName(/Danielle/);
+    await expect(persona).toHaveAttribute("aria-expanded", "true");
     await page.getByRole("button", { name: /Priya/ }).click();
+    await expect(persona).toHaveAccessibleName(/Priya/);
     await page.waitForTimeout(400);
     await expect(page.getByTestId("check-draw")).toHaveCount(0);
   });
