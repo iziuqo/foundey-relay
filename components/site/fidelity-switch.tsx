@@ -77,7 +77,7 @@ export function FidelitySwitch() {
           priority
           sizes="(max-width: 1120px) 100vw, 1088px"
           className={cn(
-            "absolute inset-0 size-full transition-opacity duration-500",
+            "absolute inset-0 size-full transition-opacity duration-500 ease-(--ease-out)",
             mode === "hi" ? "opacity-100" : "opacity-0",
           )}
         />
@@ -91,7 +91,7 @@ export function FidelitySwitch() {
           sizes="(max-width: 1120px) 100vw, 1088px"
           aria-hidden={mode !== "wire"}
           className={cn(
-            "absolute inset-0 size-full transition-opacity duration-500",
+            "absolute inset-0 size-full transition-opacity duration-500 ease-(--ease-out)",
             mode === "wire" ? "opacity-100" : "opacity-0",
           )}
         />
