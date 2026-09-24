@@ -1,6 +1,6 @@
 import NumberFlow from "@number-flow/react";
 import { minutesBetween, relativeDuration } from "@/lib/time";
-import { copy } from "@/lib/copy";
+import { ringLabel } from "./ring-label";
 import { cn } from "@/lib/cn";
 import type { Item } from "@/lib/types";
 import { tierStrokeClass } from "./tier-tokens";
@@ -38,10 +38,19 @@ export interface CountdownArcProps {
  * whole label at `t-section` on the claim that 23px fits the ring. Measured, it does
  * not: "22 h 20 min" wrapped to three lines and "Late 2 h 2 min" to two, both spilling
  * over the stroke — and "22 h 20 min" is the seeded default of the last item in the
- * queue, not an edge case (M15, G11). So those values split instead: the magnitude
- * stays large enough to read across the aisle at `t-hero-sm`, and the unit — plus
- * "late", when it applies — sits under it at `t-eyebrow`. The minutes a split drops are
- * not lost: they are in this element's own `aria-label`, and in the row's TimePill.
+ * queue, not an edge case (M15, G11). So those values split: the magnitude stays large
+ * enough to read across the aisle at `t-hero-sm`, and the unit sits under it at
+ * `t-eyebrow`. The minutes a split drops are not lost — they are in this element's own
+ * `aria-label`, and in the row's TimePill.
+ *
+ * The unit line is the unit and nothing else, because the space it has is not the 72px
+ * box, it is the ring's chord at that line's own height — about 46px. "MIN LATE" is
+ * 64px there and collided with the stroke; "MIN" is 28px and "H" is 10px. The word is
+ * no loss: a late item's arc is *empty*, which is a stronger signal at two metres than
+ * a 12px word, and "Late 2 h 2 min" is still the accessible name.
+ *
+ * Late magnitudes round **up** and future ones round down, so the ring never
+ * under-reports how late something is: 115 minutes late reads "2 H", not "1 H".
  *
  * At 15 minutes left the arc and numeral shift to the Act-now hue over 600ms — a
  * reading of time itself, not of the item's tier, so a When-you-can item still turns
@@ -62,15 +71,9 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
   const urgent = !late && absMin <= URGENT_THRESHOLD_MIN;
   const strokeTier = urgent ? "now" : tier;
   const label = late ? `Late ${relativeDuration(ml)}` : relativeDuration(ml);
-  const bare = !late && absMin < 100;
-  // The split form: hours once there is an hour to show, minutes otherwise. Both fit the
-  // ring's 62px of usable width at the sizes below; the full string never did.
-  // 100, the same threshold `bare` uses, not 60: flooring a late value to hours from an
-  // hour up makes "Late 1 h 55 min" read "1 H LATE", understating lateness by up to 59
-  // minutes — the one direction where being wrong is not safe.
-  const overAnHour = absMin >= 100;
-  const magnitude = overAnHour ? Math.floor(absMin / 60) : absMin;
-  const unit = `${overAnHour ? copy.time.unitHour : copy.time.unitMinute}${late ? ` ${copy.time.lateSuffix}` : ""}`;
+  // The split form's rules live in `ring-label.ts`, as a pure function, so the tests can
+  // enumerate what this actually renders instead of a list someone typed into a spec.
+  const { bare, magnitude, unit } = ringLabel(ml);
 
   return (
     <div

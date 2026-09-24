@@ -71,7 +71,6 @@ export const copy = {
     agoHours: "{n} h ago",
     unitHour: "h",
     unitMinute: "min",
-    lateSuffix: "late",
   },
   why: {
     title: "Why is this first?",

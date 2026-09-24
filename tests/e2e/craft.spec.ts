@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { animationsSettled } from "./settle";
 import { cssColorToOklch } from "../../lib/color";
+import { ringLabel } from "@/components/relay/ring-label";
 
 /**
  * The mechanical craft checks — plan/redesign/v3/ADVISOR-craft.md §9, the half that
@@ -424,48 +425,64 @@ test.describe("craft: the chroma budget", () => {
  * only overflows once it is *not* a bare number, and reaching that needs the queue driven
  * by hand, which no baseline does.
  *
- * Measured against the usable space inside the stroke, not against the 72px box: a label
- * can be "inside the box" and still sit on the ring itself, which is what it looked like.
+ * Measured against the **circle**, not the 72px box and not a 62px square inside it. The
+ * usable width at a given line is the chord at that line's own height, and the unit line
+ * sits well below centre: about 46px, not 62. A square bound passed "MIN LATE" at 64px
+ * wide — the first version of this test did exactly that, and the label was colliding
+ * with the stroke while the test was green.
  */
 test.describe("craft: the hero countdown", () => {
-  const RING = 72;
-  const STROKE = 5;
-  const USABLE = RING - STROKE * 2; // 62px of clear space inside the arc
+  // The ring: 72px across a 5px stroke, so the clear circle inside it has r ≈ 31.
+  const INNER_R = 31;
 
   test("its label fits inside the ring in every state the queue can reach", async ({ page }) => {
     await page.goto("/work");
     const seen: string[] = [];
+    let splitStates = 0;
 
     for (let step = 0; step < 14; step += 1) {
       const ring = page.getByTestId("hero-countdown");
       if (!(await ring.count())) break;
 
-      const measured = await ring.first().evaluate((el) => {
+      const measured = await ring.first().evaluate((el, R) => {
         const label = el.querySelector<HTMLElement>("span[aria-hidden]");
         if (!label) return null;
-        // A Range over the label's contents, not scrollWidth and not the rect. The rect is
-        // useless (the span is inset-0, so it is always the ring's own size). scrollWidth is
-        // worse than useless here: NumberFlow renders each digit in its own clipped span and
-        // reports 73px for a "50" that inks about 40, so a bare number would fail a bound
-        // the eye can see it meets. A Range measures the glyphs that are actually painted.
-        const range = document.createRange();
-        range.selectNodeContents(label);
-        const box = range.getBoundingClientRect();
-        range.detach();
+        const box = el.getBoundingClientRect();
+        const cy = box.y + box.height / 2;
+        // The split form is two spans; the bare form is one NumberFlow element, whose own
+        // box carries mask padding and an injected <style>, so a Range over it measures
+        // neither the glyphs nor anything useful. Only the split form is measured against
+        // the chord — it is the form that broke, and the only one whose text can grow.
+        const lines = [...label.querySelectorAll<HTMLElement>(":scope > span")];
         return {
           aria: el.getAttribute("aria-label") ?? "",
-          w: Math.round(box.width),
-          h: Math.round(box.height),
+          split: lines.length > 1,
+          lines: lines.map((n) => {
+            const range = document.createRange();
+            range.selectNodeContents(n);
+            const ink = range.getBoundingClientRect();
+            range.detach();
+            const dy = Math.max(Math.abs(ink.top - cy), Math.abs(ink.bottom - cy));
+            return {
+              text: n.textContent ?? "",
+              w: Math.round(ink.width),
+              chord: Math.round(2 * Math.sqrt(Math.max(R * R - dy * dy, 0))),
+            };
+          }),
         };
-      });
+      }, INNER_R);
+
       expect(measured).not.toBeNull();
       seen.push(measured!.aria);
-      expect(
-        [measured!.w, measured!.h],
-        `"${measured!.aria}" is ${measured!.w}×${measured!.h} inside ${USABLE}px of ring`,
-      ).toEqual([expect.any(Number), expect.any(Number)]);
-      expect(measured!.w, `"${measured!.aria}" overflows the ring horizontally`).toBeLessThanOrEqual(USABLE);
-      expect(measured!.h, `"${measured!.aria}" overflows the ring vertically`).toBeLessThanOrEqual(USABLE);
+      if (measured!.split) {
+        splitStates += 1;
+        for (const line of measured!.lines) {
+          expect(
+            line.w,
+            `"${measured!.aria}": the line "${line.text}" is ${line.w}px wide where the ring is ${line.chord}px`,
+          ).toBeLessThanOrEqual(line.chord);
+        }
+      }
 
       const primary = page
         .getByRole("button", { name: /^(Mark done|Start|Reprint|Release|Send|Confirm|Rush|Open|Acknowledge|Reply|Upgrade)/ })
@@ -477,8 +494,77 @@ test.describe("craft: the hero countdown", () => {
       await page.waitForTimeout(700);
     }
 
-    // The point of driving the queue is to reach the labels a baseline never sees.
+    // The point of driving the queue is to reach the split form at all: a run that only
+    // ever saw bare numbers would assert nothing and still be green.
+    expect(splitStates, `never reached the split form; saw ${seen.join(", ")}`).toBeGreaterThan(0);
     expect(seen.some((s) => /late/i.test(s)), `no late state reached; saw ${seen.join(", ")}`).toBe(true);
-    expect(seen.some((s) => /\bh\b/.test(s)), `no hours state reached; saw ${seen.join(", ")}`).toBe(true);
+  });
+
+  /**
+   * Every unit string the component can produce, measured on the shipped element.
+   *
+   * The candidates come from `ringLabel` itself, walked across the whole range, not from a
+   * list in this file. That is the point: the first version of this test measured the
+   * strings the *fixed* component made, so it passed against the broken one. Swapping the
+   * text on the real element keeps `t-eyebrow`'s uppercasing and tracking in the
+   * measurement — "MIN LATE" was 64px against a 46px chord there, and looked fine under a
+   * square bound.
+   */
+  test("every unit string ringLabel can produce fits the ring", async ({ page }) => {
+    const units = new Set<string>();
+    let widestMagnitude = 0;
+    for (let m = -1440; m <= 1440; m += 1) {
+      const l = ringLabel(m);
+      if (l.bare) continue;
+      units.add(l.unit);
+      widestMagnitude = Math.max(widestMagnitude, String(l.magnitude).length);
+    }
+    expect(units.size, "ringLabel produced no split labels").toBeGreaterThan(0);
+
+    await page.goto("/work");
+    const ring = page.getByTestId("hero-countdown");
+    for (let i = 0; i < 5; i += 1) {
+      const split = await ring
+        .first()
+        .evaluate((el) => el.querySelectorAll("span[aria-hidden] > span").length > 1)
+        .catch(() => false);
+      if (split) break;
+      const primary = page.getByRole("button", { name: /^(Mark done|Start|Reprint|Release)/ }).first();
+      if (!(await primary.count())) break;
+      await primary.click();
+      await expect(ring.first()).toBeVisible();
+      await page.waitForTimeout(700);
+    }
+
+    const failures = await ring.first().evaluate(
+      (el, { units, digits, R }) => {
+        const label = el.querySelector("span[aria-hidden]");
+        const spans = [...(label?.querySelectorAll(":scope > span") ?? [])] as HTMLElement[];
+        if (spans.length < 2) return ["never reached the split form"];
+        const [mag, unitEl] = spans;
+        const out: string[] = [];
+        for (const u of units) {
+          mag.textContent = "8".repeat(digits);
+          unitEl.textContent = u;
+          const box = el.getBoundingClientRect();
+          const cy = box.y + box.height / 2;
+          for (const [name, node] of [["magnitude", mag], ["unit", unitEl]] as [string, HTMLElement][]) {
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            const ink = range.getBoundingClientRect();
+            range.detach();
+            const dy = Math.max(Math.abs(ink.top - cy), Math.abs(ink.bottom - cy));
+            const chord = 2 * Math.sqrt(Math.max(R * R - dy * dy, 0));
+            if (ink.width > chord) {
+              out.push(`"${u}": ${name} is ${Math.round(ink.width)}px where the ring is ${Math.round(chord)}px`);
+            }
+          }
+        }
+        return out;
+      },
+      { units: [...units], digits: widestMagnitude, R: INNER_R },
+    );
+
+    expect(failures, "labels wider than the ring").toEqual([]);
   });
 });
