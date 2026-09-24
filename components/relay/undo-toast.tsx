@@ -30,7 +30,7 @@ export function UndoToast({
     <button
       type="button"
       onClick={onUndo}
-      className="flex h-11 shrink-0 items-center gap-1.5 rounded-(--r-3) bg-(--accent-solid) pr-2.5 pl-3.5 t-meta font-medium text-(--accent-solid-fg) focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--focus)"
+      className="flex h-11 shrink-0 items-center gap-1.5 rounded-(--r-3) bg-(--primary-bg) pr-2.5 pl-3.5 t-meta font-medium text-(--primary-fg) focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--focus)"
       // The ring's own countdown duration and geometry, not a color/shadow/background
       // token — read by .undo-ring-circle in globals.css.
       // eslint-disable-next-line react/forbid-dom-props
@@ -55,7 +55,7 @@ export function UndoToast({
           r={RADIUS}
           fill="none"
           strokeWidth={STROKE}
-          className="stroke-(--accent-solid-fg) opacity-25"
+          className="stroke-(--primary-fg) opacity-25"
         />
         <circle
           cx={SIZE / 2}
@@ -65,12 +65,12 @@ export function UndoToast({
           strokeWidth={STROKE}
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
-          className="undo-ring-circle stroke-(--accent-solid-fg)"
+          className="undo-ring-circle stroke-(--primary-fg)"
         />
       </svg>
       <kbd
         data-kbd
-        className="ml-0.5 text-(length:--text-kbd) leading-(length:--leading-kbd) text-(--accent-solid-fg) opacity-80"
+        className="ml-0.5 text-(length:--t-mono-size) leading-(length:--t-mono-line) text-(--primary-fg) opacity-80"
       >
         ⌘Z
       </kbd>

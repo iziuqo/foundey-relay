@@ -17,17 +17,10 @@ export const tierStrokeClass: Record<EncodedTier, string> = {
 };
 
 export const tierBorderClass: Record<EncodedTier, string> = {
-  now: "border-(--act-border)",
-  next: "border-(--next-border)",
-  later: "border-(--when-border)",
-  fyi: "border-(--fyi-border)",
-};
-
-export const tierGlowVar: Record<EncodedTier, string> = {
-  now: "--act-glow",
-  next: "--next-glow",
-  later: "--when-glow",
-  fyi: "--fyi-glow",
+  now: "border-(--act-line)",
+  next: "border-(--next-line)",
+  later: "border-(--when-line)",
+  fyi: "border-(--fyi-line)",
 };
 
 // §4.5: the hero's tier glow is dark-theme only, a blurred radial shadow behind the

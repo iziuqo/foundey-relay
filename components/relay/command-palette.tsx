@@ -200,13 +200,13 @@ function Row({ row }: { row: CommandRow }) {
     <CommandItem
       value={row.searchValue}
       onSelect={row.onSelect}
-      className="relative flex cursor-pointer items-center gap-3 rounded-(--radius-control) px-3 py-2.5"
+      className="relative flex cursor-pointer items-center gap-3 rounded-(--r-4) px-3 py-2.5"
     >
       {active && (
         <motion.div
           layoutId="palette-highlight"
           transition={transition.highlight}
-          className="absolute inset-0 -z-10 rounded-(--radius-control) bg-(--surface-2)"
+          className="absolute inset-0 -z-10 rounded-(--r-4) bg-(--surface-2)"
         />
       )}
       {row.icon}
@@ -215,7 +215,7 @@ function Row({ row }: { row: CommandRow }) {
       {row.shortcut && (
         <kbd
           data-kbd
-          className="tnum shrink-0 rounded-(--radius-chip) border border-(--line-1) bg-(--surface-2) px-1.5 py-0.5 t-mono text-(--text-2)"
+          className="tnum shrink-0 rounded-(--r-2) border border-(--line-1) bg-(--surface-2) px-1.5 py-0.5 t-mono text-(--text-2)"
         >
           {row.shortcut}
         </kbd>
@@ -263,7 +263,7 @@ export function CommandMenuBody({
       <CommandInput
         autoFocus={autoFocus}
         placeholder={copy.search}
-        className="h-(--size-control-lg) w-full rounded-t-(--r-4) border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
+        className="h-(--h-lg) w-full rounded-t-(--r-4) border-b border-(--line-1) bg-transparent px-4 t-body text-(--text-1) outline-none placeholder:text-(--text-3)"
       />
       <CommandList className="max-h-[60vh] overflow-y-auto p-2">
         <CommandEmpty>
@@ -328,7 +328,7 @@ export function CommandPalette() {
         <Dialog.Overlay className="palette-overlay fixed inset-0 z-50 bg-(--overlay) [backdrop-filter:blur(8px)]" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="palette-content fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--radius-hero) border border-(--line-1) bg-(--surface-1) shadow-(--e3) outline-none"
+          className="palette-content fixed top-[12vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-(--r-5) border border-(--line-1) bg-(--surface-1) shadow-(--e3) outline-none"
         >
           <Dialog.Title className="sr-only">{copy.palette.title}</Dialog.Title>
           <Command shouldFilter loop label={copy.palette.title}>

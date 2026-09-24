@@ -1,12 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Toaster } from "sonner";
 import { Sidebar } from "@/components/relay/sidebar";
 import { TopBar } from "@/components/relay/top-bar";
 import { BottomDock } from "@/components/relay/bottom-dock";
 import { ToastBridge } from "@/components/relay/toast-bridge";
-import { ShortcutsSheet } from "@/components/relay/shortcuts-sheet";
 import { GlobalHotkeys } from "@/components/relay/global-hotkeys";
 
 // G8: `cmdk` only pays for itself once someone opens the palette, so it isn't in
@@ -19,6 +17,17 @@ const CommandPalette = dynamic(
     import("@/components/relay/command-palette").then((m) => m.CommandPalette),
   { ssr: false },
 );
+
+// So is the shortcuts sheet: it opens on `?` and is driven by the store, so it mounts with
+// `open` already true if the chunk arrives after the keypress.
+const ShortcutsSheet = dynamic(
+  () => import("@/components/relay/shortcuts-sheet").then((m) => m.ShortcutsSheet),
+  { ssr: false },
+);
+
+// Sonner is lazy for the same reason (components/relay/toaster.tsx says why, and what
+// keeps a toast fired before it loads from being dropped).
+const Toaster = dynamic(() => import("@/components/relay/toaster"), { ssr: false });
 
 /** §8.2 shell: sidebar, top bar, bottom dock, toaster, and the @modal slot for the
  * item detail intercepting route (phase 4). */
@@ -59,12 +68,7 @@ export default function AppLayout({
           corner actually is depends on which fixed furniture that width has (the rail,
           the dock, /work's sticky primary), so the offsets are breakpoint rules in
           globals.css rather than a single number here. */}
-      <Toaster
-        position="bottom-left"
-        offset={{ left: "var(--toast-x)", right: "var(--toast-x)", bottom: "var(--toast-y)" }}
-        mobileOffset={{ left: "var(--toast-x)", right: "var(--toast-x)", bottom: "var(--toast-y)" }}
-        toastOptions={{ unstyled: true }}
-      />
+      <Toaster />
     </div>
   );
 }

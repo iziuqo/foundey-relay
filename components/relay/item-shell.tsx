@@ -46,12 +46,12 @@ export function ItemShell({ itemId, tier, variant, shared = true, className }: I
         "pointer-events-none absolute inset-0 -z-10",
         variant === "hero"
           ? cn(
-              "rounded-(--radius-hero) border bg-(--surface-1)",
+              "rounded-(--r-5) border bg-(--surface-1)",
               tierBorderClass[tier],
               tierGlowShadowClass[tier],
               tier === "now" && "bg-(--act-bg)",
             )
-          : "rounded-(--radius-control) border border-transparent bg-transparent",
+          : "rounded-(--r-4) border border-transparent bg-transparent",
         className,
       )}
     />

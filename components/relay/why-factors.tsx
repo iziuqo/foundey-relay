@@ -79,18 +79,18 @@ function FactorBar({
             text alternative, for every reader, not only a screen reader. */}
         <span className="tnum t-body font-semibold text-(--text-1)">{t(copy.why.factorValue, { value, max })}</span>
       </div>
-      {/* The track is `--border-2`, not `--surface-2` — the panel around it (item-detail.tsx)
+      {/* The track is `--line-2`, not `--surface-2` — the panel around it (item-detail.tsx)
           is already `--surface-2`, and a same-token track on a same-token panel is invisible
           (0:1 contrast) regardless of what the fill does. */}
-      <div aria-hidden className="h-1.5 w-full overflow-hidden rounded-full bg-(--border-2)">
+      <div aria-hidden className="h-1.5 w-full overflow-hidden rounded-full bg-(--line-2)">
         {/* `style` here is dynamic bar geometry from live scores, not a color/shadow/
             background token (plan §9.2 P1 9-11 is about those) — the fill itself is
-            still the token bg-(--accent-solid), which resolves to `--text-1` (§4.2: the
+            still the token bg-(--primary-bg), which resolves to `--text-1` (§4.2: the
             primary button is text-1 filled, not accent filled — the same rule applies
             here, so the bar never spends a saturated hue). motion.div isn't a plain DOM
             element to the forbid-dom-props rule, so no disable comment is needed here. */}
         <motion.div
-          className="h-full origin-left rounded-full bg-(--accent-solid)"
+          className="h-full origin-left rounded-full bg-(--primary-bg)"
           style={{ width: `${pct}%` }}
           initial={animate ? { scaleX: 0 } : false}
           animate={{ scaleX: 1 }}
@@ -101,7 +101,7 @@ function FactorBar({
           }
         />
       </div>
-      <p className="text-(length:--text-meta) text-(--text-2)">{reason}</p>
+      <p className="text-(length:--t-meta-size) text-(--text-2)">{reason}</p>
     </div>
   );
 }
@@ -160,7 +160,7 @@ export function WhyFactors({ ranked, nextRanked, now, showTitle = true }: WhyFac
         />
         <FactorBar index={2} label="Impact" value={result.I} max={I_MAX} reason={impactReasons(item)} animate={animate} />
       </div>
-      <p className="tnum t-body mt-3 border-t border-(--border-1) pt-3 font-semibold text-(--text-1)">
+      <p className="tnum t-body mt-3 border-t border-(--line-1) pt-3 font-semibold text-(--text-1)">
         {t(copy.why.scoreLine, { t: result.T, b: result.B, i: result.I, score: result.score ?? 0 })}
       </p>
       <p className="t-meta mt-1 text-(--text-2)">{verdictLine(ranked)}</p>

@@ -66,15 +66,15 @@ export function ItemOverflowPopover({
           side="bottom"
           align="end"
           sideOffset={8}
-          className="popover-content z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-2 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-72 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-2 shadow-(--e3)"
         >
           {flow !== "menu" && (
             <button
               type="button"
               onClick={() => setFlow("menu")}
-              className="mb-1 inline-flex items-center gap-1 rounded-(--radius-control) px-2 py-1 text-(length:--text-meta) text-(--text-2) hover:bg-(--surface-2)"
+              className="mb-1 inline-flex items-center gap-1 rounded-(--r-4) px-2 py-1 text-(length:--t-meta-size) text-(--text-2) hover:bg-(--surface-2)"
             >
-              <ChevronLeft className="size-(--size-icon-sm)" aria-hidden />
+              <ChevronLeft className="size-(--icon-sm)" aria-hidden />
               Back
             </button>
           )}
@@ -86,7 +86,7 @@ export function ItemOverflowPopover({
                 {copy.actions.later}
               </MenuButton>
               {tier === "now" && (
-                <p className="px-3 pb-1 text-(length:--text-meta) text-(--text-2)">{copy.laterDisabled}</p>
+                <p className="px-3 pb-1 text-(length:--t-meta-size) text-(--text-2)">{copy.laterDisabled}</p>
               )}
               <MenuButton
                 onClick={() => {
@@ -101,7 +101,7 @@ export function ItemOverflowPopover({
 
           {flow === "waiting" && (
             <div className="flex flex-col gap-3 p-2">
-              <p className="text-(length:--text-meta) font-semibold text-(--text-1)">{copy.waitingPopover.who}</p>
+              <p className="text-(length:--t-meta-size) font-semibold text-(--text-1)">{copy.waitingPopover.who}</p>
               <div className="flex flex-wrap gap-1.5">
                 {copy.waitingPopover.suggestions.map((who) => (
                   <button
@@ -110,10 +110,10 @@ export function ItemOverflowPopover({
                     onClick={() => setWaitingOn(who)}
                     aria-pressed={waitingOn === who}
                     className={cn(
-                      "rounded-full border px-2.5 py-1 text-(length:--text-meta)",
+                      "rounded-full border px-2.5 py-1 text-(length:--t-meta-size)",
                       waitingOn === who
                         ? "border-(--accent) bg-(--surface-2) text-(--text-1)"
-                        : "border-(--border-1) text-(--text-2) hover:bg-(--surface-2)",
+                        : "border-(--line-1) text-(--text-2) hover:bg-(--surface-2)",
                     )}
                   >
                     {who}
@@ -122,7 +122,7 @@ export function ItemOverflowPopover({
               </div>
               {waitingOn && (
                 <div className="flex flex-col gap-1.5">
-                  <p className="text-(length:--text-meta) font-medium text-(--text-2)">{copy.waitingPopover.checkBack}</p>
+                  <p className="text-(length:--t-meta-size) font-medium text-(--text-2)">{copy.waitingPopover.checkBack}</p>
                   <Button
                     variant="secondary"
                     onClick={() => finishWaiting(new Date(now.getTime() + 30 * 60000).toISOString())}
@@ -153,12 +153,12 @@ export function ItemOverflowPopover({
               <Button variant="secondary" onClick={() => finishLater(afterLunchIso(now))}>
                 {copy.moveLaterOptions.afterLunch}
               </Button>
-              <div className="flex items-center gap-2 rounded-(--radius-control) border border-(--border-1) p-2">
+              <div className="flex items-center gap-2 rounded-(--r-4) border border-(--line-1) p-2">
                 <input
                   type="time"
                   value={customTime}
                   onChange={(e) => setCustomTime(e.target.value)}
-                  className="h-(--size-control-sm) w-full rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) px-2 text-(length:--text-meta) text-(--text-1)"
+                  className="h-(--h-sm) w-full rounded-(--r-4) border border-(--line-1) bg-(--surface-1) px-2 text-(length:--t-meta-size) text-(--text-1)"
                   aria-label={copy.moveLaterOptions.pick}
                 />
                 <IconButton
@@ -166,7 +166,7 @@ export function ItemOverflowPopover({
                   size="sm"
                   onClick={() => finishLater(siteTimeIso(now, customTime))}
                 >
-                  <ChevronLeft className="size-(--size-icon-sm) rotate-180" aria-hidden />
+                  <ChevronLeft className="size-(--icon-sm) rotate-180" aria-hidden />
                 </IconButton>
               </div>
             </div>
@@ -193,7 +193,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-(--radius-control) px-3 py-2 text-left text-(length:--text-body) text-(--text-1) hover:bg-(--surface-2) disabled:opacity-50 disabled:pointer-events-none"
+      className="rounded-(--r-4) px-3 py-2 text-left text-(length:--t-body-size) text-(--text-1) hover:bg-(--surface-2) disabled:opacity-50 disabled:pointer-events-none"
     >
       {children}
     </button>

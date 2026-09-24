@@ -4,7 +4,6 @@ export const SLIDE_WIDTH = 1600;
 export const SLIDE_HEIGHT = 900;
 /** Where the two halves of the deck meet: slides 1–10 are the one hour answer. */
 export const PART_A_LAST = 10;
-export const SLIDE_COUNT = 16;
 
 /** Every slide in part-a.tsx / part-b.tsx is a component of this shape — the deck
  * shell (and /deck/print) supply its position in the running order. */

@@ -35,9 +35,9 @@ export function HelpPopover({ trigger, onSend }: HelpPopoverProps) {
           side="bottom"
           align="start"
           sideOffset={8}
-          className="popover-content z-50 w-72 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-72 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-4 shadow-(--e3)"
         >
-          <p className="text-(length:--text-meta) font-semibold text-(--text-1)">{copy.help.title}</p>
+          <p className="text-(length:--t-meta-size) font-semibold text-(--text-1)">{copy.help.title}</p>
           <div className="mt-2 flex flex-col gap-1.5">
             {copy.help.options.map((option) => (
               <button
@@ -46,17 +46,17 @@ export function HelpPopover({ trigger, onSend }: HelpPopoverProps) {
                 onClick={() => setReason(option)}
                 aria-pressed={reason === option}
                 className={cn(
-                  "rounded-(--radius-control) border px-3 py-2 text-left text-(length:--text-meta) transition-colors",
+                  "rounded-(--r-4) border px-3 py-2 text-left text-(length:--t-meta-size) transition-colors",
                   reason === option
                     ? "border-(--accent) bg-(--surface-2) text-(--text-1)"
-                    : "border-(--border-1) text-(--text-2) hover:bg-(--surface-2)",
+                    : "border-(--line-1) text-(--text-2) hover:bg-(--surface-2)",
                 )}
               >
                 {option}
               </button>
             ))}
           </div>
-          <label className="mt-3 block text-(length:--text-meta) text-(--text-2)">
+          <label className="mt-3 block text-(length:--t-meta-size) text-(--text-2)">
             {copy.help.note}
             <Input value={note} onChange={(e) => setNote(e.target.value)} className="mt-1" />
           </label>

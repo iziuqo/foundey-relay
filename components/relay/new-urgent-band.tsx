@@ -24,9 +24,9 @@ export function NewUrgentBand({ title, onShowMe }: NewUrgentBandProps) {
       initial={{ opacity: 0, y: -48 }}
       animate={{ opacity: 1, y: 0 }}
       transition={transition.band}
-      className="glow-sweep relative mb-3 flex items-center justify-between gap-3 overflow-hidden rounded-(--radius-control) border border-(--accent) bg-(--surface-2) px-3 py-2"
+      className="glow-sweep relative mb-3 flex items-center justify-between gap-3 overflow-hidden rounded-(--r-4) border border-(--accent) bg-(--surface-2) px-3 py-2"
     >
-      <p className="text-(length:--text-meta) text-(--text-1)">{t(copy.newUrgent, { title })}</p>
+      <p className="text-(length:--t-meta-size) text-(--text-1)">{t(copy.newUrgent, { title })}</p>
       <Button size="sm" variant="secondary" onClick={onShowMe}>
         {copy.actions.showMe}
       </Button>

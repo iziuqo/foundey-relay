@@ -14,7 +14,7 @@ export function DeckPrint() {
         <div
           key={label}
           data-deck-print-slide
-          className="mb-8 shrink-0 shadow-(--shadow-e2) print:mb-0 print:shadow-none"
+          className="mb-8 shrink-0 shadow-(--e2) print:mb-0 print:shadow-none"
         >
           <Component n={i + 1} total={deckSlides.length} />
         </div>

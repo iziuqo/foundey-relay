@@ -1,9 +1,9 @@
 import { cn } from "@/lib/cn";
 
 const sizeClasses = {
-  sm: "size-6 text-(length:--text-kbd)",
-  md: "size-8 text-(length:--text-meta)",
-  lg: "size-10 text-(length:--text-body)",
+  sm: "size-6 text-(length:--t-mono-size)",
+  md: "size-8 text-(length:--t-meta-size)",
+  lg: "size-10 text-(length:--t-body-size)",
 } as const;
 
 export interface PersonAvatarProps {

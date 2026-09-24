@@ -46,9 +46,9 @@ export function AssignPopover({ trigger, candidates, onAssign }: AssignPopoverPr
           align="end"
           sideOffset={8}
           aria-labelledby="assign-popover-title"
-          className="popover-content z-50 flex w-80 flex-col gap-2 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-3 shadow-(--shadow-e3)"
+          className="popover-content z-50 flex w-80 flex-col gap-2 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-3 shadow-(--e3)"
         >
-          <p id="assign-popover-title" className="px-1 text-(length:--text-meta) font-semibold text-(--text-1)">
+          <p id="assign-popover-title" className="px-1 text-(length:--t-meta-size) font-semibold text-(--text-1)">
             {copy.team.reassignTitle}
           </p>
           <Input
@@ -68,25 +68,25 @@ export function AssignPopover({ trigger, candidates, onAssign }: AssignPopoverPr
                     onAssign(candidate.person.id);
                     reset(false);
                   }}
-                  className="flex w-full items-center gap-3 rounded-(--radius-control) px-2 py-2 text-left hover:bg-(--surface-2) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
+                  className="flex w-full items-center gap-3 rounded-(--r-4) px-2 py-2 text-left hover:bg-(--surface-2) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
                 >
                   <PersonAvatar initials={candidate.person.initials} size="sm" />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
-                      <span className="truncate text-(length:--text-meta) font-medium text-(--text-1)">
+                      <span className="truncate text-(length:--t-meta-size) font-medium text-(--text-1)">
                         {candidate.person.name}
                       </span>
                       {!query && index === 0 && (
-                        <span className="rounded-full border border-(--border-1) px-1.5 py-0.5 text-(length:--text-kbd) text-(--text-2)">
+                        <span className="rounded-full border border-(--line-1) px-1.5 py-0.5 text-(length:--t-mono-size) text-(--text-2)">
                           {copy.team.suggested}
                         </span>
                       )}
                     </span>
-                    <span className="block truncate text-(length:--text-kbd) text-(--text-2)">
+                    <span className="block truncate text-(length:--t-mono-size) text-(--text-2)">
                       {candidate.person.role}
                     </span>
                   </span>
-                  <span className="tnum shrink-0 text-(length:--text-kbd) text-(--text-2)">
+                  <span className="tnum shrink-0 text-(length:--t-mono-size) text-(--text-2)">
                     {t(copy.team.loadCounts, {
                       now: candidate.counts.now,
                       next: candidate.counts.next,
@@ -97,7 +97,7 @@ export function AssignPopover({ trigger, candidates, onAssign }: AssignPopoverPr
               </li>
             ))}
             {filtered.length === 0 && (
-              <li className={cn("px-2 py-3 text-(length:--text-meta) text-(--text-2)")}>{copy.palette.empty}</li>
+              <li className={cn("px-2 py-3 text-(length:--t-meta-size) text-(--text-2)")}>{copy.palette.empty}</li>
             )}
           </ul>
           <Popover.Arrow className="fill-(--surface-1)" />

@@ -193,7 +193,7 @@ export function Hero({
       // second. The card now leaves in 140ms and the promoted one arrives at 140ms, so
       // the slot holds exactly one card at a time.
       exit={{ opacity: 0, y: -6, transition: transition.exit }}
-      className="relative rounded-(--radius-hero) p-6 outline-none [--hero-gutter:0px] md:[--hero-gutter:5.25rem]"
+      className="relative rounded-(--r-5) p-6 outline-none [--hero-gutter:0px] md:[--hero-gutter:5.25rem]"
     >
       {/* M5: the restored card has nowhere to morph from — the row it would share a
           `layoutId` with is the row it is about to replace — so the shared shell is off

@@ -7,13 +7,15 @@ import "./globals.css";
 // Inter is vendored rather than pulled from next/font/google because Google's build
 // does not expose the `opsz` axis, and per-step optical sizing is what makes the 33px
 // hero title read as a headline instead of large body copy (v3 plan §4.1). The file is
-// a latin subset carrying opsz 14–32 and wght 100–900 in 72KB — see app/fonts/README.md
+// a latin subset carrying opsz 14–32 and wght 400–600 in 50KB — see app/fonts/README.md
 // for the subsetting command and the exact unicode range.
 const inter = localFont({
   src: "./fonts/InterVariable-latin.woff2",
   variable: "--font-inter",
   display: "swap",
-  weight: "100 900",
+  // The range the UI uses: 400, 500, 600, and nothing above 600 (tokens.test.ts). Declaring
+  // more than the file carries would make the browser synthesise the difference.
+  weight: "400 600",
   adjustFontFallback: "Arial",
   fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
@@ -26,6 +28,10 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-plex-mono",
   display: "swap",
+  // Not preloaded: identifiers sit below the hero, and two 9KB preloads compete with the
+  // JS bundle on the G8 mobile profile (LOG M14). It is still requested as soon as the
+  // stylesheet names it.
+  preload: false,
 });
 
 export const metadata: Metadata = {

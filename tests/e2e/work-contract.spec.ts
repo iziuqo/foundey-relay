@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import { axeViolations } from "./axe";
 
-// Gates G3 (text) and G7 (layout) for the "My work" screen (plan §9.1, Phase 3 exit
-// gate). G2's screenshot baselines need a human to approve them, so they aren't here.
+// Gate G3 (layout and text) for the "My work" screen (plan §9.1). The pixel baselines
+// live in tests/visual/screens.spec.ts; these assert properties instead.
 
 const breakpoints = [390, 768, 1024, 1280, 1440, 1920];
 
@@ -10,7 +10,7 @@ async function resetDemo(page: Page) {
   await page.addInitScript(() => window.localStorage.removeItem("relay-demo-v2"));
 }
 
-test.describe("G7 layout (/work)", () => {
+test.describe("G3 layout (/work)", () => {
   for (const width of breakpoints) {
     test(`no horizontal scroll at ${width}px`, async ({ page }) => {
       await resetDemo(page);

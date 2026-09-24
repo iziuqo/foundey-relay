@@ -80,11 +80,3 @@ export interface DoneEntry {
   title: string;
   doneAt: string;
 }
-
-export interface ScoreFactors {
-  T: number;
-  B: number;
-  I: number;
-  overdue: boolean;
-  minutesLeft: number | null;
-}

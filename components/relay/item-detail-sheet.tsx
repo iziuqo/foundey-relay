@@ -80,7 +80,7 @@ export function ItemDetailSheet({ id }: { id: string }) {
           <Dialog.Content
             aria-describedby={undefined}
             onAnimationEnd={onDialogAnimationEnd}
-            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-(--sheet-w) flex-col overflow-y-auto border-l border-(--border-1) bg-(--surface-1) shadow-(--shadow-e3) outline-none"
+            className="sheet-content fixed inset-y-0 right-0 z-50 flex w-(--sheet-w) flex-col overflow-y-auto border-l border-(--line-1) bg-(--surface-1) shadow-(--e3) outline-none"
           >
             <Dialog.Title className="sr-only">{title}</Dialog.Title>
             {content}
@@ -96,9 +96,9 @@ export function ItemDetailSheet({ id }: { id: string }) {
         <Drawer.Overlay className="sheet-overlay fixed inset-0 z-40 bg-(--overlay)" />
         <Drawer.Content
           aria-describedby={undefined}
-          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--radius-hero) border-t border-(--border-1) bg-(--surface-1) outline-none"
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92vh] flex-col overflow-y-auto rounded-t-(--r-5) border-t border-(--line-1) bg-(--surface-1) outline-none"
         >
-          <div aria-hidden className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-(--border-2)" />
+          <div aria-hidden className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-(--line-2)" />
           <Drawer.Title className="sr-only">{title}</Drawer.Title>
           {content}
         </Drawer.Content>

@@ -7,7 +7,7 @@ import { test, expect } from "@playwright/test";
 const sizes = ["sm", "md", "lg"] as const;
 const controlLabels = ["Reroute orders", "Order number", "UPS", "Add"];
 
-test.describe("G1 size contract", () => {
+test.describe("G2 size contract", () => {
   for (const size of sizes) {
     test(`controls in the ${size} row share one height and one vertical center`, async ({ page }) => {
       await page.goto("/system/components");
@@ -36,7 +36,7 @@ test.describe("G1 size contract", () => {
     });
   }
 
-  test("button md height is exactly 40px, matching --size-control-md", async ({ page }) => {
+  test("button md height is exactly 40px, matching --h-md", async ({ page }) => {
     await page.goto("/system/components");
     const box = await page
       .getByTestId("contract-row-md")

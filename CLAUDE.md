@@ -15,9 +15,11 @@ it. A production build proves nothing about a visual change that a dev server do
 | | Cost | When |
 |---|---|---|
 | `npm test` | ~1s, ~250 chars | Freely. It is faster than deciding whether to run it |
-| `npm run test:e2e` | ~15s, ~260 chars | After changing behavior, layout, or anything with an axe/a11y contract |
+| `npm run test:e2e` | ~55s, ~260 chars | After changing behavior, layout, or anything with an axe/a11y contract |
 | `npm run dev:test` | — | Keeps the test server on :3100 warm between e2e runs |
-| `npm run lint` | ~2s | Before committing |
+| `npm run lint` | ~3s | Before committing. Also runs `scripts/check-source.mjs`: no literal colour, no `filter`, no fixed-width flex child |
+| `npm run test:visual` | ~10s | After any change to how a screen *looks*. 48 pixel baselines (8 surfaces × 6 widths, light). A failure is a diff to look at, not a verdict: if the change was meant, `npm run test:visual:update` and commit the PNGs |
+| `npm run check:gates` | ~75s | Before shipping a milestone. G1–G7 and G9 in one command, one line per step |
 | `npm run build` | seconds | Only when shipping, or for G8 |
 | `npm run check:g8` | 60–90s | **Pre-ship only.** Lighthouse three times over. Never part of a normal edit loop |
 | `npm run export:deck` | ~1min | Only when the deck PDF needs regenerating |
@@ -37,7 +39,7 @@ check what is actually listening before believing it.
 
 ## Tests are not the slow part
 
-Measured in this repo: 82 unit tests in 1s, 100 e2e tests in ~15s, a build in 3s. Anything that
+Measured in this repo (M14): 278 unit tests in 2s, 291 e2e tests in ~55s, 48 visual baselines in 10s, a build in 3s. Anything that
 feels slow is almost certainly Lighthouse, a deploy, or a rebuild that did not need to happen.
 
 ## Writing tests here

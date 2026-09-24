@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { contrastBetween, parseOklch } from "../../lib/color";
+import { contrastBetween, cssColorToOklch, parseOklch } from "../../lib/color";
 
 /**
  * The token contract, asserted against app/globals.css itself rather than against
@@ -174,12 +174,13 @@ describe("craft check 7 — wire is chroma-zero with lightness preserved", () =>
     }
   });
 
-  it("keeps the tiers apart in wire on lightness and weight alone", () => {
+  it("keeps the tiers apart in wire on lightness", () => {
+    // v2 mapped three of four foregrounds onto the same gray, leaving only icon shape.
+    // (It also pinned a `--<tier>-weight` token here; nothing ever read it, so M14
+    // deleted the token and the assertion with it. Shape and label carry the rest, and
+    // work-contract.spec.ts's G5 test asserts those against the rendered page.)
     const l = QUEUE_TIERS.map((tier) => oklchOf(`--${tier}-fg`, "wire").l);
     expect(new Set(l).size).toBe(QUEUE_TIERS.length);
-    // v2 mapped three of four foregrounds onto the same gray, leaving only icon shape.
-    const weights = TIERS.map((tier) => resolve(`--${tier}-weight`, "wire"));
-    expect(weights).toEqual(["600", "600", "500", "500"]);
   });
 
   it("turns off depth and the glow", () => {
@@ -283,4 +284,27 @@ describe("the type scale is a scale", () => {
       if (weight) expect(Number(weight[1])).toBeLessThanOrEqual(600);
     }
   });
+});
+
+describe("G1 — the one place literal colours are allowed still matches the tokens", () => {
+  // app/opengraph-image.tsx is rendered by Satori, which cannot read a CSS custom
+  // property, so it carries three hex values. scripts/check-source.mjs allows exactly that
+  // file to; this is what stops the copy from drifting when a token moves.
+  const og = readFileSync(join(process.cwd(), "app/opengraph-image.tsx"), "utf8");
+  const hex = (name: string) => {
+    const value = og.match(new RegExp(`const ${name} = "(#[0-9a-fA-F]{6})"`))?.[1];
+    if (!value) throw new Error(`opengraph-image.tsx has no ${name} hex`);
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16));
+    return cssColorToOklch(`rgb(${r}, ${g}, ${b})`)!;
+  };
+
+  for (const [constant, token] of [
+    ["BG", "--bg"],
+    ["TEXT", "--text-1"],
+    ["TEXT_2", "--text-2"],
+  ] as const) {
+    it(`${constant} is ${token} in light, within one step of lightness`, () => {
+      expect(Math.abs(hex(constant).l - oklchOf(token, "light").l)).toBeLessThan(0.01);
+    });
+  }
 });

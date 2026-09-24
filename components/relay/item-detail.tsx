@@ -60,7 +60,7 @@ function PropertyRow({ label, value }: { label: string; value: React.ReactNode }
   return (
     // o01 (Origin detail panel): the label is the smaller step, the value carries the
     // weight — a hairline-split stat pair, not a table row of matching text.
-    <div className="flex items-baseline justify-between gap-3 border-b border-(--border-1) py-2 last:border-0">
+    <div className="flex items-baseline justify-between gap-3 border-b border-(--line-1) py-2 last:border-0">
       <span className="t-meta text-(--text-2)">{label}</span>
       <span className="tnum t-body font-semibold text-(--text-1)">{value}</span>
     </div>
@@ -131,14 +131,14 @@ export function ItemDetail({
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-(--border-1) bg-(--surface-1) p-4">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-(--line-1) bg-(--surface-1) p-4">
         <div className="flex min-w-0 items-center gap-2">
           {backHref && (
             <Link
               href={backHref}
-              className="flex items-center gap-1 rounded-(--radius-control) py-1 pr-2 t-meta text-(--text-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
+              className="flex items-center gap-1 rounded-(--r-4) py-1 pr-2 t-meta text-(--text-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
             >
-              <ChevronLeft className="size-(--size-icon-sm)" aria-hidden />
+              <ChevronLeft className="size-(--icon-sm)" aria-hidden />
               {copy.itemDetail.backToWork}
             </Link>
           )}
@@ -172,12 +172,12 @@ export function ItemDetail({
         </SheetSection>
 
         {item.source !== "fyi" && (
-          <SheetSection index={1} className="mt-5 rounded-(--radius-control) border border-(--border-1) bg-(--surface-2) p-4">
+          <SheetSection index={1} className="mt-5 rounded-(--r-4) border border-(--line-1) bg-(--surface-2) p-4">
             <WhyFactors ranked={ranked} nextRanked={nextRanked} now={now} />
           </SheetSection>
         )}
 
-        <div className="mt-5 flex items-center gap-3 rounded-(--radius-control) border border-(--border-1) p-3">
+        <div className="mt-5 flex items-center gap-3 rounded-(--r-4) border border-(--line-1) p-3">
           <button
             type="button"
             disabled={!canAct || done}
@@ -185,7 +185,7 @@ export function ItemDetail({
             aria-label={done ? undefined : copy.actions.done}
             className={cn(
               "tap-48 flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-              done ? "border-(--success-fg) bg-(--success-fg) text-(--success-bg)" : "border-(--border-2)",
+              done ? "border-(--success-fg) bg-(--success-fg) text-(--success-bg)" : "border-(--line-2)",
               canAct && !done && "hover:border-(--accent)",
               (!canAct || done) && "pointer-events-none",
             )}
@@ -196,7 +196,7 @@ export function ItemDetail({
               // hero's own item disappears the moment it's done).
               <motion.svg
                 viewBox="0 0 16 16"
-                className="size-(--size-icon-sm)"
+                className="size-(--icon-sm)"
                 aria-hidden
                 fill="none"
                 stroke="currentColor"
@@ -224,7 +224,7 @@ export function ItemDetail({
               and the activity log side by side (§5.7's "2 cols"); every narrower step
               stacks them, which is also what the full page does below 1440. */}
           <div className="mt-2 grid grid-cols-1 gap-x-8 min-[90rem]:grid-cols-2">
-            <div className="rounded-(--radius-control) border border-(--border-1) px-3">
+            <div className="rounded-(--r-4) border border-(--line-1) px-3">
               <PropertyRow label={copy.drawer.source} value={copy.sourceLabels[item.source]} />
               <PropertyRow label={copy.drawer.status} value={copy.statusLabels[item.status]} />
               {item.dueAt && <PropertyRow label={copy.drawer.due} value={timePillText(item.dueAt, now)} />}
@@ -265,7 +265,7 @@ export function ItemDetail({
 
         <SheetSection index={3} className="mt-6">
           <p className="t-eyebrow text-(--text-2)">{copy.itemDetail.people}</p>
-          <div className="mt-2 flex items-center justify-between gap-3 rounded-(--radius-control) border border-(--border-1) p-3">
+          <div className="mt-2 flex items-center justify-between gap-3 rounded-(--r-4) border border-(--line-1) p-3">
             <div className="flex min-w-0 items-center gap-2.5">
               <PersonAvatar initials={assignee?.initials ?? "—"} />
               <span className="min-w-0">
@@ -293,7 +293,7 @@ export function ItemDetail({
       {canAct && !done && (
         <div
           className={cn(
-            "sticky z-10 flex flex-wrap items-center gap-2 border-t border-(--border-1) bg-(--surface-1) p-4",
+            "sticky z-10 flex flex-wrap items-center gap-2 border-t border-(--line-1) bg-(--surface-1) p-4",
             reserveDock ? "bottom-(--h-dock) lg:bottom-0" : "bottom-0",
           )}
         >
@@ -301,7 +301,7 @@ export function ItemDetail({
             {inProgress ? copy.actions.done : item.primaryAction}
           </Button>
           {item.helpAsked ? (
-            <span className="inline-flex h-(--size-control-lg) items-center rounded-(--radius-control) border border-(--border-1) px-4 t-meta text-(--text-2)">
+            <span className="inline-flex h-(--h-lg) items-center rounded-(--r-4) border border-(--line-1) px-4 t-meta text-(--text-2)">
               {copy.help.chip}
             </span>
           ) : (

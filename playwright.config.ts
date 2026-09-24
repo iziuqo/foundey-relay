@@ -17,7 +17,7 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 
 export default defineConfig({
-  testDir: "./tests/e2e",
+  testDir: "./tests",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -29,7 +29,35 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // Two projects, because they answer different questions and cost differently. `chromium`
+  // is the behavioural suite (`npm run test:e2e`, about a minute). `visual` compares pixels
+  // against committed baselines (`npm run test:visual`) and is Chromium-on-macOS only: font
+  // rasterisation differs on Linux, so the platform is deliberately absent from
+  // `snapshotPathTemplate` and CI does not run it.
+  projects: [
+    { name: "chromium", testDir: "./tests/e2e", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "visual",
+      testDir: "./tests/visual",
+      use: {
+        ...devices["Desktop Chrome"],
+        reducedMotion: "reduce",
+        timezoneId: "America/Sao_Paulo",
+        locale: "en-US",
+      },
+    },
+  ],
+  snapshotPathTemplate: "{testDir}/baselines/{arg}{ext}",
+  expect: {
+    toHaveScreenshot: {
+      // Not "disabled": see `freeze()` in tests/visual/screens.spec.ts.
+      animations: "allow",
+      caret: "hide",
+      stylePath: "./tests/visual/hide-dev-overlay.css",
+      // Anti-aliasing noise, not layout: a 4px row change at 1920 is ~0.4% of the frame.
+      maxDiffPixelRatio: 0.001,
+    },
+  },
   webServer: {
     // CI still builds for real: the gates are graded against a production build.
     command: process.env.CI

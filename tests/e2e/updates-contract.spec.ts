@@ -10,7 +10,7 @@ async function resetDemo(page: Page) {
   await page.addInitScript(() => window.localStorage.removeItem("relay-demo-v2"));
 }
 
-test.describe("G7 layout (/updates)", () => {
+test.describe("G3 layout (/updates)", () => {
   for (const width of breakpoints) {
     test(`no horizontal scroll at ${width}px`, async ({ page }) => {
       await resetDemo(page);

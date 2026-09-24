@@ -7,11 +7,7 @@ export const copy = {
   // low-fidelity deliverable, reachable live from the top bar.
   modeSwitch: { label: "Appearance", light: "Light", dark: "Dark", wire: "Wire" },
   status: {
-    needYou: "{n} things need you now.",
-    needYouOne: "1 thing needs you now.",
-    nothingUrgent: "Nothing urgent. {n} left before your shift ends.",
     progress: "{done} of {total} done today.",
-    truckLine: "{carrier} leaves in {rel}",
     // v3 M4 (§5.1): the status line is three clauses joined by "·", so each one drops
     // its full stop. The first is the operative clause and is the only part set in
     // --text-1 600 — "2 need you now · UPS Ground in 50 min · 4 of 10 done".
@@ -42,24 +38,18 @@ export const copy = {
     more: "More",
     waiting: "Waiting on someone",
     notMine: "Not mine",
-    handOff: "Hand off to a teammate",
     later: "Move to later",
     reassign: "Reassign",
     assign: "Assign",
-    seeWork: "See work",
-    showMore: "Show {n} more",
-    showLess: "Show less",
     undo: "Undo",
-    gotIt: "Got it",
     showMe: "Show me",
-    stay: "Stay here",
     acknowledge: "Acknowledge",
   },
   tiers: {
     now: { label: "Act now", helper: "A truck, a person, or many orders are at risk." },
     next: { label: "Up next", helper: "Matters today. A clock is running." },
     later: { label: "When you can", helper: "Real work. Nobody is blocked yet." },
-    fyi: { label: "For your info", helper: "No action needed." },
+    fyi: { label: "For your info" },
     done: { label: "Done today", withCount: "Done today ({n})" },
     empty: "Nothing here.",
     waitingGroup: "Waiting on others ({n})",
@@ -76,8 +66,6 @@ export const copy = {
   },
   why: {
     title: "Why is this first?",
-    showScore: "Show the score",
-    howLink: "How we sort your work",
     scoreLine: "Time {t} + Orders {b} + Impact {i} = {score}",
     // §5.2: the bar itself is decorative (a 1.62:1 fill is not a real contrast pair);
     // this is the text alternative a screen reader gets instead, and the number a
@@ -114,7 +102,6 @@ export const copy = {
     sentBack: "Sent back to the team.",
     helpSent: "Sent to Danielle. She will check in.",
     waiting: "Waiting on {who}. Back at {hhmm}.",
-    notInPrototype: "This is not part of the prototype.",
   },
   help: {
     title: "What's stopping you?",
@@ -132,12 +119,7 @@ export const copy = {
     updates: "See updates",
   },
   newUrgent: "New and more urgent: {title}.",
-  changedPlace: "1 item changed place.",
-  showIt: "Show it",
   live: {
-    doneNext: "Done. Next: {title}.",
-    doneCaughtUp: "Done. All caught up.",
-    newUrgentItem: "New urgent item: {title}.",
   },
   team: {
     status: "Day shift · Outbound · {on} working, {brk} on break, {out} out today.",
@@ -152,7 +134,6 @@ export const copy = {
       noOwner: "{name} is out today",
       noOwnerNone: "Everyone is on shift",
       truck: "{n} orders at risk · in {rel}",
-      truckOnTrack: "On track",
     },
     board: "Team board",
     // §7.4: three caps heads over the roster's tabular columns — v2 printed "2 · 3 · 1"
@@ -191,9 +172,7 @@ export const copy = {
   },
   trucks: { title: "Next trucks", atRisk: "{n} orders at risk", onTrack: "On track", none: "No trucks left today" },
   truckClock: {
-    leavesIn: "{carrier} leaves {door} in {rel}",
     leavesAt: "{carrier} leaves {door} at {hhmm}",
-    departed: "{carrier} left {door}",
     // The rail card carries the carrier as its title and the door as a chip, so the
     // line under them says the one thing neither of those does: when it goes. The three
     // keys above keep the full sentence for the detail panel, which has no such title.
@@ -209,7 +188,7 @@ export const copy = {
     now: "Now",
     handoff: "Handoff {hhmm}",
   },
-  myShift: { title: "My shift", doneOf: "{done} of {total} done", ends: "Shift ends {hhmm}" },
+  myShift: { title: "My shift" },
   updates: {
     title: "Updates",
     tabs: { forYou: "For you", team: "Team", system: "System" },
@@ -217,17 +196,13 @@ export const copy = {
     emptyTab: "Nothing here.",
     emptyTabHint: "When something changes, it will show up here.",
     selectHint: "Select an update to read it here.",
-    seeAll: "See all updates",
     from: "From {name}",
     fromSystem: "System",
   },
-  shortcuts: "J K move · Enter open · E mark done · Z undo · ? all shortcuts",
   demo: {
-    pill: "Prototype controls",
     viewingAs: "Viewing as",
     priya: "Priya (coordinator)",
     danielle: "Danielle (manager)",
-    clock: "Now {hhmm}",
     jump: "Jump 15 min",
     reset: "Reset to 10:40",
     inject: "Send a new urgent item",
@@ -236,11 +211,9 @@ export const copy = {
     label: "Demo",
   },
   drawer: {
-    assignedTo: "Assigned to",
     ordersWaiting: "Orders waiting",
     unitsAffected: "Units affected",
     truck: "Truck",
-    created: "Created",
     itemId: "Item ID",
     source: "Source",
     status: "Status",
@@ -251,7 +224,6 @@ export const copy = {
     activityCreated: "Opened {hhmm} from {source}",
     activityStarted: "Started by {name} at {hhmm}",
     message: "Message {name}",
-    messagingToast: "Messaging is not part of this prototype.",
   },
   statusLabels: {
     open: "Open",
@@ -288,7 +260,6 @@ export const copy = {
     in1h: "In 1 hour",
     atCutoff: "At {hhmm}",
   },
-  notMineReasons: ["Wrong area", "I don't have access", "Duplicate", "Other"],
   moveLaterOptions: { in1h: "In 1 hour", afterLunch: "After lunch (12:30)", pick: "Pick a time" },
   settings: { label: "Settings", tooltip: "Not part of this prototype" },
   sourceLabels: {
@@ -333,7 +304,7 @@ export const copy = {
     actionWireframeOff: "Turn off wireframe mode",
     actionThemeDark: "Switch to dark mode",
     actionThemeLight: "Switch to light mode",
-    actionShortcuts: "Keyboard shortcuts",
+    actionShortcuts: "Show keyboard shortcuts",
   },
   shortcutsSheet: {
     title: "Keyboard shortcuts",
@@ -348,9 +319,7 @@ export const copy = {
       { keys: "?", label: "Show this list" },
     ],
   },
-  handheld: { needYou: "{n} need you" },
-  chips: { workingOnIt: "Working on it" },
-  shift: { line: "{name} · {h}h {m}m left", ended: "{name} · Shift ended" },
+  shift: { line: "{name} · {h}h {m}m left" },
 };
 
 export function t(str: string, vars: Record<string, string | number> = {}): string {

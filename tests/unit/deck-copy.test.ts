@@ -5,6 +5,7 @@ import { moments } from "../../components/system/motion/moments";
 import { FACTOR_MAX } from "../../components/relay/why-factors";
 import { scoreItem } from "../../lib/priority";
 import type { Item } from "../../lib/types";
+import { gradeLevel } from "./readability";
 
 /**
  * G9 — copy, applied to the deck (M10). The deck's prose lives in `deck-copy.ts` so this
@@ -13,25 +14,6 @@ import type { Item } from "../../lib/types";
  * contradicts the screen above it (v3's first M10 draft had three) is the deck's version
  * of a broken button.
  */
-
-/** Flesch–Kincaid grade of one string: 0.39 words/sentence + 11.8 syllables/word − 15.59.
- * Syllables are counted by vowel groups, which is crude and errs slightly high on words
- * like "axe" and "queue" — so a pass here is a real pass. */
-function syllables(word: string): number {
-  const w = word.toLowerCase().replace(/[^a-z]/g, "");
-  if (w.length === 0) return 0;
-  if (w.length <= 3) return 1;
-  const groups = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "").replace(/^y/, "").match(/[aeiouy]{1,2}/g);
-  return Math.max(1, groups?.length ?? 1);
-}
-
-function gradeLevel(text: string): number {
-  const sentences = text.split(/(?<=[.!?”])\s+(?=[A-Z“])/).filter((s) => s.trim().length > 0);
-  const words = text.split(/\s+/).filter((w) => /[a-z0-9]/i.test(w));
-  if (words.length === 0 || sentences.length === 0) return 0;
-  const syll = words.reduce((sum, w) => sum + syllables(w), 0);
-  return 0.39 * (words.length / sentences.length) + 11.8 * (syll / words.length) - 15.59;
-}
 
 describe("G9 reading level (grade ≤ 8)", () => {
   const prose = deck.deckProse();

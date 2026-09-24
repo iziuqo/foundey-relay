@@ -1,0 +1,5 @@
+/* The tests run against `next dev`, which paints its own indicator into every page.
+ * It is not part of the design and it would be in every baseline. */
+nextjs-portal {
+  display: none !important;
+}

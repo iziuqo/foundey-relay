@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { toast as sonnerToast } from "sonner";
 import { useStore } from "@/state/store";
 import { prefersReducedMotion } from "@/lib/motion";
 import { Toast } from "@/components/ui/toast";
@@ -33,15 +32,20 @@ export function ToastBridge() {
     if (!toast || toast.key === lastKey.current) return;
     lastKey.current = toast.key;
     const durationMs = prefersReducedMotion() ? Math.round(toast.durationMs * 1.5) : toast.durationMs;
-    sonnerToast.custom(
-      () => (
-        <Toast
-          message={toast.message}
-          action={toast.undoable ? <UndoToast durationMs={durationMs} onUndo={() => undo()} /> : undefined}
-        />
-      ),
-      { duration: durationMs, onDismiss: () => clearToast(), onAutoClose: () => clearToast() },
-    );
+    // Loaded on the first toast, not at first paint (toaster.tsx). Awaiting `toasterReady`
+    // is what keeps that first toast from firing into a Toaster that is not there yet.
+    void import("./toaster").then(async ({ toast: sonnerToast, toasterReady }) => {
+      await toasterReady;
+      sonnerToast.custom(
+        () => (
+          <Toast
+            message={toast.message}
+            action={toast.undoable ? <UndoToast durationMs={durationMs} onUndo={() => undo()} /> : undefined}
+          />
+        ),
+        { duration: durationMs, onDismiss: () => clearToast(), onAutoClose: () => clearToast() },
+      );
+    });
   }, [toast, undo, clearToast]);
 
   return null;

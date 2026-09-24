@@ -23,7 +23,7 @@ export function UpdateDetail({ row, author, now, unread, onMarkRead }: UpdateDet
           <PersonAvatar initials={author.initials} />
         ) : (
           <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-(--surface-3)">
-            <Cpu className="size-(--size-icon-md) text-(--text-2)" aria-hidden />
+            <Cpu className="size-(--icon-lg) text-(--text-2)" aria-hidden />
           </span>
         )}
         <div className="min-w-0">

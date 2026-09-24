@@ -132,39 +132,22 @@
 
   --overlay: oklch(0.18 0 0 / 40%);
 
-  /* Back-compat aliases. Components still written against the v2 names keep working
-   * until their milestone migrates them; M14 deletes this block. */
-  --border-1: var(--line-1);
-  --border-2: var(--line-2);
-  --accent-solid: var(--primary-bg);
-  --accent-solid-fg: var(--primary-fg);
-  --success-border: var(--success-fg);
-
   /* ================= Tier ================= */
   --act-fg: var(--red-fg);
   --act-bg: var(--red-tint);
   --act-line: var(--red-line);
-  --act-weight: 600;
 
   --next-fg: var(--amber-fg);
   --next-bg: var(--amber-tint);
   --next-line: var(--amber-line);
-  --next-weight: 600;
 
   --when-fg: var(--steel-fg);
   --when-bg: var(--steel-tint);
   --when-line: var(--steel-line);
-  --when-weight: 500;
 
   --fyi-fg: var(--blue-fg);
   --fyi-bg: var(--blue-tint);
   --fyi-line: var(--blue-line);
-  --fyi-weight: 500;
-
-  --act-border: var(--act-line);
-  --next-border: var(--next-line);
-  --when-border: var(--when-line);
-  --fyi-border: var(--fyi-line);
 
   /* The hero glow is dark-only (advisor §4.6): a colored glow on a near-white canvas
    * reads as a rendering fault. Light and wire resolve it to nothing. */
@@ -199,22 +182,6 @@
   --t-finish-size: 2.5rem;     /* 40 */
   --t-finish-line: 2.75rem;
 
-  /* Back-compat aliases for components not yet migrated to the .t-* utilities. */
-  --text-display: var(--t-hero-size);
-  --leading-display: var(--t-hero-line);
-  --text-hero: var(--t-hero-size);
-  --leading-hero: var(--t-hero-line);
-  --text-title: var(--t-section-size);
-  --leading-title: var(--t-section-line);
-  --text-row: var(--t-row-size);
-  --leading-row: var(--t-row-line);
-  --text-body: var(--t-body-size);
-  --leading-body: var(--t-body-line);
-  --text-meta: var(--t-meta-size);
-  --leading-meta: var(--t-meta-line);
-  --text-kbd: var(--t-mono-size);
-  --leading-kbd: var(--t-mono-line);
-
   /* ================= Geometry ================= */
   /* Radius is a function of height — r = round(h × 0.28), snapped to this ladder —
    * not a constant. v2 computed r12 on everything from a 28px pill to a 48px button. */
@@ -224,10 +191,6 @@
   --r-4: 12px;
   --r-5: 16px;
   --r-full: 9999px;
-
-  --radius-chip: var(--r-2);
-  --radius-control: var(--r-4);
-  --radius-hero: var(--r-5);
 
   /* Control heights. Anything sharing a row shares one of these. */
   --h-xs: 1.75rem; /* 28 — chip, time pill */
@@ -245,22 +208,11 @@
   --h-topbar: 3.5rem;     /* 56 */
   --h-dock: 4rem;         /* 64 — handheld, sticky not floating */
 
-  --size-control-sm: var(--h-sm);
-  --size-control-md: var(--h-md);
-  --size-control-lg: var(--h-lg);
-  --size-chip-sm: 1.5rem;
-  --size-chip-md: var(--h-xs);
-  --size-row-min: var(--h-row);
-  --size-row-min-handheld: var(--h-row-handheld);
-
   /* Icon sizes, paired with a stroke so optical weight stays constant across sizes. */
   --icon-sm: 1rem;     /* 16 @1.5, inside a 32 control */
   --icon-md: 1.125rem; /* 18 @1.5, inside a 40 control */
   --icon-lg: 1.25rem;  /* 20 @1.75, inside a 48 control and as the row tier icon */
   --icon-xl: 1.5rem;   /* 24 @1.75, the hero tier icon */
-  --size-icon-sm: var(--icon-sm);
-  --size-icon-md: var(--icon-lg);
-  --size-icon-lg: var(--icon-xl);
 
   /* Layout. The rail renders only at ≥1200px and never exceeds 368px (advisor §5.7);
    * at 1024 the single column is capped so it cannot end up wider than it is at 1440 —
@@ -283,9 +235,6 @@
   --e3:
     0 1px 2px oklch(0.2 0.02 250 / 5%), 0 8px 24px oklch(0.2 0.02 250 / 10%),
     0 24px 48px oklch(0.2 0.02 250 / 8%);
-  --shadow-e1: var(--e1);
-  --shadow-e2: var(--e2);
-  --shadow-e3: var(--e3);
 
   /* ================= Texture ================= */
   /* One texture, canvas only, below the acuity limit at two metres (advisor §4.6). */
@@ -486,16 +435,10 @@
   --r-3: 2px;
   --r-4: 2px;
   --r-5: 2px;
-  --radius-chip: 2px;
-  --radius-control: 2px;
-  --radius-hero: 2px;
 
   --e1: none;
   --e2: none;
   --e3: none;
-  --shadow-e1: none;
-  --shadow-e2: none;
-  --shadow-e3: none;
 
   --act-glow: transparent;
   --next-glow: transparent;
@@ -521,9 +464,6 @@
   --r-3: 10px;
   --r-4: 12px;
   --r-5: 16px;
-  --radius-chip: var(--r-2);
-  --radius-control: var(--r-4);
-  --radius-hero: var(--r-5);
 
   font-family: var(--font-sans);
 }

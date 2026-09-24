@@ -60,7 +60,7 @@ export function RiskTile({ icon: Icon, label, value, sub, pressed, onClick }: Ri
       )}
     >
       <span className="t-meta flex items-center gap-2 text-(--text-2)">
-        <Icon className="size-(--size-icon-md) shrink-0" aria-hidden />
+        <Icon className="size-(--icon-lg) shrink-0" aria-hidden />
         {label}
       </span>
       <span className="t-section tnum font-semibold text-(--text-1)">

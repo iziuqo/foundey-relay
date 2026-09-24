@@ -62,7 +62,7 @@ export function UpdateRowView({ row, author, now, unread, selected, onSelect }: 
         {author ? (
           <PersonAvatar initials={author.initials} size="sm" />
         ) : (
-          <Cpu className="size-(--size-icon-md) text-(--text-3)" />
+          <Cpu className="size-(--icon-lg) text-(--text-3)" />
         )}
       </span>
 

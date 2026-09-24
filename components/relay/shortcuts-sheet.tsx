@@ -17,11 +17,11 @@ export function ShortcutsSheet() {
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay fixed inset-0 z-50 bg-(--overlay)" />
         <Dialog.Content
-          className="dialog-content fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-(--radius-hero) border border-(--border-1) bg-(--surface-1) p-5 shadow-(--shadow-e3)"
+          className="dialog-content fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-(--r-5) border border-(--line-1) bg-(--surface-1) p-5 shadow-(--e3)"
           aria-describedby={undefined}
         >
           <div className="flex items-center justify-between">
-            <Dialog.Title className="text-(length:--text-title) leading-(length:--leading-title) font-semibold text-(--text-1)">
+            <Dialog.Title className="text-(length:--t-section-size) leading-(length:--t-section-line) font-semibold text-(--text-1)">
               {copy.shortcutsSheet.title}
             </Dialog.Title>
             <Dialog.Close asChild>
@@ -33,10 +33,10 @@ export function ShortcutsSheet() {
           <ul className="mt-3 flex flex-col gap-2">
             {copy.shortcutsSheet.rows.map((row) => (
               <li key={row.label} className="flex items-center justify-between gap-4">
-                <span className="text-(length:--text-body) text-(--text-1)">{row.label}</span>
+                <span className="text-(length:--t-body-size) text-(--text-1)">{row.label}</span>
                 <kbd
                   data-kbd
-                  className="tnum rounded-(--radius-chip) border border-(--border-1) bg-(--surface-2) px-2 py-0.5 text-(length:--text-kbd) leading-(length:--leading-kbd) text-(--text-2)"
+                  className="tnum rounded-(--r-2) border border-(--line-1) bg-(--surface-2) px-2 py-0.5 text-(length:--t-mono-size) leading-(length:--t-mono-line) text-(--text-2)"
                 >
                   {row.keys}
                 </kbd>

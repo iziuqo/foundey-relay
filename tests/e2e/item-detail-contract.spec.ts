@@ -2,8 +2,8 @@ import { test, expect, type Page } from "@playwright/test";
 import { axeViolations } from "./axe";
 
 // Phase 4 exit gate (plan §10): "G4 keyboard flow end to end" for item detail, the
-// command palette, and /lookup. G2's screenshot baselines need a human to approve them,
-// so they aren't here (matches tests/e2e/work-contract.spec.ts's own note).
+// command palette, and /lookup. The pixel baselines live in
+// tests/visual/screens.spec.ts; these assert properties instead.
 
 async function resetDemo(page: Page) {
   await page.addInitScript(() => window.localStorage.removeItem("relay-demo-v2"));

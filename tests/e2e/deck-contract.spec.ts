@@ -3,8 +3,8 @@ import { axeViolations } from "./axe";
 import { animationsSettled } from "./settle";
 
 // M10 exit: /deck and /deck/print (plan §8, §9). The deck's craft checks live here rather
-// than in craft.spec's MIGRATED list — see the note on that constant. G2's screenshot
-// baselines need a human to approve them, so they aren't here.
+// than in craft.spec's MIGRATED list — see the note on that constant. The deck's pixel
+// baselines live in tests/visual/screens.spec.ts.
 
 /** ADVISOR-craft §8.1: eyebrow 16, H1 72, H2 44, lead 26, body 20, caption 15, stat 88.
  * Nothing is exempt: inline `code` is set at the surrounding body size. */

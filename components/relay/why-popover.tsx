@@ -22,7 +22,7 @@ export function WhyPopover({ ranked, nextRanked, now, trigger }: WhyPopoverProps
           side="bottom"
           align="start"
           sideOffset={8}
-          className="popover-content z-50 w-80 rounded-(--radius-control) border border-(--border-1) bg-(--surface-1) p-4 shadow-(--shadow-e3)"
+          className="popover-content z-50 w-80 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-4 shadow-(--e3)"
         >
           <WhyFactors ranked={ranked} nextRanked={nextRanked} now={now} />
           <Popover.Arrow className="fill-(--surface-1)" />
