@@ -144,9 +144,10 @@ once read from the reviewer's own browser clock.
 [`plan/PLAN.md`](plan/PLAN.md) is the original implementation plan and
 [`plan/research/`](plan/research/) holds the advisor research written from it.
 
-**The brief itself is not in this repository.** It is Foundey's document, along with the
-screenshot of the current dashboard inside it, and republishing either on a public repo is
-not mine to do. Everything here describes the brief and answers it; nothing reproduces it. The plan for
+**The brief is not in the working tree.** It is Foundey's document, along with the screenshot
+of the current dashboard inside it, so both are deleted from the tree and ignored. They are
+still reachable in this repository's git history, which has not been rewritten. Everything in
+the current tree describes the brief and answers it rather than reproducing it. The plan for
 this rebuild — the decisions, the type and colour system, the motion catalog, the milestones and
 the gates above — is kept outside the repo along with its screenshot evidence and the independent
 review that cleared it to ship.

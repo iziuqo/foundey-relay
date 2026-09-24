@@ -48,10 +48,12 @@ export default function CaseStudyPage() {
             </h1>
 
             <p className="t-site-lead mt-8 max-w-(--site-prose) text-pretty text-(--site-text-2)">
-              The brief asked for a low-fidelity redesign of a warehouse operations
-              dashboard, in under an hour. The hour went into the argument. Then the build
-              ran overnight, unattended, against eleven gates that grade themselves — and
-              not one screen was drawn by hand.
+              Foundey asked for a low-fidelity redesign of a warehouse operations
+              dashboard, in under an hour. What follows is the argument I wrote and the
+              product <strong className="font-medium text-(--site-text-1)">AI agents built
+              from it overnight</strong>, against eleven gates that grade themselves. My own
+              hands on it came to a handful of prompts and a few minutes of reading. Nothing
+              here was drawn in Figma.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
@@ -287,8 +289,8 @@ export default function CaseStudyPage() {
             id="night"
             numeral="05"
             eyebrow="The process"
-            title="I wrote the argument and the gates. The night shift wrote the code."
-            lead="Transcribed from git log, in the machine's own time zone. Twelve commits landed between the last instruction of one night and lunchtime the next day. Six of them arrived between midnight and half past eight."
+            title="I wrote the prompts. The agents wrote the code."
+            lead="Read out of git log, in the machine's own time zone. Twelve commits landed between the last thing I typed one night and lunchtime the next day. Six of them arrived between midnight and half past eight, and three beats on this whole timeline are a person."
           >
             <div className="flex flex-col gap-8">
               <ul className="t-site-mono flex flex-wrap gap-x-6 gap-y-2 text-(--site-text-3)">
@@ -297,14 +299,14 @@ export default function CaseStudyPage() {
                     aria-hidden="true"
                     className="size-2.5 rounded-(--r-full) border border-(--site-text-2)"
                   />
-                  A person decided something
+                  Me, deciding something
                 </li>
                 <li className="flex items-center gap-2">
                   <span
                     aria-hidden="true"
                     className="size-2.5 rounded-(--r-full) bg-(--site-text-3)"
                   />
-                  An agent shipped something
+                  An agent, shipping something
                 </li>
               </ul>
 
@@ -346,10 +348,11 @@ export default function CaseStudyPage() {
               </ol>
 
               <p className="t-site-body max-w-(--site-prose) text-(--site-text-2)">
-                My own hours went into four things: the argument, the plan, the constraints,
-                and reading the reviews. Each session got a short brief and a hard exit
-                condition. What made that safe was not trust — it was that every claim a
-                session makes is checkable by a command someone else can run.
+                My part is small, and it is meant to be: an argument, a plan, a few hard
+                constraints, and a prompt at the end of the night. Minutes of typing, not
+                hours of drawing. What makes that safe is not trust — it is that every claim
+                an agent makes here is checkable by a command someone else can run, and that
+                the agent which grades the work is never the one that did it.
               </p>
             </div>
           </Section>
@@ -441,7 +444,7 @@ export default function CaseStudyPage() {
             numeral="08"
             eyebrow="Go and look"
             title="Everything here is running, not rendered."
-            lead="Four surfaces, a deck, a design system read out of its own stylesheet, and the repository behind all of it."
+            lead="Two product screens, the deck, a design system read out of its own stylesheet, and the repository behind all of it."
           >
             <ul className="grid gap-6 sm:grid-cols-2">
               {SURFACES.map((surface) => (

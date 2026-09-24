@@ -72,7 +72,8 @@ export function DeckShell() {
         aria-label="Slides"
         className="flex w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r border-(--line-1) p-4"
       >
-        <Link href="/" className="t-meta text-(--text-2) hover:text-(--text-1)">
+        {/* `/` is the case study since M16; "← Relay" has always meant the product. */}
+        <Link href="/work" className="t-meta text-(--text-2) hover:text-(--text-1)">
           ← Relay
         </Link>
         {(["A", "B"] as const).map((part) => (

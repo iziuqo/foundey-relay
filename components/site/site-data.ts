@@ -28,7 +28,7 @@ export interface Stat {
 
 /** The hero band. Five numbers, each one checkable. */
 export const STATS: Stat[] = [
-  { value: "50 min", label: "Scaffold to a live URL", note: "12:05 → 12:55, day one" },
+  { value: "50 min", label: "First commit to a live URL", note: "12:05 → 12:55, day one" },
   { value: "12", label: "Commits with nobody awake", note: "22:20 Mon → 13:07 Tue" },
   { value: "635", label: "Automated checks", note: "283 unit · 304 end-to-end · 48 pixel" },
   { value: "11", label: "Quality gates", note: "Nine of them a single command" },
@@ -129,36 +129,39 @@ export const BEATS: Beat[] = [
   {
     time: "12:05",
     day: "Mon 22",
-    title: "The brief lands. The hour starts.",
-    detail: "Scaffold, tokens, seed data, and a priority model with its own tests.",
+    title: "First commit. The clock starts.",
+    detail:
+      "One prompt, holding the argument: rank by consequence, say why, make it finishable. Out comes a scaffold, tokens, seed data, and a priority model with its own tests.",
     human: true,
   },
   {
     time: "12:55",
     day: "Mon 22",
     title: "A deployed prototype, 50 minutes in.",
-    detail: "Two screens, a ranked queue, wireframe mode, and a production URL. That is the answer to the brief as written.",
+    detail:
+      "Both screens, updates, look up, a ranked queue, a wireframe toggle and a production URL. That is the answer to the brief as written, and it is the last thing anybody asked for that afternoon.",
   },
   {
-    time: "15:00",
+    time: "15:19",
     day: "Mon 22",
-    title: "A second session reviews the first, and it does not go well.",
+    title: "A second agent reviews the first, and it does not go well.",
     detail:
-      "Measured, not eyeballed: the main column was narrower at 1024 than at 1440, the undo toast never appeared on screen, and wireframe mode hid its own off switch.",
-    human: true,
+      "Measured, not eyeballed: the main column was narrower at 1024 than at 1440, the undo toast never appeared on screen, and wireframe mode hid its own off switch. The one beat here that is a document rather than a commit — which is why it has a file's timestamp.",
   },
   {
     time: "16:07",
     day: "Mon 22",
-    title: "Start again on Next 16, with a plan and eleven gates.",
-    detail: "The product argument survives. The execution does not. Nothing advances a phase without a green gate.",
+    title: "My call: throw the execution away and start again.",
+    detail:
+      "The product argument survives; the build does not. The prompt that replaces it is a plan with eleven gates, and a rule — nothing advances a phase without a green one.",
     human: true,
   },
   {
     time: "22:20",
     day: "Mon 22",
-    title: "Last instruction of the night.",
-    detail: "The test loop is made cheap to run and cheap to read, so that a long unattended run does not drown in its own output.",
+    title: "Last thing I typed that night.",
+    detail:
+      "Make the test loop cheap to run and cheap to read, so a long unattended run does not drown in its own output. Then bed.",
     human: true,
   },
   {
@@ -206,10 +209,9 @@ export const BEATS: Beat[] = [
   {
     time: "14:11",
     day: "Wed 24",
-    title: "An independent session reviews it and finds seven real defects.",
+    title: "A third agent reviews the whole thing and finds seven real defects.",
     detail:
-      "A session that built none of it drives every route at three widths. It also catches that the first fix for one of them was itself wrong, and says so in writing.",
-    human: true,
+      "One that built none of it drives every route at three widths. It also catches that the first fix for one of those defects was itself wrong, and says so in writing.",
   },
   {
     time: "17:24",
@@ -258,14 +260,14 @@ export const OMISSIONS: Omission[] = [
       "Not one spacing value was nudged by eye. Every height, radius and colour is a token with a test behind it, so when something looks wrong the rule is wrong — and fixing the rule fixes every screen at once.",
   },
   {
-    title: "I did not do research.",
+    title: "I did not do user research.",
     detail:
-      "There are no users here. The two personas, the site, the carriers and the cutoffs all come from the brief and from one frozen Tuesday at 10:40. No data is invented at runtime.",
+      "No interviews, no usability sessions, no users at all. The two personas, the site, the carriers and the cutoffs come from the brief and from one frozen Tuesday at 10:40. The desk research that does exist — three reference reports and fourteen Mobbin searches — is in the repo under plan/.",
   },
   {
     title: "I did not sit and watch it build.",
     detail:
-      "My own time went into the argument, the plan, the gates and the reviews. The longest stretch of work in this repo happened between 22:20 and 13:07 while nobody was at the keyboard.",
+      "A handful of prompts, then sleep. The longest stretch of work in this repository ran from 22:20 to 13:07 with nobody at the keyboard, and the reviews that caught its mistakes were run by other agents, not by me reading diffs.",
   },
   {
     title: "I did not finish everything, and the repo says so.",
