@@ -611,50 +611,60 @@ test.describe("craft: the icon ladder", () => {
   }
 });
 
-/* The queue reads at the weight the prototype draws, not half a weight heavier.
+/* The rows read at the weight and step the prototype draws.
  *
- * Two things are pinned here, because the bug that prompted them was invisible to every
- * other check in this repo. `t-row` was already Inter Medium 500 / 19px / -0.6% — exactly
- * what "Relay — Prototype (v3)" carries — and the visual baselines stayed green, because
- * headless Chromium at 1x rasterises close to grayscale already. What differed was the
- * browser a human actually opens: macOS `font-smooth: auto` stem-darkens, so the same 500
- * arrived looking like Semi Bold.
+ * Every number below was read out of "Relay — Prototype (v3)" with the Figma API, not
+ * eyeballed: W1/T1 row titles are the `t-row` style (Inter Medium 500 / 19px / -0.6%),
+ * and U1's update titles are a different named style, `t-body-semibold` (16px / 600).
+ * The app had used `t-row` there since v3 M7, which is three steps too large — large
+ * enough that two of the three titles truncated on a 1440px screen where Figma's fit.
  *
- * So the assertion is the declaration, not the pixels. A screenshot diff cannot see this
- * and did not. */
-test.describe("craft: the rows render at Figma's weight", () => {
-  const FIGMA_ROW = { weight: "500", size: "19px" }; // Prototype (v3), Work page, row title
+ * The smoothing assertion is separate and deliberate: `t-row` was already correct, but
+ * macOS `font-smooth: auto` stem-darkens, so 500 arrived looking like Semi Bold. A
+ * screenshot diff cannot see that — 46 of 48 baselines never moved — so the contract
+ * has to be asserted as a declaration rather than as pixels. */
+test.describe("craft: the rows render at the prototype's weight and step", () => {
+  // route -> what Figma draws for that route's row title
+  const FROM_FIGMA: Record<string, { size: string; weight: string; style: string }> = {
+    "/work": { size: "19px", weight: "500", style: "t-row" },
+    "/team": { size: "19px", weight: "500", style: "t-row" },
+    "/updates": { size: "16px", weight: "500", style: "t-body-semibold" },
+  };
 
-  for (const path of ["/work", "/team", "/updates"]) {
-    test(`${path} renders text grayscale, and its rows match the prototype`, async ({ page }) => {
+  for (const [path, want] of Object.entries(FROM_FIGMA)) {
+    test(`${path} renders grayscale, and its rows match ${want.style}`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(path);
       await animationsSettled(page);
 
-      // `-webkit-font-smoothing` is not on the CSSStyleDeclaration lib type, so it is read
-      // by property name rather than cast away.
+      // `-webkit-font-smoothing` is not on the CSSStyleDeclaration lib type, so it is
+      // read by property name rather than cast away.
       const smoothing = await page.evaluate(() =>
         getComputedStyle(document.body).getPropertyValue("-webkit-font-smoothing"),
       );
       expect(smoothing, "body must opt out of macOS stem darkening").toBe("antialiased");
 
-      // Row titles that carry no deliberate override (update-row bolds unread on purpose)
-      // must be the prototype's own step, inherited smoothing included.
-      const drift = await page.evaluate((want) => {
+      // Settled, not sampled: the persona rehydrates from localStorage after first
+      // paint, so a bare count races hydration and would let the loop below pass on an
+      // empty list — which is exactly how this assertion first went green for nothing.
+      await expect(page.locator("[data-row-title]")).not.toHaveCount(0);
+
+      const drift = await page.evaluate((w) => {
         const out: string[] = [];
-        for (const el of document.querySelectorAll("[data-craft-row] .t-row")) {
+        for (const el of document.querySelectorAll("[data-row-title]")) {
           const s = getComputedStyle(el);
-          const smooth = s.getPropertyValue("-webkit-font-smoothing");
-          if (smooth !== "antialiased") out.push(`${el.textContent?.slice(0, 20)}: smoothing ${smooth}`);
-          if (s.fontSize !== want.size) out.push(`${el.textContent?.slice(0, 20)}: ${s.fontSize}, want ${want.size}`);
-          if (!el.className.includes("font-semibold") && s.fontWeight !== want.weight) {
-            out.push(`${el.textContent?.slice(0, 20)}: weight ${s.fontWeight}, want ${want.weight}`);
+          const at = `${el.textContent?.slice(0, 18)}`;
+          if (s.getPropertyValue("-webkit-font-smoothing") !== "antialiased") out.push(`${at}: not grayscale`);
+          if (s.fontSize !== w.size) out.push(`${at}: ${s.fontSize}, want ${w.size}`);
+          // update-row bolds unread titles on purpose; every other title is the base weight.
+          if (!el.className.includes("font-semibold") && s.fontWeight !== w.weight) {
+            out.push(`${at}: weight ${s.fontWeight}, want ${w.weight}`);
           }
         }
         return out;
-      }, FIGMA_ROW);
+      }, want);
 
-      expect(drift, "rows drifted from the prototype's type step").toEqual([]);
+      expect(drift, `rows drifted from ${want.style}`).toEqual([]);
     });
   }
 });
