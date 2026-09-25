@@ -500,6 +500,27 @@ body {
   font-feature-settings: "ss02" 1, "cv05" 1, "cv08" 1, "calt" 1;
   font-variant-numeric: tabular-nums slashed-zero;
   font-variant-ligatures: no-discretionary-ligatures;
+
+  /* Grayscale antialiasing, which is what the design tool already shows. On macOS the
+   * default (`auto`) applies stem darkening — the rasteriser thickens vertical stems to
+   * compensate for gamma — and that lays down noticeably more ink than Figma's grayscale
+   * rendering of the *same* weight. So `t-row`'s Inter Medium 500 arrived on screen
+   * reading as a heavier face than the 500 it is, and the queue read brutalist next to
+   * the prototype (v4 PLAN §"take the brutalist read out of the queue"). The token was
+   * never wrong: Figma's row title is Inter Medium 500 / 19px / -0.6% tracking, which is
+   * `t-row` exactly. Only the rasteriser disagreed.
+   *
+   * `plan/PLAN.md` §"Base" specified this on `body` from the start; it simply never
+   * reached the stylesheet. It belongs on `body` rather than a row utility because the
+   * mismatch is the whole document's, not the queue's — `/`, `/deck`, `/team` and
+   * `/system` were all rendering half a weight heavy.
+   *
+   * macOS is the only platform that honours these two properties at all: Windows renders
+   * with ClearType and ignores them. It is not free elsewhere, though — the deck PDF is
+   * composed from full-resolution PNGs of these same screens, not vector text, so it
+   * carries whatever the rasteriser did and had to be re-exported. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 [data-prose-num] {
