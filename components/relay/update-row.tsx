@@ -84,7 +84,7 @@ export function UpdateRowView({ row, author, now, unread, selected, onSelect }: 
       </span>
 
       <span className="pointer-events-none flex min-w-0 flex-col justify-center gap-0.5">
-        <span className={cn("t-row truncate", unread ? "font-semibold text-(--text-1)" : "font-medium text-(--text-1)")}>
+        <span data-row-title className={cn("t-body truncate", unread ? "font-semibold text-(--text-1)" : "font-medium text-(--text-1)")}>
           {titleLine}
         </span>
         {/* t-body, not t-meta: on a page this short, a list of tab labels plus one

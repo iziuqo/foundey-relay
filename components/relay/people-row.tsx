@@ -60,7 +60,7 @@ export function PeopleRow({ person, currentItem, counts, candidates, now, onOpen
         <PersonAvatar initials={person.initials} />
         {person.status === "working" ? (
           <span className="min-w-0 truncate">
-            <span className="t-row text-(--text-1)">{person.name}</span>
+            <span data-row-title className="t-row text-(--text-1)">{person.name}</span>
             <span className="t-meta text-(--text-2)"> · {person.role}</span>
           </span>
         ) : (
@@ -73,7 +73,7 @@ export function PeopleRow({ person, currentItem, counts, candidates, now, onOpen
              exactly these people. So the chip moved there. It can no longer be squeezed
              by anything, the name is no longer squeezed by it, and a column that was
              blank on every away row now says what the person is doing. */
-          <span className="t-row min-w-0 truncate text-(--text-1)">{person.name}</span>
+          <span data-row-title className="t-row min-w-0 truncate text-(--text-1)">{person.name}</span>
         )}
       </div>
 

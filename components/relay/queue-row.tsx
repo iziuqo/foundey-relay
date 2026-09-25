@@ -104,7 +104,7 @@ export function QueueRow({
         data-row-nav
         className={cn("flex min-w-0 flex-col justify-center gap-0.5 rounded-(--r-2)", FOCUS)}
       >
-        <span className="t-row truncate text-(--text-1)">{item.title}</span>
+        <span data-row-title className="t-row truncate text-(--text-1)">{item.title}</span>
         {/* §3.4: the row subtitle is the one step that goes *up* on a handheld — it is
             the only text that explains rank, and 350mm of reading distance makes 14px
             needlessly small where the width is there for 16. Below 768 it also carries
