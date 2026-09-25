@@ -67,8 +67,8 @@
       "isManager": false,
       "status": "working",
       "statusNote": null,
-      "currentTaskId": "it-01",
-      "currentTaskStartedAt": "2026-09-22T10:24:00-07:00"
+      "currentTaskId": "it-04",
+      "currentTaskStartedAt": "2026-09-22T10:18:00-07:00"
     },
     {
       "id": "u2",
@@ -161,7 +161,7 @@
       "escalated": false,
       "whyText": "140 orders need labels before the UPS truck leaves at 11:30.",
       "primaryAction": "Reroute orders to Pack 9",
-      "status": "in_progress",
+      "status": "open",
       "_expected": {
         "score": 62,
         "tier": "Act now"
@@ -193,8 +193,8 @@
     },
     {
       "id": "it-03",
-      "title": "Lithium battery orders missing hazmat labels",
-      "source": "order",
+      "title": "Compliance alert — missing hazmat labels",
+      "source": "compliance",
       "assigneeId": "u1",
       "dueAt": "2026-09-22T11:45:00-07:00",
       "createdAt": "2026-09-22T10:05:00-07:00",
@@ -212,38 +212,38 @@
         "score": 61,
         "tier": "Act now"
       },
-      "cause": "12 orders cannot ship legally"
+      "cause": "12 lithium orders cannot ship legally"
     },
     {
       "id": "it-04",
-      "title": "Order 4821 payment mismatch, held at pack",
+      "title": "Order #4821 — payment mismatch",
       "source": "order",
       "assigneeId": "u1",
       "dueAt": "2026-09-22T08:40:00-07:00",
       "createdAt": "2026-09-22T05:50:00-07:00",
-      "cutoffId": null,
-      "ordersBlocked": 1,
-      "unitsAffected": 3,
-      "customerImpact": "low",
+      "cutoffId": "cpt-ups",
+      "ordersBlocked": 24,
+      "unitsAffected": 31,
+      "customerImpact": "high",
       "safety": false,
       "compliance": false,
       "escalated": false,
-      "whyText": "Overdue, but only one order is waiting, so truck risks come first.",
-      "primaryAction": "Release or cancel order",
-      "status": "open",
+      "whyText": "A failed payment re-authorization is holding 24 orders at pack, and this one is already 2 hours late.",
+      "primaryAction": "Clear the payment hold",
+      "status": "in_progress",
       "_expected": {
-        "score": 50,
-        "tier": "Up next"
+        "score": 64,
+        "tier": "Act now"
       },
-      "cause": "Overdue, 1 order waiting"
+      "cause": "Blocking fulfillment · 24 orders held"
     },
     {
       "id": "it-05",
-      "title": "Reply to vendor about damaged tote count",
+      "title": "Tomasz flagged you in “Medical supplies escalation”",
       "source": "comms",
       "assigneeId": "u1",
       "dueAt": "2026-09-22T10:45:00-07:00",
-      "createdAt": "2026-09-22T09:10:00-07:00",
+      "createdAt": "2026-09-22T07:40:00-07:00",
       "cutoffId": null,
       "ordersBlocked": 0,
       "unitsAffected": 0,
@@ -251,14 +251,14 @@
       "safety": false,
       "compliance": false,
       "escalated": false,
-      "whyText": "Due in 5 minutes, but no orders are waiting on it.",
-      "primaryAction": "Send reply",
+      "whyText": "Tomasz needs an answer in the thread, but no orders are waiting on it.",
+      "primaryAction": "Reply in the thread",
       "status": "open",
       "_expected": {
         "score": 36,
         "tier": "Up next"
       },
-      "cause": "Due soon, nothing blocked"
+      "cause": "Flagged 3 h ago, nothing blocked"
     },
     {
       "id": "it-06",
@@ -285,7 +285,7 @@
     },
     {
       "id": "it-07",
-      "title": "Escalation: medical supplies order 4833 not shipped",
+      "title": "Escalation: medical supplies order #4833 not shipped",
       "source": "customer",
       "assigneeId": "u4",
       "dueAt": "2026-09-22T12:00:00-07:00",
@@ -331,7 +331,7 @@
     },
     {
       "id": "it-09",
-      "title": "Wrong item claim on order 4755",
+      "title": "Wrong item claim on order #4755",
       "source": "customer",
       "assigneeId": null,
       "dueAt": "2026-09-22T15:00:00-07:00",
@@ -354,7 +354,7 @@
     },
     {
       "id": "it-10",
-      "title": "Oversize parcel needs a manual rate, order 4790",
+      "title": "Oversize parcel needs a manual rate, order #4790",
       "source": "order",
       "assigneeId": null,
       "dueAt": "2026-09-22T11:20:00-07:00",
@@ -377,7 +377,7 @@
     },
     {
       "id": "it-11",
-      "title": "Rush shipping request on order 4796",
+      "title": "Order #4796 — customer requested rush shipping",
       "source": "order",
       "assigneeId": "u1",
       "dueAt": "2026-09-23T09:00:00-07:00",
@@ -586,7 +586,7 @@
     },
     {
       "id": "it-20",
-      "title": "Customer asked for a delivery photo, order 4702",
+      "title": "Customer asked for a delivery photo, order #4702",
       "source": "customer",
       "assigneeId": "u4",
       "dueAt": "2026-09-22T16:00:00-07:00",
@@ -748,7 +748,7 @@
       "at": "2026-09-22T06:35:00-07:00",
       "authorId": null,
       "type": "handoff",
-      "text": "Night shift handoff: 3 items carried over. Order 4821 payment hold, a FedEx damage claim, and Pack 7 printer dropping out now and then."
+      "text": "Night shift handoff: 3 items carried over. Order #4821 payment hold, a FedEx damage claim, and Pack 7 printer dropping out now and then."
     },
     {
       "id": "up-08",
@@ -793,7 +793,7 @@
     {
       "id": "dn-02",
       "assigneeId": "u1",
-      "title": "Cleared night shift hold on order 4719",
+      "title": "Cleared night shift hold on order #4719",
       "doneAt": "2026-09-22T07:30:00-07:00"
     },
     {

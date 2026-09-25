@@ -8,7 +8,9 @@
  *
  * Height also decides the icon size and the horizontal padding, which is what keeps
  * optical weight constant: a 16px icon at stroke 1.5 inside a 32px control carries the
- * same visual weight as a 20px icon at 1.75 inside a 48px one.
+ * same visual weight as a 20px icon at 1.75 inside a 48px one. Each step therefore sets
+ * `--icon-stroke` as well as the size; `globals.css` applies it, because lucide's own
+ * `stroke-width="2"` attribute would otherwise flatten the whole ladder to one weight.
  *
  * The rule this table exists to enforce: **anything sharing a row shares one entry.**
  * No 32 beside 40, ever. `tests/e2e/craft.spec.ts` measures it.
@@ -27,7 +29,7 @@ export const CONTROL = {
     text: "t-meta",
     padding: "px-2.5",
     gap: "gap-1.5",
-    icon: "[&_svg]:size-(--icon-sm)",
+    icon: "[&_svg]:icon-sm [--icon-stroke:var(--icon-stroke-sm)]",
   },
   /** 32 — secondary actions inside dense surfaces. 48 on a handheld. */
   sm: {
@@ -37,7 +39,7 @@ export const CONTROL = {
     text: "t-meta",
     padding: "px-3 max-md:px-5",
     gap: "gap-1.5",
-    icon: "[&_svg]:size-(--icon-sm) max-md:[&_svg]:size-(--icon-lg)",
+    icon: "[&_svg]:icon-sm [--icon-stroke:var(--icon-stroke-sm)] max-md:[&_svg]:icon-lg max-md:[--icon-stroke:var(--icon-stroke-lg)]",
   },
   /** 40 — the default: inputs, selects, most buttons. 48 on a handheld. */
   md: {
@@ -47,7 +49,7 @@ export const CONTROL = {
     text: "t-body",
     padding: "px-3.5 max-md:px-5",
     gap: "gap-2",
-    icon: "[&_svg]:size-(--icon-md) max-md:[&_svg]:size-(--icon-lg)",
+    icon: "[&_svg]:icon-md [--icon-stroke:var(--icon-stroke-md)] max-md:[&_svg]:icon-lg max-md:[--icon-stroke:var(--icon-stroke-lg)]",
   },
   /** 48 — the primary action, and the only step that needs no help to be tappable. */
   lg: {
@@ -57,7 +59,7 @@ export const CONTROL = {
     text: "t-body",
     padding: "px-5",
     gap: "gap-2",
-    icon: "[&_svg]:size-(--icon-lg)",
+    icon: "[&_svg]:icon-lg [--icon-stroke:var(--icon-stroke-lg)]",
   },
 } as const;
 

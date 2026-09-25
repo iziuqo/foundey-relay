@@ -1,3 +1,4 @@
+import { Circle } from "lucide-react";
 import { TokenSwatch } from "./token-swatch";
 import { ContrastPair } from "./contrast-pair";
 import { FocusSection, IconographySection, ModeLadder } from "./foundations-extra";
@@ -10,6 +11,7 @@ import {
   chromaWhitelist,
   easeTokens,
   heightLadder,
+  iconLadder,
   motionTokens,
   radiusLadder,
   semanticContrastPairs,
@@ -208,6 +210,35 @@ export function FoundationsPage() {
               ))}
             </ul>
           </div>
+        </div>
+
+        <div className="rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-5">
+          <h3 className="t-eyebrow mb-1 text-(--text-2)">Icons</h3>
+          <p className="t-meta mb-4 text-(--text-2)">
+            Each size carries its own stroke, because lucide writes stroke-width as a
+            presentation attribute and a CSS property is what beats it. Read live from the
+            cascade, like every other value on this page.
+          </p>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {iconLadder.map((step) => (
+              // `min-w-0`: a flex child defaults to `min-width: auto`, so without it the
+              // longest `where` string sets this row's width and the whole page scrolls
+              // sideways at 390 — which is exactly what G3 caught.
+              <li key={step.token} className="flex min-w-0 items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-(--r-2) bg-(--surface-2)">
+                  <Circle
+                    aria-hidden
+                    style={{ width: `var(${step.token})`, height: `var(${step.token})`, strokeWidth: `var(${step.stroke})` }}
+                    className="text-(--text-1)"
+                  />
+                </span>
+                <div className="min-w-0">
+                  <p className="t-meta truncate text-(--text-1)">{step.token.replace(/^--/, "")}</p>
+                  <p className="t-meta truncate text-(--text-2)">{step.where}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

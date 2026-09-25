@@ -1,12 +1,12 @@
 "use client";
 
 import * as Popover from "@radix-ui/react-popover";
-import { Settings2 } from "lucide-react";
 import { copy } from "@/lib/copy";
 import { formatClock, useNow } from "@/lib/time";
 import { demoInjections } from "@/lib/seed";
 import { queueFor } from "@/lib/selectors";
 import { Button } from "@/components/ui/button";
+import { AccountButton } from "./account-button";
 import { cn } from "@/lib/cn";
 import { useStore } from "@/state/store";
 import { SEED_NOW_ISO } from "@/state/clock";
@@ -22,6 +22,7 @@ import type { PersonaId } from "@/state/store";
  */
 export function DemoMenu() {
   const persona = useStore((s) => s.persona);
+  const team = useStore((s) => s.team);
   const items = useStore((s) => s.items);
   const jumpOffsetMs = useStore((s) => s.jumpOffsetMs);
   const setPersona = useStore((s) => s.setPersona);
@@ -31,6 +32,7 @@ export function DemoMenu() {
   const reset = useStore((s) => s.reset);
 
   const now = useNow(SEED_NOW_ISO, jumpOffsetMs);
+  const person = team.find((p) => p.id === persona);
   const heroId = queueFor(items, persona, now).hero?.item.id ?? null;
   const injection = demoInjections[0];
   const alreadyInjected = injection ? items.some((i) => i.id === injection.id) : true;
@@ -42,14 +44,10 @@ export function DemoMenu() {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          aria-label={`${copy.demo.label}: ${(persona === "u1" ? copy.demo.priya : copy.demo.danielle).split(" (")[0]}`}
-        >
-          <Settings2 aria-hidden />
-          {(persona === "u1" ? copy.demo.priya : copy.demo.danielle).split(" (")[0]}
-        </Button>
+        <AccountButton
+          initials={person?.initials ?? "??"}
+          label={`${copy.demo.viewingAs}: ${person?.name ?? ""}`}
+        />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content

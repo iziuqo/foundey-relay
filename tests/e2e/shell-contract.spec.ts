@@ -79,23 +79,39 @@ test.describe("G3 shell layout", () => {
 });
 
 test.describe("G2 shell controls", () => {
-  test("the mode switch and the demo trigger share one control height", async ({ page }) => {
+  // v4 — this used to compare the three mode radios against the account trigger and
+  // stop there, so it never saw that the *group* around those radios measured 38 and the
+  // search field beside it 40. Three heights on one row, and the one test named after
+  // the rule was green. It now measures every direct child of the top bar's right-hand
+  // cluster plus the search field, which is the row `sizing.ts` is talking about.
+  test("every control on the top bar row shares one height", async ({ page }) => {
     await resetDemo(page);
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/work");
 
+    const boxes = await page.locator("header").evaluate((header) => {
+      const controls = [
+        header.querySelector('[aria-label^="Search orders"]'),
+        header.querySelector('[role="radiogroup"]'),
+        header.querySelector('[aria-label^="Viewing as"]'),
+      ];
+      return controls.map((el) => ({
+        label: el?.getAttribute("aria-label") ?? el?.getAttribute("role") ?? "missing",
+        height: el ? Math.round(el.getBoundingClientRect().height) : -1,
+      }));
+    });
+
+    expect(boxes.map((b) => b.height), `top bar heights: ${JSON.stringify(boxes)}`).not.toContain(-1);
+    const heights = new Set(boxes.map((b) => b.height));
+    expect(heights.size, `top bar heights: ${JSON.stringify(boxes)}`).toBe(1);
+
+    // And the radios inside the group are themselves one step.
     const modeButtons = page.getByRole("radiogroup", { name: "Appearance" }).getByRole("radio");
-    const demoTrigger = page.getByRole("button", { name: /^Demo:/ });
-    const heights = new Set<number>();
-    for (const box of await Promise.all([
-      modeButtons.nth(0).boundingBox(),
-      modeButtons.nth(1).boundingBox(),
-      modeButtons.nth(2).boundingBox(),
-      demoTrigger.boundingBox(),
-    ])) {
-      heights.add(Math.round(box!.height));
+    const radioHeights = new Set<number>();
+    for (const box of await Promise.all([0, 1, 2].map((i) => modeButtons.nth(i).boundingBox()))) {
+      radioHeights.add(Math.round(box!.height));
     }
-    expect(heights.size).toBe(1);
+    expect(radioHeights.size).toBe(1);
   });
 
   test("the nav rail's active state is the only location cue — the top bar names no page", async ({ page }) => {

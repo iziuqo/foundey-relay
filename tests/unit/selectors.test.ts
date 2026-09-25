@@ -94,7 +94,7 @@ describe("updatesFor", () => {
   });
 
   it("every For you row carries its item's own title (README P1 19)", () => {
-    const rows = updatesFor(items, updates).filter((r) => r.tab === "forYou");
+    const rows = updatesFor(items, updates).filter((r) => r.tab === "notifications");
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) expect(row.title).toBeTruthy();
   });
@@ -103,7 +103,7 @@ describe("updatesFor", () => {
     const rows = updatesFor(items, updates);
     expect(rows.find((r) => r.id === "up-04")?.tab).toBe("team"); // announcement
     expect(rows.find((r) => r.id === "up-07")?.tab).toBe("team"); // handoff
-    expect(rows.find((r) => r.id === "up-01")?.tab).toBe("system"); // activity
-    expect(rows.find((r) => r.id === "up-03")?.tab).toBe("system"); // system
+    expect(rows.find((r) => r.id === "up-01")?.tab).toBe("activity"); // activity
+    expect(rows.find((r) => r.id === "up-03")?.tab).toBe("activity"); // system
   });
 });

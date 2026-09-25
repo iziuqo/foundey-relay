@@ -74,7 +74,7 @@ export function ItemOverflowPopover({
               onClick={() => setFlow("menu")}
               className="mb-1 inline-flex items-center gap-1 rounded-(--r-4) px-2 py-1 text-(length:--t-meta-size) text-(--text-2) hover:bg-(--surface-2)"
             >
-              <ChevronLeft className="size-(--icon-sm)" aria-hidden />
+              <ChevronLeft className="icon-sm" aria-hidden />
               Back
             </button>
           )}
@@ -166,7 +166,7 @@ export function ItemOverflowPopover({
                   size="sm"
                   onClick={() => finishLater(siteTimeIso(now, customTime))}
                 >
-                  <ChevronLeft className="size-(--icon-sm) rotate-180" aria-hidden />
+                  <ChevronLeft className="icon-sm rotate-180" aria-hidden />
                 </IconButton>
               </div>
             </div>

@@ -45,7 +45,15 @@ export function ModeSwitch() {
     <div
       role="radiogroup"
       aria-label={copy.modeSwitch.label}
-      className="flex items-center gap-0.5 rounded-(--r-3) border border-(--line-1) bg-(--surface-1) p-0.5"
+      // v4: a 32px radio inside `p-0.5` and a 1px border measures 38, which sat between a
+      // 40px search field and a 32px account button — three heights on one row, the exact
+      // thing `sizing.ts` says can never happen.
+      //
+      // The height is now declared rather than accumulated, so the track *is* a ladder
+      // step and the 32px radios centre inside it. Below 768 every control step resolves
+      // to 48, and a 48px radio cannot fit inside a 48px track that also has a border, so
+      // the track drops its own chrome there and the radios are the group.
+      className="flex h-(--h-md) items-center gap-0.5 rounded-(--r-3) border border-(--line-1) bg-(--surface-1) px-1 max-md:h-(--h-lg) max-md:border-transparent max-md:bg-transparent max-md:px-0"
     >
       {MODES.map(({ id, label, icon: Icon }) => {
         const checked = active === id;

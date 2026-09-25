@@ -296,9 +296,12 @@ test.describe("G3 the six widths (/work)", () => {
       await noClipping("on first paint");
 
       // The promoted hero is a different item with a different title length, and it is
-      // the state a reviewer reaches in one click.
+      // the state a reviewer reaches in one click. Read the title at runtime rather than
+      // pinning it: the seed's top item is content, and a contract test should not fail
+      // the day the content changes (v4 — it did).
+      const heroBefore = await page.getByTestId("hero-title").innerText();
       await page.keyboard.press("e");
-      await expect(page.getByTestId("hero-title")).not.toHaveText("Label printer offline at Pack 7");
+      await expect(page.getByTestId("hero-title")).not.toHaveText(heroBefore);
       await noClipping("after a done action");
     });
   }
@@ -337,6 +340,6 @@ test.describe("the hero away from /work", () => {
     await page.goto("/system/patterns");
     const hero = page.getByTestId("hero").first();
     await expect(hero).toBeVisible();
-    await expect(hero.getByRole("button", { name: /Mark done|Reroute|Reprint/ })).toBeVisible();
+    await expect(hero.getByRole("button", { name: /Mark done|Reroute|Reprint|Clear the payment hold/ })).toBeVisible();
   });
 });

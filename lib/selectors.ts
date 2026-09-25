@@ -264,7 +264,11 @@ export function assignCandidates(team: Person[], items: Item[], now: Date): Assi
     .sort((a, b) => a.load.points - b.load.points || a.person.name.localeCompare(b.person.name));
 }
 
-export type UpdateTab = "forYou" | "team" | "system";
+// v4: named for the brief's own dashboard cards. "Notifications" is the brief's
+// Notifications card, "team" is its "Team updates (Internal Comms)", and "activity"
+// is its "Recent activity". Its fourth card, "Tasks (Orders)", is not here — that one
+// became the ranked queue on /work, which is the whole answer.
+export type UpdateTab = "notifications" | "team" | "activity";
 
 export interface UpdateRow {
   id: string;
@@ -280,15 +284,15 @@ export interface UpdateRow {
 }
 
 const updateTabByType: Record<UpdateEntry["type"], UpdateTab> = {
-  activity: "system",
-  system: "system",
+  activity: "activity",
+  system: "activity",
   announcement: "team",
   handoff: "team",
 };
 
 /**
- * §6.4: For you (FYI items, each with its own title), Team (announcements and
- * handoffs), System (activity and system entries) — sorted newest first. The seed
+ * §6.4: Notifications (FYI items, each with its own title), Team comms (announcements
+ * and handoffs), Activity (activity and system entries) — sorted newest first. The seed
  * array is not chronological (up-07 06:35 precedes up-08 06:45 in file order). Every
  * row stays listed regardless of read state; unread is a per-viewer dot the caller
  * derives from `readIds`, not a filter (a "mark read" row should not vanish).
@@ -299,7 +303,7 @@ export function updatesFor(items: Item[], updates: UpdateEntry[]): UpdateRow[] {
     .map((item) => ({
       id: item.id,
       at: item.createdAt,
-      tab: "forYou",
+      tab: "notifications",
       title: item.title,
       reason: item.whyText,
       authorId: null,

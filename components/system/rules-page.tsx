@@ -15,7 +15,7 @@ import { ModePanel, PageHead, Verdict } from "./kit";
  */
 
 const WHY =
-  "Ranks above Order 4821 and Order 4809 because it blocks 140 orders across two carriers and the printer has no manual fallback at Pack 7.";
+  "Ranks above the Pack 7 printer because it is already 2 hours late and a failed payment is holding 24 orders at pack (64 to 62).";
 const ROLE = "Senior outbound exceptions coordinator, cross-dock and returns";
 
 export function RulesPage() {
@@ -64,7 +64,7 @@ export function RulesPage() {
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           <Verdict kind="do" caption="Every row is --h-row. The action sits in a reserved track.">
             <HeightReadout className="flex flex-col rounded-(--r-3) bg-(--surface-2)">
-              {["Label printer offline", "Order 4821 payment mismatch", "Reply to vendor", "Rush order 4796"].map(
+              {["Order #4821 payment mismatch", "Label printer offline", "Escalation thread reply", "Rush order #4796"].map(
                 (title) => (
                   <li
                     key={title}
@@ -82,26 +82,26 @@ export function RulesPage() {
           <Verdict kind="dont" caption="Height follows content. A border, a wrapped line, two button sizes.">
             <HeightReadout className="flex flex-col rounded-(--r-3) bg-(--surface-2)">
               <li className="flex items-center gap-3 border-b border-(--line-1) px-3 py-3.5">
-                <span className="min-w-0 flex-1 t-row text-(--text-1)">Label printer offline</span>
+                <span className="min-w-0 flex-1 t-row text-(--text-1)">Order #4821 mismatch</span>
                 <Button size="sm" variant="secondary">
                   Open
                 </Button>
               </li>
               <li className="flex items-center gap-3 border-b border-(--line-1) px-3 py-3.5">
                 <span className="min-w-0 flex-1">
-                  <span className="block t-row text-(--text-1)">Order 4821 payment mismatch</span>
-                  <span className="block t-meta text-(--text-2)">Held at pack, one order waiting on this</span>
+                  <span className="block t-row text-(--text-1)">Label printer offline at Pack 7</span>
+                  <span className="block t-meta text-(--text-2)">Blocks 140 orders for the UPS 11:30 truck</span>
                 </span>
                 <Button size="md" variant="secondary">
                   Open
                 </Button>
               </li>
               <li className="flex items-center gap-3 border-b border-(--line-1) px-3 py-3.5">
-                <span className="min-w-0 flex-1 t-row text-(--text-1)">Reply to vendor</span>
+                <span className="min-w-0 flex-1 t-row text-(--text-1)">Escalation thread reply</span>
               </li>
               <li className="flex items-center gap-3 px-3 py-3.5">
                 <span className="min-w-0 flex-1">
-                  <span className="block t-row text-(--text-1)">Rush order 4796</span>
+                  <span className="block t-row text-(--text-1)">Rush order #4796</span>
                   <span className="block t-meta text-(--text-2)">Due tomorrow, nothing blocked</span>
                 </span>
                 <Button size="sm" variant="secondary">
@@ -200,9 +200,9 @@ function Rule({
 }
 
 const tierRows: { tier: EncodedTier; label: string; title: string }[] = [
-  { tier: "now", label: copy.tiers.now.label, title: "Label printer offline" },
-  { tier: "next", label: copy.tiers.next.label, title: "Order 4821 mismatch" },
-  { tier: "later", label: copy.tiers.later.label, title: "Rush order 4796" },
+  { tier: "now", label: copy.tiers.now.label, title: "Order #4821 mismatch" },
+  { tier: "next", label: copy.tiers.next.label, title: "Escalation thread reply" },
+  { tier: "later", label: copy.tiers.later.label, title: "Rush order #4796" },
   { tier: "fyi", label: copy.tiers.fyi.label, title: "Dock 3 camera moved" },
 ];
 
@@ -295,7 +295,7 @@ function PersonRow({
         <span className="flex items-center gap-2 t-row text-(--text-1)">
           {name}
           {meter === "traffic" && <span aria-hidden className="size-2 rounded-full bg-(--success-fg)" />}
-          {tier && <TierIcon tier={tier} className={cn("size-(--icon-sm)", tone[tier])} />}
+          {tier && <TierIcon tier={tier} className={cn("icon-sm", tone[tier])} />}
         </span>
         <span className="block t-meta text-(--text-2)">{role}</span>
       </span>

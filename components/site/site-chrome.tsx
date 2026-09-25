@@ -80,7 +80,7 @@ export function SiteFooter() {
             </div>
             <p className="t-site-body mt-4 text-(--site-text-2)">
               Built for the Foundey Senior Product Designer challenge, September 2026, by
-              izaias — design engineer, product designer and researcher.
+              Izaias — design engineer, product designer and researcher.
             </p>
             <p className="t-site-mono mt-4 text-(--site-text-3)">
               This page is part of the same repository and obeys the same rules as the

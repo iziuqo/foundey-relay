@@ -29,13 +29,21 @@ export function CheckDraw() {
       aria-hidden
       data-testid="check-draw"
       viewBox="0 0 48 48"
-      // No `exit` of its own, deliberately. It mounts *into* an already-exiting subtree,
-      // and a child that registers an exit animation there is a child AnimatePresence
-      // then waits on — an exit that can only start once the parent is removed, which is
-      // the removal it is blocking. The card fades out around it instead.
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={transition.instant}
+      // No opacity ramp on the way in. v4 — the svg faded in over 90ms *while* the path
+      // drew, so the first third of the only confirmation the user gets was rendered at
+      // partial alpha over a card that was itself fading out. The draw is the entrance.
+      //
+      // It does have an exit now, which it could not have when it mounted *into* the
+      // exiting card's subtree (a child that registers an exit there is one more thing
+      // AnimatePresence waits on before removing the parent — a deadlock). It renders in
+      // the slot instead, under an AnimatePresence of its own, and leaves on the beat the
+      // promoted card arrives on: the two crossfade rather than one popping off the other.
+      // It swells and lifts as it goes, rather than dissolving in place. The promoted
+      // card rises into this same space while the check is still on its way out — that
+      // overlap is unavoidable, because the draw cannot be cut short and the slot must
+      // not sit empty — so the exit has to read as *departing*. Fading without moving
+      // read, for about a tenth of a second, as a tick labelling the card underneath it.
+      exit={{ opacity: 0, scale: 1.2, y: -10, transition: transition.exit }}
       // z-10 and last in the card, so it draws *over* the content it is confirming.
       // Painted underneath (its first position, before the content wrapper) it came out
       // as a faint tick tangled in the title and the why-sentence — the one beat of the
@@ -47,7 +55,7 @@ export function CheckDraw() {
         d="M12 25.5 L20.5 34 L36 15"
         fill="none"
         stroke="currentColor"
-        strokeWidth={5}
+        strokeWidth={4.5}
         strokeLinecap="round"
         strokeLinejoin="round"
         initial={{ pathLength: reduced ? 1 : 0 }}

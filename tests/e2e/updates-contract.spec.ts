@@ -94,10 +94,10 @@ test.describe("Updates defect fixes (README §6)", () => {
     await page.goto("/updates");
     const tablist = page.getByRole("tablist", { name: "Updates" });
     await expect(tablist).toBeVisible();
-    const forYouTab = page.getByRole("tab", { name: /For you/ });
+    const notificationsTab = page.getByRole("tab", { name: /Notifications/ });
     const teamTab = page.getByRole("tab", { name: /^Team/ });
-    await expect(forYouTab).toHaveAttribute("aria-selected", "true");
-    await forYouTab.focus();
+    await expect(notificationsTab).toHaveAttribute("aria-selected", "true");
+    await notificationsTab.focus();
     await page.keyboard.press("ArrowRight");
     await expect(teamTab).toHaveAttribute("aria-selected", "true");
   });

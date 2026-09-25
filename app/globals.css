@@ -210,9 +210,25 @@
 
   /* Icon sizes, paired with a stroke so optical weight stays constant across sizes. */
   --icon-sm: 1rem;     /* 16 @1.5, inside a 32 control */
-  --icon-md: 1.125rem; /* 18 @1.5, inside a 40 control */
+  --icon-md: 1.125rem; /* 18 @1.6, inside a 40 control */
   --icon-lg: 1.25rem;  /* 20 @1.75, inside a 48 control and as the row tier icon */
-  --icon-xl: 1.5rem;   /* 24 @1.75, the hero tier icon */
+  --icon-xl: 1.5rem;   /* 24 @1.9, the hero tier icon */
+
+  /* ...and the stroke each of those sizes is actually drawn at. The line above claimed
+   * this pairing from the start and nothing implemented it: lucide writes
+   * `stroke-width="2"` as a presentation attribute on every glyph it renders, so a 16px
+   * icon and a 20px icon shipped at the same weight — 25 of them on /work alone
+   * (measured, v4). That is why the icon set read heavier than the type beside it.
+   *
+   * A CSS *property* beats a presentation attribute, so the ladder can be declared once
+   * here and handed down as an inherited custom property: `sizing.ts` sets
+   * `--icon-stroke` per control step, and `.lucide` below reads it. Custom SVGs (the
+   * tier glyphs, the mark, the countdown arc) never read it, so their own geometry is
+   * untouched. */
+  --icon-stroke-sm: 1.5;
+  --icon-stroke-md: 1.6;
+  --icon-stroke-lg: 1.75;
+  --icon-stroke-xl: 1.9;
 
   /* Layout. The rail renders only at ≥1200px and never exceeds 368px (advisor §5.7);
    * at 1024 the single column is capped so it cannot end up wider than it is at 1440 —
@@ -488,6 +504,40 @@ body {
 
 [data-prose-num] {
   font-variant-numeric: proportional-nums slashed-zero;
+}
+
+/* Every lucide glyph reads the inherited stroke the control ladder sets, falling back
+ * to the 20px step — which is the nav rail, and any bare glyph outside a control. */
+.lucide {
+  stroke-width: var(--icon-stroke, var(--icon-stroke-lg));
+}
+
+/* Size and stroke are one decision, so they are one utility. Reaching for
+ * `size-(--icon-sm)` directly sets the box and leaves the weight at whatever it
+ * inherited, which is how the search field's magnifier and the tier band's chevron both
+ * shipped at 16px in the 20px weight (measured, v4). */
+@utility icon-sm {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  --icon-stroke: var(--icon-stroke-sm);
+}
+
+@utility icon-md {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  --icon-stroke: var(--icon-stroke-md);
+}
+
+@utility icon-lg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  --icon-stroke: var(--icon-stroke-lg);
+}
+
+@utility icon-xl {
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  --icon-stroke: var(--icon-stroke-xl);
 }
 
 /* Bin codes and SKUs must never form `->` or `!=`. */
@@ -869,6 +919,16 @@ samp {
   [data-fidelity="wire"] .queue-row.needs-row {
     grid-template-rows: calc(3 * var(--t-body-line)) auto;
   }
+}
+
+/* §4.5, and it was being broken: an Act-now row is tinted, and the time chip inside it
+ * was painting the *same* tint again, inside a saturated hairline, on top of it. Three
+ * red fields stacked — card, row, chip — which is what made the top of the queue read as
+ * a warning block rather than as a ranked list. The chip keeps the one thing the row
+ * does not already say: its text colour. */
+.queue-row[data-tier="now"] [data-chip="now"] {
+  background-color: transparent;
+  border-color: transparent;
 }
 
 /* ================= The roster row — v3 M6 =================

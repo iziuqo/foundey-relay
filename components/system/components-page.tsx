@@ -250,19 +250,19 @@ export function ComponentsPage() {
         </p>
         <div className="flex flex-wrap items-center gap-3 rounded-(--r-4) border border-(--line-1) bg-(--surface-1) p-4">
           <Chip tier="now">
-            <TierIcon tier="now" className="size-(--icon-sm)" />
+            <TierIcon tier="now" className="icon-sm" />
             Act now
           </Chip>
           <Chip tier="next">
-            <TierIcon tier="next" className="size-(--icon-sm)" />
+            <TierIcon tier="next" className="icon-sm" />
             Up next
           </Chip>
           <Chip tier="later">
-            <TierIcon tier="later" className="size-(--icon-sm)" />
+            <TierIcon tier="later" className="icon-sm" />
             When you can
           </Chip>
           <Chip tier="fyi">
-            <TierIcon tier="fyi" className="size-(--icon-sm)" />
+            <TierIcon tier="fyi" className="icon-sm" />
             For your info
           </Chip>
           <Chip tier="success">Done</Chip>
@@ -299,16 +299,16 @@ export function ComponentsPage() {
         </div>
         <div className="overflow-hidden rounded-(--r-4) border border-(--line-1)">
           <SectionBand
-            icon={<TierIcon tier="now" className="size-(--icon-sm) text-(--act-fg)" />}
+            icon={<TierIcon tier="now" className="icon-sm text-(--act-fg)" />}
             label={<span className="text-(--act-fg)">Act now</span>}
             count={1}
           />
           <div className="bg-(--surface-1) px-4 py-3">
-            <p className="t-row text-(--text-1)">Lithium battery orders missing hazmat labels</p>
-            <p className="t-meta text-(--text-2)">12 orders cannot ship legally</p>
+            <p className="t-row text-(--text-1)">Order #4821 — payment mismatch</p>
+            <p className="t-meta text-(--text-2)">Blocking fulfillment · 24 orders held</p>
           </div>
           <SectionBand
-            icon={<TierIcon tier="next" className="size-(--icon-sm) text-(--next-fg)" />}
+            icon={<TierIcon tier="next" className="icon-sm text-(--next-fg)" />}
             label={<span className="text-(--next-fg)">Up next</span>}
             count={3}
           />
@@ -321,8 +321,8 @@ export function ComponentsPage() {
         </h2>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           <Toast
-            message="Done: Label printer offline at Pack 7"
-            detail="Next: Lithium battery orders missing hazmat labels"
+            message="Done: Order #4821 — payment mismatch"
+            detail="Next: Label printer offline at Pack 7"
             action={
               <Button variant="ghost" size="sm">
                 Undo
@@ -386,15 +386,15 @@ export function ComponentsPage() {
           <Button>Reroute orders</Button>
           <Button variant="secondary">Ask for help</Button>
           <Chip tier="now">
-            <TierIcon tier="now" className="size-(--icon-sm)" />
+            <TierIcon tier="now" className="icon-sm" />
             Act now
           </Chip>
           <Chip tier="next">
-            <TierIcon tier="next" className="size-(--icon-sm)" />
+            <TierIcon tier="next" className="icon-sm" />
             Up next
           </Chip>
           <Chip tier="later">
-            <TierIcon tier="later" className="size-(--icon-sm)" />
+            <TierIcon tier="later" className="icon-sm" />
             When you can
           </Chip>
           <Input placeholder="Order number" className="w-40" aria-label="Order number in wire mode" />

@@ -80,7 +80,12 @@ export default function TeamPage() {
     setFilter((f) => (f === next ? null : next));
   }
 
-  const needCount = risk.flagged.length + risk.noOwnerItems.length;
+  // The same set the list below it counts, and it was not: this added `flagged` to
+  // `noOwnerItems` while `needsYouRows` also surfaces any unacknowledged safety item,
+  // so the headline read "3 things need you" directly above a list headed "Needs you 4".
+  // Two numbers for one thing, on the screen that exists to answer "I cannot see what
+  // each worker is doing".
+  const needCount = allRows.length;
   const status = isManager
     ? needCount > 0
       ? t(needCount === 1 ? copy.team.statusNeedYouOne : copy.team.statusNeedYou, { n: needCount })

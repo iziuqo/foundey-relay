@@ -69,7 +69,7 @@ export default function CaseStudyPage() {
             <Shot
               className="mt-14"
               src="/shots/work-dark.png"
-              alt="Relay's worker screen: a status sentence reading 2 need you now, one hero task with the reason underneath it and a countdown ring, then a queue in four labelled tiers, and a rail of carrier cutoffs."
+              alt="Relay's worker screen: a status sentence reading 3 need you now, one hero task with the reason underneath it and a countdown ring, then a queue in four labelled tiers, and a rail of carrier cutoffs."
               caption="/work · SEA4 · one frozen Tuesday at 10:40. No data is invented at runtime."
               priority
             />

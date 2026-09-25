@@ -28,7 +28,9 @@ export function MiniTeam() {
   const workers = seedTeam.filter((p) => !p.isManager);
   const needsRows = needsYouRows(risk, seedItems, seedTeam, now, []);
   const candidates = assignCandidates(seedTeam, seedItems, now);
-  const needCount = risk.flagged.length + risk.noOwnerItems.length;
+  // The same set the Needs-you list below it counts — see app/(app)/team/page.tsx. Two
+  // numbers for one thing is worse on a slide than it is in the product.
+  const needCount = needsRows.length;
   const status =
     needCount > 0
       ? t(needCount === 1 ? copy.team.statusNeedYouOne : copy.team.statusNeedYou, { n: needCount })

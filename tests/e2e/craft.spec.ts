@@ -515,16 +515,19 @@ test.describe("craft: the hero countdown", () => {
    * measurement — "MIN LATE" was 64px against a 46px chord there, and looked fine under a
    * square bound.
    */
-  test("every unit string ringLabel can produce fits the ring", async ({ page }) => {
-    const units = new Set<string>();
-    let widestMagnitude = 0;
+  test("every label ringLabel can produce fits the ring", async ({ page }) => {
+    // v4: the magnitude line can now carry a glued unit ("2h", "95m"), so the candidates
+    // are *pairs* of what each line actually renders, not a digit count and a unit set
+    // measured independently. Digits are widened to the most either line can hold.
+    const pairs = new Map<string, [string, string, string]>();
     for (let m = -1440; m <= 1440; m += 1) {
       const l = ringLabel(m);
       if (l.bare) continue;
-      units.add(l.unit);
-      widestMagnitude = Math.max(widestMagnitude, String(l.magnitude).length);
+      const mag = "8".repeat(String(l.magnitude).length) + l.magnitudeUnit;
+      pairs.set(`${mag}|${l.unit}|${l.magnitudeStep}`, [mag, l.unit, l.magnitudeStep]);
     }
-    expect(units.size, "ringLabel produced no split labels").toBeGreaterThan(0);
+    const candidates = [...pairs.values()];
+    expect(candidates.length, "ringLabel produced no split labels").toBeGreaterThan(0);
 
     await page.goto("/work");
     const ring = page.getByTestId("hero-countdown");
@@ -542,14 +545,15 @@ test.describe("craft: the hero countdown", () => {
     }
 
     const failures = await ring.first().evaluate(
-      (el, { units, digits, R }) => {
+      (el, { candidates, R }) => {
         const label = el.querySelector("span[aria-hidden]");
         const spans = [...(label?.querySelectorAll(":scope > span") ?? [])] as HTMLElement[];
         if (spans.length < 2) return ["never reached the split form"];
         const [mag, unitEl] = spans;
         const out: string[] = [];
-        for (const u of units) {
-          mag.textContent = "8".repeat(digits);
+        for (const [magText, u, step] of candidates) {
+          mag.className = `${step} leading-none`;
+          mag.textContent = magText;
           unitEl.textContent = u;
           const box = el.getBoundingClientRect();
           const cy = box.y + box.height / 2;
@@ -561,15 +565,48 @@ test.describe("craft: the hero countdown", () => {
             const dy = Math.max(Math.abs(ink.top - cy), Math.abs(ink.bottom - cy));
             const chord = 2 * Math.sqrt(Math.max(R * R - dy * dy, 0));
             if (ink.width > chord) {
-              out.push(`"${u}": ${name} is ${Math.round(ink.width)}px where the ring is ${Math.round(chord)}px`);
+              out.push(`"${magText} / ${u}": ${name} is ${Math.round(ink.width)}px where the ring is ${Math.round(chord)}px`);
             }
           }
         }
         return out;
       },
-      { units: [...units], digits: widestMagnitude, R: INNER_R },
+      { candidates, R: INNER_R },
     );
 
     expect(failures, "labels wider than the ring").toEqual([]);
   });
+});
+
+/**
+ * The icon ladder — `sizing.ts` has claimed since v3 that a 16px glyph at stroke 1.5
+ * carries the same optical weight as a 20px one at 1.75, and until v4 nothing applied
+ * it: lucide writes `stroke-width="2"` as a presentation attribute, so every icon in the
+ * app rendered at 2 whatever size it was. A rule with no test is a wish.
+ */
+test.describe("craft: the icon ladder", () => {
+  const LADDER: Record<number, string> = { 16: "1.5px", 18: "1.6px", 20: "1.75px", 24: "1.9px" };
+
+  for (const path of ["/work", "/team", "/updates", "/lookup"]) {
+    test(`every glyph on ${path} is drawn at its size's stroke`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      await animationsSettled(page);
+
+      const offLadder = await page.evaluate((ladder) => {
+        const out: string[] = [];
+        for (const svg of document.querySelectorAll("svg.lucide")) {
+          const w = Math.round(svg.getBoundingClientRect().width);
+          if (w === 0) continue; // inside a closed popover
+          const want = ladder[String(w)];
+          const got = getComputedStyle(svg).strokeWidth;
+          if (!want) out.push(`${svg.getAttribute("class")}: ${w}px is not a ladder step`);
+          else if (got !== want) out.push(`${svg.getAttribute("class")}: ${w}px drawn at ${got}, want ${want}`);
+        }
+        return out;
+      }, LADDER as unknown as Record<string, string>);
+
+      expect(offLadder, "glyphs off the size/stroke ladder").toEqual([]);
+    });
+  }
 });

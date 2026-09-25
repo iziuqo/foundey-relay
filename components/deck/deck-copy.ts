@@ -28,7 +28,7 @@ export interface Column {
 
 export const cover = {
   lead: ["Making the ", k("next right action obvious"), " — for the people doing the work, and the people leading it."],
-  meta: "Foundey Senior Product Designer challenge · September 2026",
+  meta: "Foundey Senior Product Designer challenge · Izaias · September 2026",
 } satisfies { lead: Rich; meta: string };
 
 export const dividerA = {
@@ -46,15 +46,33 @@ export const dividerA = {
 export const brief = {
   title: "Two complaints, one screen",
   lead: [
-    "The brief: redesign the dashboard. People should see ",
+    "An Amazon fulfillment team runs a whole shift from this one screen. The brief: make it clear ",
     k("which work comes first"),
     ", from most critical to least urgent.",
   ],
+  // Verbatim, including the second one's slip of grammar. These are the brief's own two
+  // sentences and they are the whole of the problem statement; paraphrasing them would
+  // be the first place a reader could ask whether the problem had been quietly swapped.
   quotes: [
     ["I never know what needs my attention first.", "Workers"],
-    ["I cannot see what each worker is doing.", "Managers"],
+    ["I cannot see what each workers are doing.", "Managers"],
   ],
-} satisfies { title: string; lead: Rich; quotes: [string, string][] };
+  // The four things the old dashboard showed, and where each one went. Nothing was
+  // dropped; three of them stopped being cards and became one list that ranks.
+  label: "Where the old dashboard's four cards went",
+  cards: [
+    ["Tasks (Orders)", "My work — the ranked queue"],
+    ["Notifications", "Updates → Notifications"],
+    ["Team updates (Internal Comms)", "Updates → Team comms"],
+    ["Recent activity", "Updates → Activity, and each item’s own history"],
+  ],
+} satisfies {
+  title: string;
+  lead: Rich;
+  quotes: [string, string][];
+  label: string;
+  cards: [string, string][];
+};
 
 export const insight = {
   title: "It already ranks, and that’s not the fix",
@@ -66,9 +84,9 @@ export const insight = {
   label: "What was missing",
   missing: [
     ["Why", "It ranks, but never says why."],
-    ["Consequence", "It groups by source, not by what happens next."],
-    ["One first thing", "Every row asks for attention at once."],
-    ["A finish line", "There is no way to be done."],
+    ["Consequence", "It labels by source — Order, Notification, Comms — not by what happens next."],
+    ["One first thing", "Four buttons, and the top two are the same heaviest one."],
+    ["A finish line", "Four more cards below it, each ending in View all."],
     ["A manager view", "There is no manager surface at all."],
   ],
 } satisfies { title: string; lead: Rich; label: string; missing: [string, string][] };
@@ -79,7 +97,7 @@ export const failures = {
   rows: [
     ["Ranks, but never says why", "A cause line on every row, and a “Why is this first?” explainer that shows the score."],
     ["Labels by source, not consequence", "Three groups named by time: Act now, Up next, When you can."],
-    ["Every row carries equal weight", "Rows are quiet. One hero carries the one visible action, and loudness follows rank."],
+    ["The top two rows share one button weight", "Rows are quiet and carry no button. One hero holds the one visible action, and loudness follows rank."],
     ["No finish line", "A done count, an undo toast, and a calm all-clear screen."],
     ["No manager surface at all", "A Team screen: Needs you first, then a quiet table of people."],
   ],
@@ -196,11 +214,12 @@ export const motion = {
     ". Nothing loops except the all-clear aurora, and nothing pulses.",
   ],
   body: ["Each moment also has a version for people who turn motion off. Replay them all at ", c("/system/motion"), "."],
-  stat: { value: "≈700", label: "Milliseconds, Mark done, end to end" },
+  stat: { value: "≈420", label: "Milliseconds, Mark done, end to end" },
   beats: [
-    "The check draws.",
+    "The check draws over the card that is leaving.",
     "The hero leaves.",
     "The next row lifts out of the list and becomes the hero.",
+    "The check lifts away as it arrives.",
     "The gap closes.",
     "The counter rolls.",
     "The toast arrives.",

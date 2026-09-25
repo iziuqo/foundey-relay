@@ -17,13 +17,18 @@ describe("scoreItem", () => {
 });
 
 describe("rankItems", () => {
+  // v4: the four rows the brief's own screenshot shows are it-04 (#4821), it-03 (the
+  // compliance alert), it-05 (the thread mention) and it-11 (#4796). They keep the
+  // brief's relative order — 64 > 61 > 36 > 12 — and Relay's own items interleave. The
+  // point the deck makes is not that the order changed; it is that every one of these
+  // six now says *why* it sits where it does.
   it("sorts Priya's queue as the plan's worked proof (§4.2)", () => {
     const priyaItems = items.filter((i) => i.assigneeId === "u1");
     const ranked = rankItems(priyaItems, NOW);
     expect(ranked.map((r) => r.item.id)).toEqual([
+      "it-04",
       "it-01",
       "it-03",
-      "it-04",
       "it-05",
       "it-13",
       "it-11",

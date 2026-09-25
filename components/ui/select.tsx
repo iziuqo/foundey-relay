@@ -6,10 +6,10 @@ import { CONTROL, DISABLED, FOCUS, type ControlSize } from "./sizing";
 // The chevron's inset mirrors the control's own padding, so the gap on the right of the
 // glyph matches the gap on the left of the text.
 const chevron = {
-  xs: "size-(--icon-sm) right-2",
-  sm: "size-(--icon-sm) right-2.5",
-  md: "size-(--icon-md) right-3",
-  lg: "size-(--icon-lg) right-4",
+  xs: "icon-sm right-2",
+  sm: "icon-sm right-2.5",
+  md: "icon-md right-3",
+  lg: "icon-lg right-4",
 } as const;
 
 const textPadding = {

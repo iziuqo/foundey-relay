@@ -21,14 +21,14 @@ export default function UpdatesPage() {
   const markRead = useStore((s) => s.markRead);
   const jumpOffsetMs = useStore((s) => s.jumpOffsetMs);
 
-  const [tab, setTab] = useState<UpdateTab>("forYou");
+  const [tab, setTab] = useState<UpdateTab>("notifications");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const now = useNow(SEED_NOW_ISO, jumpOffsetMs);
   const isDesktop = useIsDesktopShell();
 
   const allRows = useMemo(() => updatesFor(items, seedUpdates), [items]);
-  const counts: Record<UpdateTab, number> = { forYou: 0, team: 0, system: 0 };
+  const counts: Record<UpdateTab, number> = { notifications: 0, team: 0, activity: 0 };
   for (const row of allRows) {
     if (!readIds.includes(row.id)) counts[row.tab] += 1;
   }
@@ -48,7 +48,7 @@ export default function UpdatesPage() {
             for its own status line). */}
         <h1 className="t-section font-semibold text-(--text-1)">{copy.updates.title}</h1>
         <UpdateTabs
-          tabs={(["forYou", "team", "system"] as const).map((id) => ({
+          tabs={(["notifications", "team", "activity"] as const).map((id) => ({
             id,
             label: copy.updates.tabs[id],
             count: counts[id],

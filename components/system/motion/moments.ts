@@ -71,12 +71,13 @@ export const moments: Moment[] = [
     name: "Mark done",
     trigger: "Click, Enter or ⌘↵ on the primary action",
     moves:
-      "The check draws. The hero leaves. The next row lifts out of the list and becomes the hero. The gap closes. The counter rolls. The toast arrives.",
-    ms: "≈700 end to end",
+      "The check draws over the card that is leaving. The hero leaves. The next row lifts out of the list and becomes the hero, and the check lifts away as it arrives. The gap closes. The counter rolls. The toast arrives.",
+    ms: "≈420 end to end, measured frame by frame",
     easing: "ease-out, spring-layout",
     stagger: "24ms per row, capped at 5",
     reduced: "The check, the promotion and the roll become instant. The toast fades in over 120ms.",
-    avoid: "Blocking input during the sequence. Re-running the tint wash on rows that did not move.",
+    avoid:
+      "Letting the check outlive the card it confirms. Until v4 the promoted card arrived at 140ms and the check drew until 290, so for a tenth of a second the tick sat over the item that replaced the one just finished.",
     code: "components/relay/hero.tsx · queue.tsx · check-draw.tsx",
     real: "miniature",
     signature: true,

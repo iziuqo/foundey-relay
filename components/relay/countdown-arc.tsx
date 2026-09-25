@@ -69,11 +69,14 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
   const late = ml < 0;
   const absMin = Math.abs(ml);
   const urgent = !late && absMin <= URGENT_THRESHOLD_MIN;
-  const strokeTier = urgent ? "now" : tier;
+  // Late is past urgent, not short of it: the numeral takes the Act-now hue too, so an
+  // empty arc is never read as a cool, unstarted one.
+  const hot = urgent || late;
+  const strokeTier = hot ? "now" : tier;
   const label = late ? `Late ${relativeDuration(ml)}` : relativeDuration(ml);
   // The split form's rules live in `ring-label.ts`, as a pure function, so the tests can
   // enumerate what this actually renders instead of a list someone typed into a spec.
-  const { bare, magnitude, unit } = ringLabel(ml);
+  const { bare, magnitude, magnitudeUnit, magnitudeStep, unit } = ringLabel(ml);
 
   return (
     <div
@@ -90,7 +93,10 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
           r={RADIUS}
           fill="none"
           strokeWidth={STROKE}
-          strokeLinecap="round"
+          // A round cap on a zero-length dash still paints: a late item, whose arc is by
+          // definition empty, was drawing a single red pip at twelve o'clock that read as
+          // a rendering fault rather than as a value.
+          strokeLinecap={dash > 0 ? "round" : "butt"}
           strokeDasharray={`${dash} ${CIRCUMFERENCE}`}
           className={cn(
             "transition-[stroke] duration-(--dur-hue) ease-(--ease-out)",
@@ -102,7 +108,7 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
         aria-hidden
         className={cn(
           "tnum absolute inset-0 flex flex-col items-center justify-center text-center leading-none transition-colors duration-(--dur-hue) ease-(--ease-out)",
-          urgent ? "text-(--act-fg)" : "text-(--text-1)",
+          hot ? "text-(--act-fg)" : "text-(--text-1)",
         )}
       >
         {bare ? (
@@ -111,8 +117,17 @@ export function CountdownArc({ item, now, tier, className }: CountdownArcProps) 
           </span>
         ) : (
           <>
-            <span className="t-hero-sm leading-none">{magnitude}</span>
-            <span className="t-eyebrow leading-none">{unit}</span>
+            {/* The step comes from `ringLabel`, not from here: it is measured against
+                the ring's chord at that step's own line height, and the fit test walks
+                the same function. */}
+            <span className={cn("leading-none", magnitudeStep)}>
+              {magnitude}
+              {magnitudeUnit}
+            </span>
+            {/* `t-meta`, not `t-eyebrow`. The small line was 12px, which is under the
+                14px floor G3 holds every route to — it simply never failed, because no
+                seeded hero reached the split form until one of them became late. */}
+            <span className="t-meta leading-none text-(--text-2)">{unit}</span>
           </>
         )}
       </span>

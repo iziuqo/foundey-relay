@@ -97,7 +97,7 @@ export function QueueRow({
           the tier, which is what the wire and grayscale tests actually read (G5). The
           hue that stays in the row is the time chip's, where it means "this one's clock
           is the one running". */}
-      <TierIcon tier={tier} safety={item.safety} className="justify-self-center text-(--text-2)" />
+      <TierIcon tier={tier} safety={item.safety} className="icon-sm justify-self-center text-(--text-2)" />
 
       <Link
         href={`/items/${item.id}`}

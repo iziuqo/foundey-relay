@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion, usePresence } from "motion/react";
 import NumberFlow from "@number-flow/react";
 import { duration, spring, stagger, stepDelay, transition } from "@/lib/motion";
+import { copy } from "@/lib/copy";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -70,7 +71,7 @@ export function RowHover({ run }: DemoProps) {
       )}
     >
       <TierIcon tier="next" className="text-(--next-fg)" />
-      <span className="min-w-0 flex-1 t-row">Order 4821</span>
+      <span className="min-w-0 flex-1 t-row">Order #4821</span>
       {/* The cluster's track is always reserved, so this fades and slides inside a box
           that was already there. */}
       <motion.span
@@ -99,7 +100,7 @@ export function RowFocus({ run }: DemoProps) {
       )}
     >
       <TierIcon tier="next" className="text-(--next-fg)" />
-      <span className="min-w-0 flex-1 t-row">Order 4821</span>
+      <span className="min-w-0 flex-1 t-row">Order #4821</span>
       <span className="t-mono text-(--text-2)">0 ms</span>
     </div>
   );
@@ -122,10 +123,10 @@ export function Press({ reduced, run }: DemoProps) {
 
 /* ─── M4 ─────────────────────────────────────────────────────────────────────────── */
 const QUEUE = [
+  "Order #4821 payment",
   "Label printer offline",
-  "Order 4821 payment",
-  "Reply to vendor",
-  "Rush order 4796",
+  "Escalation thread",
+  "Rush order #4796",
   "Cycle count, bin C4",
 ];
 
@@ -175,7 +176,7 @@ export function MarkDone({ reduced, run }: DemoProps) {
               transition={{ ...spring.layout, delay: reduced ? 0 : stepDelay(i, stagger.rows) }}
               className="flex h-7 items-center gap-2 px-3 t-meta text-(--text-2) shadow-[inset_0_-1px_0_var(--line-1)]"
             >
-              <TierIcon tier="next" className="size-(--icon-sm) text-(--next-fg)" />
+              <TierIcon tier="next" className="icon-sm text-(--next-fg)" />
               <motion.span layoutId={`m4-${title}`} transition={spring.layout}>
                 {title}
               </motion.span>
@@ -241,8 +242,8 @@ export function Undo({ run }: DemoProps) {
       transition={spring.layout}
       className="inline-flex h-8 items-center gap-2 rounded-(--r-2) bg-(--surface-1) px-2.5 t-meta text-(--text-1) shadow-(--e1)"
     >
-      <TierIcon tier="now" className="size-(--icon-sm) text-(--act-fg)" />
-      Label printer
+      <TierIcon tier="now" className="icon-sm text-(--act-fg)" />
+      Order #4821
     </motion.span>
   );
 
@@ -277,7 +278,7 @@ export function UndoToast({ reduced, run }: DemoProps) {
             <Toast
               className="max-w-full"
               message="Marked done"
-              detail="Label printer offline"
+              detail="Order #4821 — payment mismatch"
               action={
                 <Button size="sm" variant="secondary">
                   Undo
@@ -356,15 +357,15 @@ export function Countdown({ reduced, run }: DemoProps) {
 }
 
 /* ─── M8 ─────────────────────────────────────────────────────────────────────────── */
-const SORT_A = ["Order 4821", "Vendor reply", "Rush 4796", "Count C4"];
-const SORT_B = ["Rush 4796", "Order 4821", "Vendor reply", "Count C4"];
+const SORT_A = ["Order #4821", "Escalation thread", "Rush #4796", "Count C4"];
+const SORT_B = ["Rush #4796", "Order #4821", "Escalation thread", "Count C4"];
 
 export function Resort({ reduced, run }: DemoProps) {
   const order = run % 2 === 1 ? SORT_B : SORT_A;
   return (
     <ul className="flex w-72 max-w-full flex-col">
       {order.map((title, i) => {
-        const moved = run > 0 && title === "Rush 4796";
+        const moved = run > 0 && title === "Rush #4796";
         return (
           <motion.li
             key={title}
@@ -376,7 +377,7 @@ export function Resort({ reduced, run }: DemoProps) {
                 never runs on a row that did not. */}
             {moved && <span key={run} aria-hidden className="tint-wash absolute inset-0" />}
             <span className="relative flex h-full items-center gap-2 px-3 t-meta text-(--text-1)">
-              <TierIcon tier="next" className="size-(--icon-sm) text-(--next-fg)" />
+              <TierIcon tier="next" className="icon-sm text-(--next-fg)" />
               {title}
             </span>
           </motion.li>
@@ -391,8 +392,8 @@ export function NewUrgent({ run }: DemoProps) {
   return (
     <div className="flex w-72 max-w-full flex-col rounded-(--r-4) border border-(--act-line) bg-(--act-bg) p-3 shadow-(--e2)">
       {run > 0 && <NewUrgentBand key={run} title="Lithium battery labels" onShowMe={() => {}} />}
-      <p className="t-row text-(--text-1)">Label printer offline</p>
-      <p className="t-meta text-(--text-2)">140 orders wait on it</p>
+      <p className="t-row text-(--text-1)">Order #4821 — payment mismatch</p>
+      <p className="t-meta text-(--text-2)">24 orders held at pack</p>
     </div>
   );
 }
@@ -437,7 +438,7 @@ export function RightSheet({ reduced, run }: DemoProps) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <ul className="flex flex-col p-4">
-        {["Order 4821", "Vendor reply", "Rush 4796"].map((t, i) => (
+        {["Order #4821", "Escalation thread", "Rush #4796"].map((t, i) => (
           <li
             key={t}
             className={cn(
@@ -529,7 +530,7 @@ export function BottomSheet({ reduced, run }: DemoProps) {
 }
 
 /* ─── M13 ────────────────────────────────────────────────────────────────────────── */
-const PALETTE_ROWS = ["Order 4821", "Vendor reply", "Rush 4796"];
+const PALETTE_ROWS = ["Order #4821", "Escalation thread", "Rush #4796"];
 
 export function Palette({ reduced, run }: DemoProps) {
   const on = useHold(run, 3000);
@@ -551,8 +552,8 @@ export function Palette({ reduced, run }: DemoProps) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <div aria-hidden className="flex flex-col gap-2 p-4 t-meta text-(--text-2)">
-        <p>Label printer offline at Pack 7</p>
-        <p>140 orders need labels before 11:30</p>
+        <p>Order #4821 — payment mismatch</p>
+        <p>24 orders held at pack, 2 hours late</p>
         <p>UPS Ground · Door 14</p>
       </div>
       <AnimatePresence>
@@ -612,7 +613,7 @@ export function ThemeReveal({ reduced, run }: DemoProps) {
         data-theme={mode}
         className="relative h-24 w-72 max-w-full overflow-hidden rounded-(--r-4) border border-(--line-1) bg-(--bg) p-3"
       >
-        <p className="t-row text-(--text-1)">Label printer offline</p>
+        <p className="t-row text-(--text-1)">Order #4821 — payment mismatch</p>
         <p className="t-meta text-(--text-2)">Reveal grows from the toggle</p>
         <span aria-hidden className="absolute top-3 right-3 size-5 rounded-full bg-(--text-1)" />
         {reveal && (
@@ -627,7 +628,7 @@ export function ThemeReveal({ reduced, run }: DemoProps) {
             }}
             className="absolute inset-0 bg-(--bg) p-3"
           >
-            <p className="t-row text-(--text-1)">Label printer offline</p>
+            <p className="t-row text-(--text-1)">Order #4821 — payment mismatch</p>
             <p className="t-meta text-(--text-2)">Reveal grows from the toggle</p>
             <span aria-hidden className="absolute top-3 right-3 size-5 rounded-full bg-(--text-1)" />
           </motion.div>
@@ -656,11 +657,11 @@ function FlipRealPage() {
 }
 
 /* ─── M15 ────────────────────────────────────────────────────────────────────────── */
-const TAB_ORDER: UpdateTab[] = ["forYou", "team", "system"];
+const TAB_ORDER: UpdateTab[] = ["notifications", "team", "activity"];
 const TAB_ITEMS: { id: UpdateTab; label: string; count: number }[] = [
-  { id: "forYou", label: "For you", count: 3 },
-  { id: "team", label: "Team", count: 0 },
-  { id: "system", label: "System", count: 0 },
+  { id: "notifications", label: copy.updates.tabs.notifications, count: 3 },
+  { id: "team", label: copy.updates.tabs.team, count: 0 },
+  { id: "activity", label: copy.updates.tabs.activity, count: 0 },
 ];
 
 export function Tabs({ run }: DemoProps) {
@@ -702,7 +703,7 @@ export function SkeletonSwap({ reduced, run }: DemoProps) {
 
   return (
     <ul className="flex w-72 max-w-full flex-col gap-2 rounded-(--r-4) bg-(--surface-1) p-3">
-      {["Order 4821 payment", "Reply to vendor", "Rush order 4796"].map((title, i) => {
+      {["Order #4821 payment", "Escalation thread", "Rush order #4796"].map((title, i) => {
         const delay = reduced ? 0 : stepDelay(i, stagger.skeleton);
         const t = reduced || !loaded ? { duration: 0 } : { ...transition.fill, delay };
         return (
@@ -716,7 +717,7 @@ export function SkeletonSwap({ reduced, run }: DemoProps) {
               transition={t}
               className="absolute inset-0 flex items-center gap-2 px-1 t-meta text-(--text-1)"
             >
-              <TierIcon tier="next" className="size-(--icon-sm) text-(--next-fg)" />
+              <TierIcon tier="next" className="icon-sm text-(--next-fg)" />
               {title}
             </motion.div>
           </li>
@@ -752,7 +753,7 @@ export function AllClearMini({ reduced, run }: DemoProps) {
         You are clear until 13:00
       </motion.p>
       <ul className="relative mt-3 flex w-56 flex-col">
-        {["Label printer", "Order 4821", "Vendor reply"].map((t, i) => (
+        {["Order #4821", "Label printer", "Escalation thread"].map((t, i) => (
           <motion.li
             key={`${t}-${on}`}
             initial={on ? { opacity: 0, y: 8 } : false}
