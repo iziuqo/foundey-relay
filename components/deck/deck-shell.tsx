@@ -28,6 +28,22 @@ export function DeckShell() {
   }, []);
 
   useEffect(() => {
+    // The effect above reads the hash exactly once, at mount, which is right for arriving
+    // at `/deck#11` but leaves the deck deaf afterwards: editing the hash in the address
+    // bar, or following a `#n` link from the page you are already on, is a same-document
+    // navigation, so React never remounts and the slide never moves.
+    //
+    // No loop is possible here. The effect below writes the URL with `replaceState`, and
+    // `replaceState` does not fire `hashchange` — only a real hash change does, and the
+    // write it triggers is the same value it just read.
+    function onHashChange() {
+      setIndex(indexFromHash());
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  useEffect(() => {
     function updateScale() {
       if (!containerRef.current) return;
       const { width, height } = containerRef.current.getBoundingClientRect();

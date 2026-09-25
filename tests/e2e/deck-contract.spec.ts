@@ -57,6 +57,31 @@ test.describe("/deck", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Beyond the hour" })).toBeVisible();
   });
 
+  // The test above arrives with the hash; this one changes it on a deck that is already
+  // open. That is a same-document navigation, so React never remounts and the mount-time
+  // read cannot see it — the deck needs a `hashchange` listener, and without one it sits
+  // on slide 1 while the URL says otherwise.
+  test("changing the hash on an open deck moves the slide", async ({ page }) => {
+    await page.goto("/deck");
+    // Settled, not sampled. `aria-current` is already correct in the server-rendered
+    // markup, so asserting it proves nothing about hydration — and a hash set before
+    // hydration fires `hashchange` at a listener that is not attached yet, which is lost.
+    // The deck writes `#1` itself once it has hydrated and read the URL, so waiting for
+    // that is the one signal that means "the listener exists". Without this the test
+    // passes under load and fails when run alone, which is how it first behaved.
+    await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("#1");
+    await expect(page.getByRole("button", { name: /^1\s*Cover$/ })).toHaveAttribute("aria-current", "true");
+
+    await page.evaluate(() => {
+      window.location.hash = "#11";
+    });
+
+    await expect(page.getByRole("heading", { level: 1, name: "Beyond the hour" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^11\s/ })).toHaveAttribute("aria-current", "true");
+    // The slide moved to the hash, not the hash back to the slide.
+    await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("#11");
+  });
+
   test("no horizontal scroll at 1280px", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/deck");
