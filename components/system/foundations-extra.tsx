@@ -33,19 +33,19 @@ export function ModeLadder() {
             </div>
             <div className="flex flex-wrap gap-2 border-t border-(--line-1) pt-3">
               <Chip tier="now">
-                <TierIcon tier="now" className="size-(--icon-sm)" />
+                <TierIcon tier="now" className="icon-sm" />
                 Act now
               </Chip>
               <Chip tier="next">
-                <TierIcon tier="next" className="size-(--icon-sm)" />
+                <TierIcon tier="next" className="icon-sm" />
                 Up next
               </Chip>
               <Chip tier="later">
-                <TierIcon tier="later" className="size-(--icon-sm)" />
+                <TierIcon tier="later" className="icon-sm" />
                 When you can
               </Chip>
               <Chip tier="fyi">
-                <TierIcon tier="fyi" className="size-(--icon-sm)" />
+                <TierIcon tier="fyi" className="icon-sm" />
                 For your info
               </Chip>
               <Chip tier="success">
@@ -133,7 +133,7 @@ export function IconographySection() {
           <ul className="grid grid-cols-4 gap-4">
             {icons.map(({ Icon, name }) => (
               <li key={name} className="flex flex-col items-center gap-1.5">
-                <Icon className="size-(--icon-lg) text-(--text-1)" strokeWidth={1.75} aria-hidden />
+                <Icon className="icon-lg text-(--text-1)" strokeWidth={1.75} aria-hidden />
                 <span className="t-meta text-(--text-2)">{name}</span>
               </li>
             ))}

@@ -79,7 +79,7 @@ function TierGroup({
           rows beneath it (advisor §7.2). */}
       <SectionBand
         data-tier={tier}
-        icon={<TierIcon tier={tier} className="size-(--icon-sm) text-(--text-2)" />}
+        icon={<TierIcon tier={tier} className="icon-sm text-(--text-2)" />}
         label={
           <span data-tier-label className={tierFgClass[tier]}>
             {label}
@@ -124,7 +124,7 @@ function CollapsibleSection({ label, children }: { label: string; children: Reac
         <ChevronDown
           aria-hidden
           className={cn(
-            "size-(--icon-sm) text-(--text-2) transition-transform duration-(--dur-quick) ease-(--ease-out)",
+            "icon-sm text-(--text-2) transition-transform duration-(--dur-quick) ease-(--ease-out)",
             open && "rotate-180",
           )}
         />

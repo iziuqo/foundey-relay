@@ -138,7 +138,7 @@ export function ItemDetail({
               href={backHref}
               className="flex items-center gap-1 rounded-(--r-4) py-1 pr-2 t-meta text-(--text-2) hover:text-(--text-1) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus)"
             >
-              <ChevronLeft className="size-(--icon-sm)" aria-hidden />
+              <ChevronLeft className="icon-sm" aria-hidden />
               {copy.itemDetail.backToWork}
             </Link>
           )}
@@ -196,7 +196,7 @@ export function ItemDetail({
               // hero's own item disappears the moment it's done).
               <motion.svg
                 viewBox="0 0 16 16"
-                className="size-(--icon-sm)"
+                className="icon-sm"
                 aria-hidden
                 fill="none"
                 stroke="currentColor"

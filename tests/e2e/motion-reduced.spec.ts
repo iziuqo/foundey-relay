@@ -300,10 +300,10 @@ test.describe("M4 the check", () => {
     // that happened to break".
     // Both directions: only Priya has completions in the seed, so u1 → m1 empties the
     // list and m1 → u1 fills it back up. The second hop is the one worth asserting.
-    // The trigger's accessible name is "Demo: <persona>", so match on the stable half —
+    // The trigger's accessible name is "Viewing as: <persona>", so match on the stable half —
     // pinning it to a persona's name means the locator stops matching the moment the
     // switch this test is making succeeds.
-    const persona = page.getByRole("button", { name: /^Demo:/ });
+    const persona = page.getByRole("button", { name: /^Viewing as:/ });
     // The demo panel is a console, not a one-shot menu: picking a persona switches it and
     // leaves the panel open, so the other controls stay to hand. This test used to click
     // the trigger again before reaching for "Priya", which *closed* the panel it was
@@ -338,7 +338,7 @@ test.describe("M8 the re-sort wash", () => {
     let moved: string[] = [];
     const before = await rows();
     for (let i = 0; i < 6 && moved.length === 0; i += 1) {
-      await page.getByRole("button", { name: /^Demo:/ }).first().click();
+      await page.getByRole("button", { name: /^Viewing as:/ }).first().click();
       await page.getByRole("button", { name: "+15m", exact: true }).click();
       await page.waitForTimeout(180);
       moved = await washed();

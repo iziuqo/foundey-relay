@@ -78,11 +78,11 @@ test.describe("Item detail sheet (desktop shell, 1280px)", () => {
     await page.keyboard.press("Meta+k");
     const palette = page.getByRole("dialog", { name: "Command palette" });
     await palette.getByPlaceholder("Search orders, people, tickets").fill("hazmat");
-    await palette.getByText("Lithium battery orders missing hazmat labels").first().click();
+    await palette.getByText("Compliance alert — missing hazmat labels").first().click();
 
     await expect(palette).toBeHidden();
     await expect(page.getByRole("dialog").getByTestId("item-detail-title")).toHaveText(
-      "Lithium battery orders missing hazmat labels",
+      "Compliance alert — missing hazmat labels",
     );
   });
 
@@ -158,7 +158,7 @@ test.describe("/lookup", () => {
     await expect(page.getByText("RECENT")).toBeVisible();
     await expect(page.getByText("ACTIONS")).toBeVisible();
     await page.getByPlaceholder("Search orders, people, tickets").fill("hazmat");
-    await expect(page.getByText("Lithium battery orders missing hazmat labels").first()).toBeVisible();
+    await expect(page.getByText("Compliance alert — missing hazmat labels").first()).toBeVisible();
   });
 });
 

@@ -61,7 +61,12 @@ function stripComments(source, css) {
   return out;
 }
 
-const COLOR = /#[0-9a-fA-F]{3,8}\b|\b(?:oklch|oklab|lab|lch|rgba?|hsla?|hwb)\(|color-mix\(/;
+// Hex is matched at exactly 3 or 6 digits, the two forms anyone actually writes. The
+// 4- and 8-digit RGBA forms are deliberately not checked: nothing in this repo uses
+// them, and `{3,8}` made the rule read every order number in the seed as a colour the
+// moment the brief's own "#4821" arrived in the copy (v4). A real 6-digit literal is
+// still caught, which is what G1 is for.
+const COLOR = /#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b|\b(?:oklch|oklab|lab|lch|rgba?|hsla?|hwb)\(|color-mix\(/;
 // The property in a stylesheet or an inline style, and the Tailwind utilities that emit one.
 // Deliberately not "contrast" or "invert" as bare words: those are English, and the copy
 // and the /system prose use them.

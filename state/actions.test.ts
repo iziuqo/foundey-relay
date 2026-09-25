@@ -21,11 +21,12 @@ describe("start", () => {
   it("pauses whatever the actor was already working on", () => {
     const snap = baseSnapshot();
     const actor = snap.team.find((p) => p.id === "u1")!;
-    expect(actor.currentTaskId).toBe("it-01");
+    // The seeded in-progress item, which v4 moved to the one Priya's hero shows.
+    expect(actor.currentTaskId).toBe("it-04");
 
     const { snapshot, pausedTitle } = start(snap, "it-03", "u1", NOW_ISO);
     expect(pausedTitle).not.toBeNull();
-    expect(snapshot.items.find((i) => i.id === "it-01")!.status).toBe("open");
+    expect(snapshot.items.find((i) => i.id === "it-04")!.status).toBe("open");
     expect(snapshot.items.find((i) => i.id === "it-03")!.status).toBe("in_progress");
     expect(snapshot.team.find((p) => p.id === "u1")!.currentTaskId).toBe("it-03");
   });
@@ -36,8 +37,8 @@ describe("markDone", () => {
     const snap = baseSnapshot();
     const before = snap.doneLog.filter((d) => d.assigneeId === "u1").length;
 
-    const next = markDone(snap, "it-01", NOW_ISO);
-    expect(next.items.find((i) => i.id === "it-01")!.status).toBe("done");
+    const next = markDone(snap, "it-04", NOW_ISO);
+    expect(next.items.find((i) => i.id === "it-04")!.status).toBe("done");
     expect(next.team.find((p) => p.id === "u1")!.currentTaskId).toBeNull();
     expect(next.doneLog.filter((d) => d.assigneeId === "u1").length).toBe(before + 1);
   });

@@ -60,14 +60,26 @@ export function truckClause(cutoff: Cutoff, now: Date): string {
  */
 function ProgressClause({ done, total }: { done: number; total: number }) {
   const [before, after] = copy.status.clauseProgress.split("{done}");
+  // The counter's box has to be reserved or the clause reflows as it rolls — but
+  // reserving it on the *digit* (`min-w-[2ch] text-right`) put the slack in front of the
+  // number, so "· 4 of 10 done" rendered with a visible double space after the
+  // separator, on every screen, for as long as `done` stayed a single digit. The
+  // reservation moves to the whole clause instead: a hidden copy of the widest string it
+  // can ever hold sets the width, the real one is laid over it, and the slack lands at
+  // the end of the line, which is also the end of the sentence.
   return (
-    <>
-      {before}
-      <span className="tnum inline-block min-w-[2ch] text-right">
-        <NumberFlow value={done} />
+    <span className="inline-grid">
+      <span aria-hidden className="invisible col-start-1 row-start-1 whitespace-nowrap">
+        {t(copy.status.clauseProgress, { done: total, total })}
       </span>
-      {t(after, { total })}
-    </>
+      <span className="col-start-1 row-start-1 whitespace-nowrap">
+        {before}
+        <span className="tnum">
+          <NumberFlow value={done} />
+        </span>
+        {t(after, { total })}
+      </span>
+    </span>
   );
 }
 

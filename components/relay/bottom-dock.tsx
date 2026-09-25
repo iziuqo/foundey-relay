@@ -31,7 +31,7 @@ export function BottomDock() {
               active ? "text-(--accent)" : "text-(--text-2)",
             )}
           >
-            <item.icon className="size-(--icon-lg)" aria-hidden />
+            <item.icon className="icon-lg" aria-hidden />
             <span className="truncate">{item.label}</span>
           </Link>
         );

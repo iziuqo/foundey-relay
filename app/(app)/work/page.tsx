@@ -120,10 +120,11 @@ export default function WorkPage() {
   const justCompleted = completionKey !== seenCompletionKey;
   useEffect(() => {
     if (!justCompleted) return;
-    const timer = setTimeout(
-      () => setSeenCompletionKey(completionKey),
-      (duration.base + duration.quick) * 1000,
-    );
+    // The draw's own length, and no more. It used to hold for the draw *plus* the exit,
+    // which — measured frame by frame after the slot's timing was corrected — left the
+    // check sitting at full opacity over a promoted card that was already 97% in. It now
+    // begins leaving exactly as that card begins arriving.
+    const timer = setTimeout(() => setSeenCompletionKey(completionKey), duration.base * 1000);
     return () => clearTimeout(timer);
   }, [justCompleted, completionKey]);
 
@@ -262,6 +263,7 @@ export default function WorkPage() {
                   pendingTitle={pendingItem?.title ?? null}
                   focusOnMount={focusHeroId === queue.hero.item.id}
                   restoring={restoring}
+                  afterCheck={justCompleted}
                   primaryInDock
                   onShowMe={showPending}
                   onStart={() =>
@@ -285,7 +287,9 @@ export default function WorkPage() {
                 <AllClear key="all-clear" done={myDone} />
               )}
             </AnimatePresence>
-            {justCompleted && <CheckDraw />}
+            {/* Its own presence, separate from the hero's: the check is not a hero and
+                must not be something `popLayout` measures or waits on. */}
+            <AnimatePresence>{justCompleted && <CheckDraw key="check" />}</AnimatePresence>
           </div>
 
           {/* M4 ④, and the reason it is a layout animation rather than a reflow: every

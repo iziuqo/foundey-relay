@@ -37,7 +37,7 @@ export function Sidebar() {
               "focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--focus)",
             )}
           >
-            <item.icon className="size-(--icon-lg) shrink-0" aria-hidden />
+            <item.icon className="icon-lg shrink-0" aria-hidden />
             <span className="hidden truncate xl:inline">{item.label}</span>
           </Link>
         );

@@ -71,6 +71,12 @@ export const copy = {
     agoHours: "{n} h ago",
     unitHour: "h",
     unitMinute: "min",
+    // The hero ring's second line when the thing is already overdue, in place of the
+    // unit — which moves up beside the magnitude ("2h"), or stays implicit below an
+    // hour. An empty arc alone does not say *late*: it looks exactly like a clock that
+    // has not started. M15 rejected "MIN LATE" here on a measurement, 64px into a 46px
+    // chord; this is 26px at `t-meta`.
+    unitLate: "late",
   },
   why: {
     title: "Why is this first?",
@@ -199,7 +205,8 @@ export const copy = {
   myShift: { title: "My shift" },
   updates: {
     title: "Updates",
-    tabs: { forYou: "For you", team: "Team", system: "System" },
+    // The brief's three remaining dashboard cards, by their own names.
+    tabs: { notifications: "Notifications", team: "Team comms", activity: "Activity" },
     markRead: "Mark as read",
     emptyTab: "Nothing here.",
     emptyTabHint: "When something changes, it will show up here.",
@@ -273,7 +280,7 @@ export const copy = {
   sourceLabels: {
     order: "Order",
     system: "System",
-    comms: "Message",
+    comms: "Comms",
     carrier: "Carrier",
     customer: "Customer",
     inventory: "Inventory",

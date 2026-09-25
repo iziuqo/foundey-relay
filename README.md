@@ -11,14 +11,24 @@ snapshot of a Tuesday morning at 10:40 local time, and no data is invented at ru
 The brief asked for under an hour and a low-fidelity solution. That answer comes first, everywhere
 — in the deck, in this file, and in the order of the Figma pages:
 
+The context is the brief's own: an internal operations app at Amazon, used by the fulfillment team
+to run a day. The two complaints are the brief's own too — *"I never know what needs my attention
+first."* from the people doing the work, *"I cannot see what each workers are doing"* from the
+people leading it (quoted as written).
+
 **The dashboard already ranks, and that was never the missing piece.** Today's screen has a queue
 titled "Needs Your Attention, ranked by urgency", and people still say they do not know what to do
 first. So the problem is not the order. What is missing is everything around it: it ranks but
-never says **why**, it groups by **source** instead of by what happens next, every row asks for
-attention **at once**, and there is **no way to be done**.
+never says **why**, it labels by **source** — Order, Notification, Comms — instead of by what
+happens next, its top two rows carry the **same heaviest button** so nothing is the first thing,
+and four more cards below it each end in *View all*, so there is **no way to be done**.
+
+The four rows in the brief's own screenshot are the four rows this prototype opens on, in the
+brief's own wording — Order #4821, the compliance alert, the teammate's thread mention, Order
+#4796 — re-ranked by consequence, each one now saying why it sits where it does.
 
 So: one thing at the top of the screen, the reason written underneath it in plain words, and the
-score openable on the spot — *Time 30 + Orders 22 + Impact 10 = 62, and 60 or higher means act
+score openable on the spot — *Time 40 + Orders 14 + Impact 10 = 64, and 60 or higher means act
 now*. Four tiers instead of a feed — **Act now · Up next · When you can · For your info** — and a
 real finish line when the queue is empty. The manager gets the same thing from the other side: not
 a roster and never a stopwatch on a person, but the exceptions and who is already on them.

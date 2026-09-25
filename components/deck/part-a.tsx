@@ -1,5 +1,7 @@
 "use client";
 
+import { Fragment } from "react";
+
 import { SlideFrame, type SlideProps } from "./slide-frame";
 import { SlideTitle, Lead, Body, Label, Split, Column, ListSlide, Stats, Stat, RuleRow, Legend, rich } from "./deck-kit";
 import { DeviceFrame, Annotation } from "./device-frame";
@@ -71,6 +73,21 @@ function Brief({ n, total }: SlideProps) {
           <div className="flex h-full flex-col justify-center gap-8">
             <SlideTitle>{copy.brief.title}</SlideTitle>
             <Lead>{rich(copy.brief.lead)}</Lead>
+            {/* The old dashboard's four cards, and where each one ended up. It is the
+                first question anyone asks of a redesign — what did you drop? — and the
+                answer is nothing. Three of them stopped being cards and became one
+                list that ranks. */}
+            <div className="flex flex-col gap-3">
+              <Label>{copy.brief.label}</Label>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+                {copy.brief.cards.map(([from, to]) => (
+                  <Fragment key={from}>
+                    <dt className="t-deck-caption text-(--text-2)">{from}</dt>
+                    <dd className="t-deck-caption text-(--text-1)">{to}</dd>
+                  </Fragment>
+                ))}
+              </dl>
+            </div>
           </div>
         }
         right={

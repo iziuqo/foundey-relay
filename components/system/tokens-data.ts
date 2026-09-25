@@ -19,37 +19,37 @@ export const typeScale: TypeStep[] = [
     utility: "t-hero",
     role: "Hero title",
     where: "The one first thing. The largest type on any working screen",
-    sample: "Label printer offline at Pack 7",
+    sample: "Order #4821 — payment mismatch",
   },
   {
     utility: "t-hero-sm",
     role: "Hero title, handheld",
     where: "The hero below 768 only",
-    sample: "Label printer offline at Pack 7",
+    sample: "Order #4821 — payment mismatch",
   },
   {
     utility: "t-section",
     role: "Section",
     where: "The status line, sheet titles, section heads",
-    sample: "2 need you now · UPS Ground in 50 min",
+    sample: "3 need you now · UPS Ground in 50 min",
   },
   {
     utility: "t-row",
     role: "Row title",
     where: "Every row in the product — queue and people alike. One step, no exceptions",
-    sample: "Order 4821 payment mismatch, held at pack",
+    sample: "Tomasz flagged you in \"Medical supplies escalation\"",
   },
   {
     utility: "t-body",
     role: "Body",
     where: "Running prose: the why sentence, detail body, deck captions",
-    sample: "140 orders need labels before the UPS truck leaves at 11:30.",
+    sample: "A failed payment re-authorisation is holding 24 orders at pack, and this one is already 2 hours late.",
   },
   {
     utility: "t-meta",
     role: "Meta",
     where: "Anything that qualifies a title: causes, counts, timestamps, tier labels",
-    sample: "Blocks 140 orders for UPS 11:30",
+    sample: "Blocking fulfillment · 24 orders held",
   },
   {
     utility: "t-eyebrow",
@@ -61,7 +61,7 @@ export const typeScale: TypeStep[] = [
     utility: "t-mono",
     role: "Identifier",
     where: "Order numbers, bin codes, door numbers, keyboard hints. Never prose",
-    sample: "4821 · P3 A114 · Door 14 · ⌘K",
+    sample: "#4821 · P3 A114 · Door 14 · ⌘K",
   },
   {
     utility: "t-finish",
@@ -133,6 +133,18 @@ export const heightLadder = [
   { token: "--h-row-dense", where: "Manager roster row" },
   { token: "--h-row", where: "Queue row" },
   { token: "--h-topbar", where: "Top bar" },
+];
+
+/**
+ * Size and stroke are one decision. Until v4 only the sizes existed here and lucide's own
+ * `stroke-width="2"` attribute won on every glyph in the app, so a 16px icon and a 20px
+ * one carried the same weight. The `icon-*` utilities set both together.
+ */
+export const iconLadder = [
+  { token: "--icon-sm", stroke: "--icon-stroke-sm", where: "Inside a 32px control, and the queue row's tier glyph" },
+  { token: "--icon-md", stroke: "--icon-stroke-md", where: "Inside a 40px control" },
+  { token: "--icon-lg", stroke: "--icon-stroke-lg", where: "Inside a 48px control, and the nav rail" },
+  { token: "--icon-xl", stroke: "--icon-stroke-xl", where: "The largest bare glyph" },
 ];
 
 export const motionTokens = [

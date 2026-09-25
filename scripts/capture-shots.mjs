@@ -65,18 +65,24 @@ async function shot(name, { route, persona = "u1", mode, w, h, expect }) {
     }
   });
   await page.waitForTimeout(150);
+  // These run against the dev server (the whole point — a dev server compiles what is on
+  // disk right now), and Next.js paints its own dev indicator over the bottom-left of
+  // every page. It is not part of the product, so it is not part of a picture of the
+  // product. v4 — it had been sitting in the landing page's screenshots.
+  await page.addStyleTag({ content: "nextjs-portal, [data-nextjs-toast], #__next-build-watcher { display: none !important; }" });
+  await page.waitForTimeout(80);
   await page.screenshot({ path: join(OUT, `${name}.png`) });
   console.log(`${name.padEnd(22)} ${String(w).padStart(4)}×${h}  ${mode ?? "light"}  ${page.url().replace(BASE, "")}`);
   await ctx.close();
 }
 
-const HERO = "Label printer offline at Pack 7";
+const HERO = "Order #4821 — payment mismatch";
 
 await shot("work-light", { route: "/work", w: 1440, h: 900, expect: HERO });
 await shot("work-dark", { route: "/work", mode: "Dark", w: 1440, h: 900, expect: HERO });
 await shot("work-wire", { route: "/work", mode: "Wire", w: 1440, h: 900, expect: HERO });
 await shot("team-dark", { route: "/team", persona: "m1", mode: "Dark", w: 1440, h: 900, expect: "Needs you" });
-await shot("updates-light", { route: "/updates", w: 1440, h: 900, expect: "For you" });
+await shot("updates-light", { route: "/updates", w: 1440, h: 900, expect: "Notifications" });
 // /system carries its own light/dark control, not the app top bar's radios, so this
 // one stays in the mode it opens in — which is also the mode its specimens were drawn for.
 await shot("system-light", { route: "/system", w: 1440, h: 900, expect: "Foundations" });

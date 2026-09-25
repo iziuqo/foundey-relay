@@ -140,7 +140,7 @@ export function AnatomySection() {
         >
           <Toast
             message="Marked done"
-            detail="Label printer offline"
+            detail="Order #4821 — payment mismatch"
             action={
               <Button size="sm" variant="secondary">
                 Undo

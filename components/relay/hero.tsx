@@ -36,6 +36,22 @@ export interface HeroProps {
    * row, so nothing reverse-morphs. */
   restoring?: boolean;
   /**
+   * True on the render that follows a completion — the one where a check is drawing in
+   * the slot this card is arriving into.
+   *
+   * v4, and it is a correctness fix rather than a flourish. The check lives on the slot,
+   * not on the card (work/page.tsx), and the outgoing card leaves in 140ms while the
+   * check draws for 200. The incoming card's entrance was delayed by exactly the exit,
+   * so from 140ms onward the check was drawing on top of the item that had just been
+   * *promoted* — captured at 90ms and 180ms, the screen read "Label printer offline at
+   * Pack 7 ✓" about the order the user had finished. The confirmation was naming the
+   * wrong thing.
+   *
+   * The entrance now waits for the draw as well as the exit, so the check is only ever
+   * over the card it belongs to or over an empty slot.
+   */
+  afterCheck?: boolean;
+  /**
    * Set only by `/work`, which puts the handheld primary in a sticky bar above the dock
    * instead (§5.7's 120px inset). Everywhere else this card renders — `/system/patterns`,
    * the deck's `mini-work` — there is no dock and no bar, so the card keeps its own
@@ -108,6 +124,7 @@ export function Hero({
   pendingTitle,
   focusOnMount,
   restoring,
+  afterCheck,
   primaryInDock,
   onShowMe,
   onStart,
@@ -183,15 +200,28 @@ export function Hero({
           : { opacity: 0, y: 8 }
       }
       animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      transition={restoring ? spring.layout : { ...transition.base, delay: duration.quick }}
+      transition={
+        restoring
+          ? spring.layout
+          : {
+              ...transition.base,
+              // Measured, not reasoned: sampling the DOM every frame through a done
+              // action, the outgoing card fades from 64ms to 188ms and the check draws
+              // across exactly that window. Waiting the exit *plus* the draw (340ms) put
+              // a 196ms hole in the slot; waiting the draw alone brings the next card in
+              // at 200, twelve milliseconds after the last one finishes leaving.
+              delay: afterCheck ? duration.base : duration.quick,
+            }
+      }
       // M4 ②: the content leaves on the exit curve, and that is all the exit does. It
       // used to hold the card fully opaque for 200ms first, to give the check time to
       // draw on it — which was right while the check lived on this card and wrong the
       // moment it moved to the slot (work/page.tsx). On an undo, where there is no check
       // at all, that hold showed the outgoing card at full opacity underneath the one
       // flying in, and a single restore read as two stacked heroes for a fifth of a
-      // second. The card now leaves in 140ms and the promoted one arrives at 140ms, so
-      // the slot holds exactly one card at a time.
+      // second. The card leaves in 140ms; the promoted one arrives at 140ms normally and
+      // at 200 after a completion, which is what keeps the check over the right card
+      // (`afterCheck`). Either way the slot holds exactly one card at a time.
       exit={{ opacity: 0, y: -6, transition: transition.exit }}
       className="relative rounded-(--r-5) p-6 outline-none [--hero-gutter:0px] md:[--hero-gutter:5.25rem]"
     >
@@ -219,7 +249,7 @@ export function Hero({
           <TierIcon
             tier={tier}
             safety={item.safety}
-            className="size-(--icon-xl) text-(--text-2)"
+            className="icon-lg text-(--text-2)"
           />
           <span
             className={cn(

@@ -30,7 +30,7 @@ export interface Stat {
 export const STATS: Stat[] = [
   { value: "50 min", label: "First commit to a live URL", note: "12:05 → 12:55, day one" },
   { value: "12", label: "Commits with nobody awake", note: "22:20 Mon → 13:07 Tue" },
-  { value: "635", label: "Automated checks", note: "283 unit · 304 end-to-end · 48 pixel" },
+  { value: "641", label: "Automated checks", note: "285 unit · 308 end-to-end · 48 pixel" },
   { value: "11", label: "Quality gates", note: "Nine of them a single command" },
   { value: "0", label: "Screens drawn by hand", note: "The Figma files are generated" },
 ];
@@ -53,21 +53,21 @@ export const FAILURES: Failure[] = [
   },
   {
     id: "grouping",
-    quote: "Grouped by source",
-    claim: "It sorted by where a task came from.",
+    quote: "ORDER · NOTIFICATION · COMMS",
+    claim: "It labelled by where a task came from.",
     detail:
-      "System, safety, vendor, escalation. None of those is a reason to act. What happens next is.",
+      "Three chips, and not one of them is a reason to act. Which inbox something arrived through says nothing about what happens if it waits.",
   },
   {
     id: "loudness",
-    quote: "Four identical buttons",
-    claim: "Every row asked for attention at once.",
+    quote: "Review · Review · Open · Review",
+    claim: "Nothing on it was the first thing.",
     detail:
-      "When a screen shouts uniformly, the loudest thing on it is noise, and the ranking underneath stops meaning anything.",
+      "Four rows, a button on each, and the top two share the heaviest button on the screen. A ranked list whose first and second place look identical has not finished ranking.",
   },
   {
     id: "finish",
-    quote: "An endless feed",
+    quote: "View all 6 items needing action",
     claim: "There was no way to be done.",
     detail:
       "A queue that never empties gives a shift no shape. Nobody can pace work they cannot see the end of.",
@@ -86,25 +86,25 @@ export interface Tier {
 export const TIERS: Tier[] = [
   {
     name: "Act now",
-    meaning: "Score 60+. Someone is blocked, or a truck is.",
+    meaning: "Score 60+, or anything about safety. Someone is blocked, or a truck is.",
     fg: "text-(--site-act)",
     dot: "bg-(--site-act)",
   },
   {
     name: "Up next",
-    meaning: "Score 40–59. It becomes Act now if it waits.",
+    meaning: "Score 30–59. It becomes Act now if it waits.",
     fg: "text-(--site-next)",
     dot: "bg-(--site-next)",
   },
   {
     name: "When you can",
-    meaning: "Score 20–39. Real work, no clock on it.",
+    meaning: "Under 30. Real work, no clock on it.",
     fg: "text-(--site-when)",
     dot: "bg-(--site-when)",
   },
   {
     name: "For your info",
-    meaning: "Under 20. Read it, do nothing.",
+    meaning: "Not scored at all. Read it, do nothing.",
     fg: "text-(--site-fyi)",
     dot: "bg-(--site-fyi)",
   },
@@ -252,12 +252,12 @@ export const OMISSIONS: Omission[] = [
   {
     title: "I did not draw a single screen in Figma.",
     detail:
-      "The three Figma files exist, and they were built last, generated from the shipped code and its tokens. A design system maintained by hand in two places drifts within days. This one has a direction.",
+      "The three Figma files exist — 42 frames, 59 components, 81 variables in three modes — and they were built last, generated from the shipped code and its tokens. A design system maintained by hand in two places drifts within days. This one has a direction, and v4 re-ran it: every frame was re-pointed at the brief's own rows by script, not by hand.",
   },
   {
-    title: "I did not polish pixels.",
+    title: "I did not keep my promise that no pixel was nudged by eye.",
     detail:
-      "Not one spacing value was nudged by eye. Every height, radius and colour is a token with a test behind it, so when something looks wrong the rule is wrong — and fixing the rule fixes every screen at once.",
+      "v3 said not one spacing value was nudged by eye. v4 nudged three: the tier glyphs were redrawn a third lighter, the account control's padding is 5 and 7 rather than 6 and 6, and the ring's late label was sized against a chord I measured. Everything else is still a token with a test behind it — including the icon stroke ladder, which this system had described since v3 and never once applied.",
   },
   {
     title: "I did not do user research.",
